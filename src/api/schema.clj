@@ -9,6 +9,11 @@
          * add tags and properties[key-value pairs] to all entities)
 
 
+(s/defschema Auth
+  {:username s/Str
+   :apiKey s/Str})
+
+
 ;;; ================================login=======================================
 
 
@@ -33,3 +38,10 @@
 (s/defschema UserAuth
   {:user User
    :apiKey s/Str})
+
+
+;;; ================================logout======================================
+
+
+(s/defschema Result
+  {:result s/Bool})

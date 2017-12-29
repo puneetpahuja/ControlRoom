@@ -28,4 +28,14 @@
                        :return schema/UserAuth
                        :body [credentials schema/Credentials]
                        :summary "Returns the user data if the password is correct."
-                       (auth/login credentials)))))
+                       (auth/login credentials))
+
+
+;;; ================================logout======================================
+
+
+               (c/POST "/v0.1/logout" []
+                       :return schema/Result
+                       :body [auth schema/Auth]
+                       :summary "Logs out the user if auth is correct."
+                       (auth/logout auth)))))
