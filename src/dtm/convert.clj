@@ -1,7 +1,6 @@
 (ns dtm.convert
   (:refer-clojure :exclude [keys])
   (:require [camel-snake-kebab.core :as convert-case]
-            [camel-snake-kebab.extras :as convert-case-helper]
             [clojure.string :as s]
             [dtm.util :as util]))
 
@@ -23,6 +22,7 @@
     (into {}
           (for [[k v] cmap]
             [(transformer k) v]))))
+
 
 ;;; ================================login=======================================
 
@@ -52,3 +52,19 @@
           user-auth                    {:user user
                                         :apiKey apiKey}]
       user-auth)))
+
+
+;;; ================================org-units===================================
+
+
+(defn org-unit [emap]
+  (when emap
+    (let [cmap       (entity-map emap)
+          keys-converted (keys cmap)
+          keys-same (select-keys keys-converted [:name])
+          {:keys [id users]} keys-converted
+          users         (mapv (comp :user user-auth util/get-details) users)
+          org-unit (assoc keys-same
+                          :id   (str id)
+                          :users users)]
+      org-unit)))

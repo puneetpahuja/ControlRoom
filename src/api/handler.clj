@@ -1,5 +1,6 @@
 (ns api.handler
   (:require [api.auth :as auth]
+            [api.read :as read]
             [api.schema :as schema]
             [compojure.api.sweet :as c]))
 
@@ -38,4 +39,14 @@
                        :return schema/Result
                        :body [auth schema/Auth]
                        :summary "Logs out the user if auth is correct."
-                       (auth/logout auth)))))
+                       (auth/logout auth))
+
+
+;;; ================================org-units===================================
+
+
+               (c/POST "/v0.1/org-units" []
+                       :return [schema/OrgUnit]
+                       :body [org-units-manifest schema/Manifest]
+                       :summary "Returns all the org units."
+                       (read/org-units org-units-manifest)))))

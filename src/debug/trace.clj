@@ -6,9 +6,11 @@
 
 (trace 'api.auth
        'api.handler
+       'api.read
        'api.schema)
 
 (trace 'dtm.auth
        'dtm.config
        'dtm.convert
-       'dtm.util)
+       'dtm.util
+       'dtm.read)
