@@ -37,3 +37,19 @@
 
 (defn diff [manifest all]
   (filterv #((complement contains?) (set manifest) (str %)) all))
+
+(defn get-tasks-ids [status username db]
+  (let [q `[:find ?tid
+            :where
+            [?eu :user/username ~username]
+            [?em :assignment-measurement/value ?eu]
+            [?em :assignment-measurement/datasource ?et]
+            [?et :task/status ~status]
+            [?et :task/id ?tid]]]
+    (concat-lists (d/q q db))))
+
+(defn get-pending-tasks-ids [username db]
+  (get-tasks-ids :task.status/pending username db))
+
+(defn get-completed-tasks-ids [username db]
+  (get-tasks-ids :task.status/completed username db))
