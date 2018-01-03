@@ -1,5 +1,6 @@
 (ns api.handler
   (:require [api.auth :as auth]
+            [api.read :as read]
             [api.schema :as schema]
             [compojure.api.sweet :as c]))
 
@@ -38,4 +39,34 @@
                        :return schema/Result
                        :body [auth schema/Auth]
                        :summary "Logs out the user if auth is correct."
-                       (auth/logout auth)))))
+                       (auth/logout auth))
+
+
+;;; ================================org-units===================================
+
+
+               (c/POST "/v0.1/org-units" []
+                       :return [schema/OrgUnit]
+                       :body [org-units-manifest schema/Manifest]
+                       :summary "Returns all the org units."
+                       (read/org-units org-units-manifest))
+
+
+;;; ================================tasks/pending===============================
+
+
+               (c/POST "/v0.1/tasks/pending" []
+                       :return [schema/PendingTask]
+                       :body [pending-tasks-manifest schema/Manifest]
+                       :summary "Returns all the unsynced pending tasks of the user."
+                       (read/tasks-pending pending-tasks-manifest))
+
+
+;;; ================================tasks/completed=============================
+
+
+               (c/POST "/v0.1/tasks/completed" []
+                       :return [schema/CompletedTask]
+                       :body [completed-tasks-manifest schema/Manifest]
+                       :summary "Returns all the unsynced completed tasks of the user."
+                       (read/tasks-completed completed-tasks-manifest)))))

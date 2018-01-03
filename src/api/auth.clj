@@ -2,15 +2,13 @@
   (:require [dtm.auth :as db]
             [ring.util.http-response :as response]))
 
-(defn authorize [auth]
+(defn authorize-and-respond [auth logic & params]
   (let [{check-username :username check-api-key :apiKey} auth]
     (if-not (db/user-exists? check-username)
-      {:result false
-       :error (response/unauthorized {:error "user does not exist"})}
+      (response/unauthorized {:error "user does not exist"})
       (if-not (= check-api-key (db/get-api-key check-username))
-        {:result false
-         :error (response/unauthorized {:error "wrong api key"})}
-        {:result true}))))
+        (response/unauthorized {:error "wrong api key"})
+        (response/ok (apply logic check-username params))))))
 
 
 ;;; ================================login=======================================
@@ -29,7 +27,4 @@
 
 
 (defn logout [auth]
-  (let [{:keys [result error]} (authorize auth)]
-    (if-not result
-      error
-      (response/ok {:result true}))))
+  (authorize-and-respond auth (fn [_] {:result true})))
