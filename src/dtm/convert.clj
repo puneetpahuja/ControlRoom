@@ -23,25 +23,30 @@
           (for [[k v] cmap]
             [(transformer k) v]))))
 
+(def keys-emap (comp keys entity-map))
+
 
 ;;; ================================login=======================================
 
 
 (defn user-auth [emap]
   (when emap
-    (let [cmap            (entity-map emap)
-          keys-converted  (keys cmap)
+    (let [keys-converted  (keys-emap emap)
 
           keys-same       (select-keys keys-converted
                                        [:firstName :lastName
                                         :title :username :phone :email])
           {:keys
            [id role
-            orgUnit
+            username
             channels
             apiKey]}       keys-converted
 
-          org-unit-details (keys (entity-map (util/get-details orgUnit)))
+          db               (util/get-db)
+
+          org-unit-eid     (util/get-org-unit-eid username db)
+
+          org-unit-details (keys-emap (util/get-details org-unit-eid db))
 
           user             (assoc keys-same
                                   :id        (str id)
@@ -60,8 +65,7 @@
 
 (defn org-unit [emap]
   (when emap
-    (let [cmap             (entity-map emap)
-          keys-converted   (keys cmap)
+    (let [keys-converted   (keys-emap emap)
 
           keys-same        (select-keys keys-converted [:name])
           {:keys
@@ -77,43 +81,64 @@
 ;;; ================================tasks/common================================
 
 
+(defn measurement-template [emap]
+  (when emap
+    (let [keys-converted    (keys-emap emap)
+
+          keys-same         (dissoc keys-converted :id :measurement :valueType)
+
+          {:keys
+           [id valueType]}  keys-converted
+
+          m-template        (assoc keys-same
+                                   :id (str id)
+                                   :valueType (remove-namespace-str valueType))]
+      m-template)))
+
 (defn task [emap]
   (when emap
-    (let [cmap              (entity-map emap)
-          keys-converted    (keys cmap)
+    (let [keys-converted    (keys-emap emap)
 
           keys-same         (select-keys keys-converted
                                          [:name :description :createdAt
                                           :updatedAt :dueDate :completedAt])
           {:keys
-           [id project
-            type status
+           [id type status
+            measurementTemplates
             assignedTo
             assignedBy]}    keys-converted
 
-          project-details   (keys (entity-map (util/get-details project)))
-          assignee-details  (keys (entity-map (util/get-details assignedTo)))
-          assigner-details  (keys (entity-map (util/get-details assignedBy)))
+          db                (util/get-db)
+
+          project-eid       (util/get-project-eid id db)
+          project-details   (keys-emap (util/get-details project-eid db))
+
+          assignee-details  (keys-emap (util/get-details assignedTo))
+          assigner-details  (keys-emap (util/get-details assignedBy))
+
+          m-templates-emaps (mapv util/get-details measurementTemplates)
+          m-templates       (mapv measurement-template m-templates-emaps)
 
           task      (assoc keys-same
-                           :id               (str id)
-                           :projectId        (str (:id project-details))
-                           :projectName      (:name project-details)
-                           :type             (remove-namespace-str type)
-                           :status           (remove-namespace-str status)
-                           :assignedTo       (-> assignee-details
-                                                 :id
-                                                 str)
-                           :assignerName     (str (:firstName assigner-details)
-                                                  " "
-                                                  (:lastName assigner-details))
-                           :assignerPhone   (:phone assigner-details)
-                           :assignerOrgUnit (-> assigner-details
-                                                :orgUnit
-                                                util/get-details
-                                                entity-map
-                                                keys
-                                                :name))]
+                           :id                   (str id)
+                           :projectId            (str (:id project-details))
+                           :projectName          (:name project-details)
+                           :type                 (remove-namespace-str type)
+                           :status               (remove-namespace-str status)
+                           :assignedTo           (-> assignee-details
+                                                     :id
+                                                     str)
+                           :assignerName         (str (:firstName assigner-details)
+                                                      " "
+                                                      (:lastName assigner-details))
+                           :assignerPhone        (:phone assigner-details)
+                           :assignerOrgUnit      (-> assigner-details
+                                                     :username
+                                                     (util/get-org-unit-eid db)
+                                                     (util/get-details db)
+                                                     keys-emap
+                                                     :name)
+                           :measurementTemplates m-templates)]
       task)))
 
 
