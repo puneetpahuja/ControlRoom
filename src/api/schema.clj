@@ -97,6 +97,10 @@
    :dueDate s/Str
    :measurementTemplates [MeasurementTemplate]})
 
+(s/defschema PendingTasksDiff
+  {:insert [PendingTask]
+   :delete [Id]})
+
 
 ;;; ================================tasks/completed=============================
 

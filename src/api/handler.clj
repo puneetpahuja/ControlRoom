@@ -56,7 +56,7 @@
 
 
                (c/POST "/v0.1/tasks/pending" []
-                       :return [schema/PendingTask]
+                       :return schema/PendingTasksDiff
                        :body [pending-tasks-manifest schema/Manifest]
                        :summary "Returns all the unsynced pending tasks of the user."
                        (read/tasks-pending pending-tasks-manifest))
