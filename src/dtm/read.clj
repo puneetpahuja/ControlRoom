@@ -45,5 +45,10 @@
 
 (defn tasks-completed [username ids]
   (let [tasks-completed-ids (util/get-completed-tasks-ids username (util/get-db))
-        diff                (util/diff ids tasks-completed-ids)]
-    (mapv task-completed diff)))
+        diff                (util/diff ids (mapv str tasks-completed-ids))
+        {:keys
+         [insert
+          delete]}          diff
+        insert-uuids        (mapv util/str->uuid insert)]
+    {:insert (mapv task-completed insert-uuids)
+     :delete delete}))

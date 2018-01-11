@@ -112,6 +112,10 @@
    :completedAt s/Str
    :assignerPhone s/Str})
 
+(s/defschema CompletedTasksDiff
+  {:insert [CompletedTask]
+   :delete [Id]})
+
 
 ;;; ================================put /tasks==================================
 

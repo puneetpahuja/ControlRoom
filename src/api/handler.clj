@@ -66,7 +66,7 @@
 
 
                (c/POST "/v0.1/tasks/completed" []
-                       :return [schema/CompletedTask]
+                       :return schema/CompletedTasksDiff
                        :body [completed-tasks-manifest schema/Manifest]
                        :summary "Returns all the unsynced completed tasks of the user."
                        (read/tasks-completed completed-tasks-manifest)))))
