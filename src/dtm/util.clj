@@ -2,6 +2,9 @@
   (:require [datomic.api :as d]
             [dtm.config :as config]))
 
+(defn str->uuid [s]
+  (java.util.UUID/fromString s))
+
 (defn get-conn []
   (d/connect config/uri))
 
@@ -47,7 +50,11 @@
     (ffirst (d/q q db))))
 
 (defn diff [manifest all]
-  (filterv #((complement contains?) (set manifest) (str %)) all))
+  (let [not-contains? (complement contains?)
+        insert (filterv #(not-contains? (set manifest) %) all)
+        delete (filterv #(not-contains? (set all) %) manifest)]
+    {:insert insert
+     :delete delete}))
 
 (defn parent [task-eid db]
   (:db/id (get-attr :task/parent task-eid db)))

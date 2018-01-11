@@ -11,8 +11,10 @@
 
 (defn org-units [_ ids]
   (let [org-unit-ids  (util/get-ids :org-unit/id (util/get-db))
-        diff          (util/diff ids org-unit-ids)]
-    (mapv org-unit diff)))
+        diff          (util/diff ids (mapv str org-unit-ids))
+        {:keys [insert delete]} diff]
+    {:insert (mapv org-unit (mapv util/str->uuid insert))
+     :delete delete}))
 
 
 ;;; ================================tasks/pending===============================

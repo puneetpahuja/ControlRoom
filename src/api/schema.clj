@@ -12,10 +12,12 @@
   {:username s/Str
    :apiKey s/Str})
 
+(def Id
+  s/Str)
+
 (s/defschema Manifest
-  (let [Id s/Str]
-    {:ids [Id]
-     :auth Auth}))
+  {:ids [Id]
+   :auth Auth})
 
 
 ;;; ================================login=======================================
@@ -57,6 +59,10 @@
   {:id s/Str
    :name s/Str
    :users [User]})
+
+(s/defschema OrgUnitsDiff
+  {:insert [OrgUnit]
+   :delete [Id]})
 
 
 ;;; ================================tasks/pending===============================

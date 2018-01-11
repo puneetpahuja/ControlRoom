@@ -46,7 +46,7 @@
 
 
                (c/POST "/v0.1/org-units" []
-                       :return [schema/OrgUnit]
+                       :return schema/OrgUnitsDiff
                        :body [org-units-manifest schema/Manifest]
                        :summary "Returns all the org units."
                        (read/org-units org-units-manifest))
