@@ -141,6 +141,43 @@
                            :measurementTemplates m-templates)]
       task)))
 
+;;; ================================tasks/assigned==============================
+
+
+(defn assigned-task [emap]
+  (let [keys-converted    (keys-emap emap)
+        same-vals         (select-keys keys-converted [:name :dueDate])
+        {:keys
+         [id
+          assignedTo]}    keys-converted
+
+        assignee-details (keys-emap (util/assignee-details assignedTo))
+        assigned-task    (assoc
+                           same-vals
+                           :id (str id)
+                           :assigneeName (util/full-name assignee-details)
+                           :assigneePhone (:phone assignee-details)
+                           :assigneeOrgUnit (util/org-unit-name assignee-details))]
+    assigned-task))
+
+(defn m-template->assigned-task [m-template-emap]
+  (let [keys-converted     (keys-emap m-template-emap)
+        measurement-eid    (:db/id (:measurement keys-converted))
+        db                 (util/get-db)
+        assigned-task-eid  (util/get-task-assigned-to-eid measurement-eid db)
+        assigned-task-emap (util/get-details assigned-task-eid db)]
+    (assigned-task assigned-task-emap)))
+
+(defn task-assigned [emap]
+  (when emap
+    (let [keys-converted    (keys-emap emap)
+
+          same-vals         (select-keys keys-converted
+                                         [:name])
+          {:keys
+           [id
+            measurementTemplates
+            assignedTo]}    keys-converted
 
 ;;; ================================tasks/pending===============================
 

@@ -37,6 +37,23 @@
      :delete delete}))
 
 
+;;; ================================tasks/assigned==============================
+
+
+(defn task-assigned [id]
+  (convert/task-assigned (util/get-details :task/id id (util/get-db))))
+
+(defn tasks-assigned [username ids]
+  (let [tasks-assigned-ids (util/get-assigned-tasks-ids username (util/get-db))
+        diff               (util/diff ids (mapv str tasks-assigned-ids))
+        {:keys
+         [insert
+          delete]}         diff
+        insert-uuids       (mapv util/str->uuid insert)]
+    {:insert (mapv task-assigned insert-uuids)
+     :delete delete}))
+
+
 ;;; ================================tasks/completed=============================
 
 

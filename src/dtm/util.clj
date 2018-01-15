@@ -92,3 +92,29 @@
 
 (defn get-completed-tasks-ids [username db]
   (get-tasks-ids :task.status/completed username db))
+
+(defn get-assigned-tasks-ids [username db]
+  (get-tasks-ids :task.status/assigned username db))
+
+(defn get-task-assigned-to-eid [assignment-measurement-id db]
+  (get-eid :task/assigned-to assignment-measurement-id db))
+
+(defn full-name [user-details]
+  (let [{:keys
+         [firstName
+          lastName]} user-details]
+    (str firstName " " lastName)))
+
+(defn org-unit-name [user-details]
+  (let [db (get-db)]
+    (-> user-details
+        :username
+        (get-org-unit-eid db)
+        (get-details db)
+        :org-unit/name)))
+
+(defn assignee-details [assignment-measurement-entity]
+  (-> assignment-measurement-entity
+      get-details
+      :assignment-measurement/value
+      get-details))

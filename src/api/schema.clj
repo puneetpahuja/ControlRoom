@@ -102,6 +102,28 @@
    :delete [Id]})
 
 
+;;; ================================tasks/assigned==============================
+
+
+(s/defschema AssignedTask
+  {:id              s/Str
+   :name            s/Str
+   :assigneeName    s/Str
+   :assigneePhone   s/Str
+   :assigneeOrgUnit s/Str
+   :dueDate         s/Str})
+
+(s/defschema AssignmentTask
+  {:id             s/Str
+   :name           s/Str
+   :projectName    s/Str
+   :assignedTasks [AssignedTask]})
+
+(s/defschema AssignmentTasksDiff
+  {:insert [AssignmentTask]
+   :delete [Id]})
+
+
 ;;; ================================tasks/completed=============================
 
 

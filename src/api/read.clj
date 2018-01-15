@@ -18,6 +18,13 @@
   (auth/authorize-and-respond auth db/tasks-pending ids))
 
 
+;;; ================================tasks/assigned==============================
+
+
+(defn tasks-assigned [{:keys [auth ids]}]
+  (auth/authorize-and-respond auth db/tasks-assigned ids))
+
+
 ;;; ================================tasks/completed=============================
 
 
