@@ -10,7 +10,7 @@
   (convert/org-unit (util/get-details :org-unit/id id (util/get-db))))
 
 (defn org-units [_ ids]
-  (let [org-unit-ids (util/get-ids :org-unit/id (util/get-db))
+  (let [org-unit-ids (util/get-all-vals :org-unit/id (util/get-db))
         diff         (util/diff ids (mapv str org-unit-ids))
         {:keys
          [insert
