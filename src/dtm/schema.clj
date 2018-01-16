@@ -105,11 +105,10 @@
    (s/schema datasource
              (s/fields
                [id :uuid :unique-identity]
-               [name :string]
                [measurements :ref :many :component]
-
                [tags :string :many :fulltext]
-               [entity :ref]))
+
+               [entity :string]))
 
    (s/schema task
              (s/fields
