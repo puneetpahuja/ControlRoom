@@ -4,7 +4,7 @@
 (comment DOC
          * javascript naming conventions used
          TODO
-         * add templates endpoints templates.task-processes
+
          TODO LATER
          * add tags and properties[key-value pairs] to all entities)
 
@@ -18,6 +18,10 @@
 (s/defschema Manifest
   {:ids       [Id]
    :auth      Auth})
+
+(s/defschema Result
+  {:result                 s/Bool
+   (s/optional-key :error) s/Str})
 
 
 ;;; ================================login=======================================
@@ -43,13 +47,6 @@
 (s/defschema UserAuth
   {:user User
    :apiKey    s/Str})
-
-
-;;; ================================logout======================================
-
-
-(s/defschema Result
-  {:result    s/Bool})
 
 
 ;;; ================================org-units===================================
@@ -139,12 +136,23 @@
    :delete [Id]})
 
 
-;;; ================================put /tasks==================================
+;;; ================================PUT tasks===================================
 
 
 (s/defschema Measurement
-  {:id    s/Str
-   :value s/Str
-   (s/optional-key :dataSource) s/Str
-   (s/optional-key :name)       s/Str
-   (s/optional-key :valueType)  s/Str})
+  {:id                        s/Str     ; measurement template id
+   :value                     s/Str
+   (s/optional-key :entityId) s/Str}    ; id of the entity if you are creating a
+                                        ; new entity or want to link it to an existing entity
+  )
+
+(s/defschema TaskSubmission
+  {:id              s/Str
+   :status          s/Str         ; completed, assigned, suspended or rejected
+   (s/optional-key
+     :measurements) [Measurement] ; present only in case of completed and assigned tasks
+   })
+
+(s/defschema TaskSubmissions
+  {:tasks [TaskSubmission]
+   :auth Auth})
