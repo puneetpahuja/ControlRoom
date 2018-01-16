@@ -83,6 +83,12 @@
                [name :string]
                [value :ref]))
 
+   (s/schema photo-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :string]))
+
    (s/schema measurement-template
              (s/fields
                [id :uuid :unique-identity]
@@ -167,7 +173,8 @@
 
    :m-value-types  [{:db/ident :measurement.value-type/int}
                     {:db/ident :measurement.value-type/string}
-                    {:db/ident :measurement.value-type/assignment}]})
+                    {:db/ident :measurement.value-type/assignment}
+                    {:db/ident :measurement.value-type/photo}]})
 
 (def generated-schema (mapv #(dissoc % :db.install/_attribute :db/id)
                             (s/generate-schema schemas {:gen-all? false})))
