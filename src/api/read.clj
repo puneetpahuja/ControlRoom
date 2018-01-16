@@ -1,7 +1,6 @@
 (ns api.read
   (:require [dtm.read :as db]
-            [api.auth :as auth]
-            [ring.util.http-response :as response]))
+            [api.auth :as auth]))
 
 
 ;;; ================================org-units===================================

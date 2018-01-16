@@ -4,7 +4,7 @@
 (comment DOC
          * javascript naming conventions used
          TODO
-         * add templates endpoints templates.task-processes
+
          TODO LATER
          * add tags and properties[key-value pairs] to all entities)
 
@@ -18,6 +18,10 @@
 (s/defschema Manifest
   {:ids       [Id]
    :auth      Auth})
+
+(s/defschema Result
+  {:result                 s/Bool
+   (s/optional-key :error) s/Str})
 
 
 ;;; ================================login=======================================
@@ -43,13 +47,6 @@
 (s/defschema UserAuth
   {:user User
    :apiKey    s/Str})
-
-
-;;; ================================logout======================================
-
-
-(s/defschema Result
-  {:result    s/Bool})
 
 
 ;;; ================================org-units===================================
