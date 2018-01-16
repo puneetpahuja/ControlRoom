@@ -15,7 +15,9 @@
 (def conn (d/connect uri))
 
 @(d/transact conn s/schema)
-@(d/transact conn t/census1)
-@(d/transact conn t/census1-linking)
+@(d/transact conn t/ro1)
+@(d/transact conn t/ro1-linking)
+@(d/transact conn t/ro2)
+@(d/transact conn t/ro2-linking)
 
 (def db (d/db conn))
