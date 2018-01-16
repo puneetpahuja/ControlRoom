@@ -130,7 +130,7 @@
   (let [keys-converted    (keys-emap emap)
         same-vals         (select-keys keys-converted [:name :dueDate])
         {:keys
-         [id
+         [id status
           assignedTo]}    keys-converted
 
         assignee-details (keys-emap (util/assignee-details assignedTo))
@@ -139,7 +139,8 @@
                            :id (str id)
                            :assigneeName (util/full-name assignee-details)
                            :assigneePhone (:phone assignee-details)
-                           :assigneeOrgUnit (util/org-unit-name assignee-details))]
+                           :assigneeOrgUnit (util/org-unit-name assignee-details)
+                           :status (remove-namespace-str status))]
     assigned-task))
 
 (defn m-template->assigned-task [m-template-emap]

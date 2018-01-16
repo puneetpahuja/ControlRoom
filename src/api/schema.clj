@@ -99,7 +99,8 @@
    :assigneeName    s/Str
    :assigneePhone   s/Str
    :assigneeOrgUnit s/Str
-   :dueDate         s/Str})
+   :dueDate         s/Str
+   :status          s/Str})
 
 (s/defschema AssignmentTask
   {:id             s/Str
