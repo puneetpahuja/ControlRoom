@@ -2,7 +2,12 @@
   (:require [dtm.auth :as db]
             [ring.util.http-response :as response]))
 
-(defn authorize-and-respond [auth logic & params]
+(defn authorize-and-respond
+  "Authorizes and sends an appropriate `response`.
+  If auth is successful calls `logic` with `:username` from `auth` and `params`
+  and returns the result response. Otherwise returns a `unauthorized` response
+  with appropriate error message."
+  [auth logic & params]
   (let [{check-username :username check-api-key :apiKey} auth]
     (if-not (db/user-exists? check-username)
       (response/unauthorized {:error "user does not exist"})
@@ -14,7 +19,10 @@
 ;;; ================================login=======================================
 
 
-(defn login [credentials]
+(defn login
+  "Gives user details as response if `credentials` are correct.
+  Gives `unauthorized` response with appropriate error message otherwise."
+  [credentials]
   (let [{check-username :username check-password :password} credentials]
     (if-not (db/user-exists? check-username)
       (response/unauthorized {:error "user does not exist"})
@@ -26,5 +34,6 @@
 ;;; ================================logout======================================
 
 
-(defn logout [auth]
+(defn logout
+  [auth]
   (authorize-and-respond auth (fn [_] {:result true})))

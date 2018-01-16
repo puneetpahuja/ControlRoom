@@ -2,6 +2,7 @@
   (:require [api.auth :as auth]
             [api.read :as read]
             [api.schema :as schema]
+            [api.write :as write]
             [compojure.api.sweet :as c]))
 
 (comment TODO
@@ -46,7 +47,7 @@
 
 
                (c/POST "/v0.1/org-units" []
-                       :return [schema/OrgUnit]
+                       :return schema/OrgUnitsDiff
                        :body [org-units-manifest schema/Manifest]
                        :summary "Returns all the org units."
                        (read/org-units org-units-manifest))
@@ -56,17 +57,36 @@
 
 
                (c/POST "/v0.1/tasks/pending" []
-                       :return [schema/PendingTask]
+                       :return schema/PendingTasksDiff
                        :body [pending-tasks-manifest schema/Manifest]
                        :summary "Returns all the unsynced pending tasks of the user."
                        (read/tasks-pending pending-tasks-manifest))
 
 
+;;; ================================tasks/assigned==============================
+
+
+               (c/POST "/v0.1/tasks/assigned" []
+                       :return schema/AssignmentTasksDiff
+                       :body [assigned-tasks-manifest schema/Manifest]
+                       :summary "Returns all the unsynced assigned tasks of the user."
+                       (read/tasks-assigned assigned-tasks-manifest))
+
 ;;; ================================tasks/completed=============================
 
 
                (c/POST "/v0.1/tasks/completed" []
-                       :return [schema/CompletedTask]
+                       :return schema/CompletedTasksDiff
                        :body [completed-tasks-manifest schema/Manifest]
                        :summary "Returns all the unsynced completed tasks of the user."
-                       (read/tasks-completed completed-tasks-manifest)))))
+                       (read/tasks-completed completed-tasks-manifest))
+
+
+;;; ================================PUT tasks===================================
+
+
+               (c/PUT "/v0.1/tasks" []
+                      :return schema/Result
+                      :body [task-submissions schema/TaskSubmissions]
+                      :summary "Submits completed or rejected tasks."
+                      (write/tasks task-submissions)))))
