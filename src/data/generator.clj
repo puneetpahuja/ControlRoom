@@ -1,34 +1,42 @@
 (ns data.generator)
 
-(defn gen-uuid []
-  (java.util.UUID/randomUUID))
-
-(def user-attrs         [:user :id :first-name :last-name
+(def user-attrs         [:user
+                         :id :first-name :last-name
                          :title :username :phone
-                         :email :role :org-unit
-                         :channels :password :api-key])
+                         :email :role :channels
+                         :password :api-key])
 
-(def org-unit-attrs     [:org-unit :id :name :users])
+(def org-unit-attrs     [:org-unit
+                         :id :name :users])
 
-(def task-attrs         [:task :id :name :description
-                         :project :measurements :type
-                         :status :assigned-to :assigned-by
+(def integer-m-attrs    [:integer-measurement
+                         :id :name :value])
+(def string-m-attrs     [:string-measurement
+                         :id :name :value])
+(def assignment-m-attrs [:assignment-measurement
+                         :id :name :value])
+
+(def datasource-attrs   [:datasource
+                         :id :measurements :tags
+                         :entity])
+
+(def m-template-attrs   [:measurement-template
+                         :id :question :hint
+                         :validations :required :value-type
+                         :default-value :measurement])
+
+(def task-attrs         [:task
+                         :id :name :description
+                         :measurement-templates :type :status
+                         :assigned-to :assigned-by :completed-at
                          :parent :first-child :sibling
+                         :created-at :updated-at :due-date])
+
+(def project-attrs      [:project
+                         :id :name :description
+                         :root :status :owner
                          :created-at :updated-at :due-date
                          :completed-at])
-
-(def project-attrs      [:project :id :name :description
-                         :root :status :client
-                         :owner :created-at :updated-at
-                         :due-date :completed-at])
-
-(def integer-m-attrs    [:integer-measurement :id :name :value])
-(def string-m-attrs     [:string-measurement :id :name :value])
-(def assignment-m-attrs [:assignment-measurement :id :name :value
-                         :datasource])
-
-(def datasource-attrs   [:datasource :id :name :measurements
-                         :tags :entity])
 
 
 (defn make-tx [attrs vals]
@@ -43,9 +51,10 @@
 
 (def user         (partial make-tx user-attrs))
 (def org-unit     (partial make-tx org-unit-attrs))
-(def task         (partial make-tx task-attrs))
-(def project      (partial make-tx project-attrs))
 (def integer-m    (partial make-tx integer-m-attrs))
 (def string-m     (partial make-tx string-m-attrs))
 (def assignment-m (partial make-tx assignment-m-attrs))
 (def datasource   (partial make-tx datasource-attrs))
+(def m-template   (partial make-tx m-template-attrs))
+(def task         (partial make-tx task-attrs))
+(def project      (partial make-tx project-attrs))

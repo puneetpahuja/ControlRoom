@@ -1,7 +1,6 @@
 (ns api.read
   (:require [dtm.read :as db]
-            [api.auth :as auth]
-            [ring.util.http-response :as response]))
+            [api.auth :as auth]))
 
 
 ;;; ================================org-units===================================
@@ -16,6 +15,13 @@
 
 (defn tasks-pending [{:keys [auth ids]}]
   (auth/authorize-and-respond auth db/tasks-pending ids))
+
+
+;;; ================================tasks/assigned==============================
+
+
+(defn tasks-assigned [{:keys [auth ids]}]
+  (auth/authorize-and-respond auth db/tasks-assigned ids))
 
 
 ;;; ================================tasks/completed=============================
