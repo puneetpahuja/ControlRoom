@@ -36,13 +36,9 @@
    :firstName s/Str
    :lastName  s/Str
    :title     s/Str
-   :username  s/Str   ; phone number
    :phone     s/Str
    :email     s/Str
-   :role      s/Str   ; supervisor or worker
-   :channels  [s/Str] ; sms, web or app
-   :orgUnit   s/Str
-   :orgUnitId s/Str})
+   :orgUnit   s/Str})
 
 (s/defschema UserAuth
   {:user User
@@ -81,16 +77,11 @@
 (s/defschema PendingTask
   {:id                   s/Str
    :name                 s/Str
-   :description          s/Str
-   :projectId            s/Str
    :projectName          s/Str
    :type                 s/Str       ; assignment or measurement
-   :assignedTo           s/Str       ; id of the user this is assigned to
    :assignerName         s/Str
    :assignerPhone        s/Str
    :assignerOrgUnit      s/Str
-   :createdAt            s/Str       ; milliseconds since 1970
-   :updatedAt            s/Str
    :dueDate              s/Str
    :measurementTemplates [MeasurementTemplate]})
 
