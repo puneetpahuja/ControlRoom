@@ -67,7 +67,6 @@
 (s/defschema MeasurementTemplate
   {:id        s/Str
    :question  s/Str
-   :hint      s/Str
    (s/optional-key :hint)      s/Str
    :required  s/Bool
    :valueType s/Str        ; int, long, string, assignment etc.
