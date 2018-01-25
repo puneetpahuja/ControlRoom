@@ -85,3 +85,12 @@
   t4-id2        (util/str->uuid "84b1b2e5-bcfb-4f3f-b4af-fadfa90dd045")
 
   p-id2         (util/str->uuid "84b1b2e5-bcfb-4f3f-b4af-fadfa90dd070"))
+(defs
+  pt1-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd100")
+  ps1-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd101")
+
+  pt2-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd200")
+  ps2-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd201")
+
+  pt3-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd300")
+  ps3-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd301"))

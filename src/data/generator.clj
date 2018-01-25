@@ -40,6 +40,10 @@
                          :created-at :updated-at :due-date
                          :completed-at])
 
+(def project-template-attrs [:project-template
+                             :id :title :description
+                             :project-schema-id])
+
 
 (defn make-tx [attrs vals]
   (let [namespace (first attrs)
@@ -61,3 +65,4 @@
 (def m-template   (partial make-tx m-template-attrs))
 (def task         (partial make-tx task-attrs))
 (def project      (partial make-tx project-attrs))
+(def project-template (partial make-tx project-template-attrs))

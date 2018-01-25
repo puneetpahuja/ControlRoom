@@ -148,3 +148,12 @@
 (s/defschema TaskSubmissions
   {:tasks [TaskSubmission]
    :auth Auth})
+(s/defschema ProjectTemplate
+  {:id s/Str
+   :title s/Str
+   :description s/Str
+   :projectSchemaId s/Str})
+
+(s/defschema ProjectTemplatesDiff
+  {:insert [ProjectTemplate]
+   :delete [Id]})

@@ -146,7 +146,14 @@
                [updated-at :string]
                [due-date :string]
 
-               [completed-at :string]))])
+               [completed-at :string]))
+
+   (s/schema project-template
+             (s/fields
+               [id :uuid :unique-identity]
+               [title :string]
+               [description :string]
+               [project-schema-id :uuid :unique-identity]))])    ; TODO - make project-schema-id as ref which refs to project-schema
 
 (def enums
   {:task-status    [{:db/ident :task.status/pre-pending}
