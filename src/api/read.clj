@@ -29,3 +29,7 @@
 
 (defn tasks-completed [{:keys [auth ids]}]
   (auth/authorize-and-respond auth db/tasks-completed ids))
+
+
+(defn templates-projects [{:keys [auth ids]}]
+  (auth/authorize-and-respond auth db/templates-projects ids))

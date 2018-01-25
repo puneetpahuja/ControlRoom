@@ -206,3 +206,23 @@
                               :projectName          (:name project-details)
                               :assignerPhone        (:phone assigner-details))]
       completed-task)))
+
+
+
+
+(defn template-project [emap]
+  (when emap
+    (let [keys-converted (keys-emap emap)
+
+          same-vals (select-keys keys-converted
+                                 [:title :description])
+
+          {:keys
+           [projectSchemaId
+            id]}   keys-converted
+
+          project-template (assoc
+                             same-vals
+                             :id  (str id)
+                             :projectSchemaId (str projectSchemaId))]
+      project-template)))
