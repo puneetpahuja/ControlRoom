@@ -89,6 +89,24 @@
                [name :string]
                [value :string]))
 
+   (s/schema date-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :string]))
+
+   (s/schema location-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :string]))
+
+   (s/schema float-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :float]))
+
    (s/schema measurement-template
              (s/fields
                [id :uuid :unique-identity]
@@ -177,10 +195,13 @@
                     {:db/ident :user.channel/sms}
                     {:db/ident :user.channel/web}]
 
-   :m-value-types  [{:db/ident :measurement.value-type/int}
+   :m-value-types  [{:db/ident :measurement.value-type/integer}
+                    {:db/ident :measurement.value-type/float}
                     {:db/ident :measurement.value-type/string}
                     {:db/ident :measurement.value-type/assignment}
-                    {:db/ident :measurement.value-type/photo}]})
+                    {:db/ident :measurement.value-type/photo}
+                    {:db/ident :measurement.value-type/location}
+                    {:db/ident :measurement.value-type/date}]})
 
 (def generated-schema (mapv #(dissoc % :db.install/_attribute :db/id)
                             (s/generate-schema schemas {:gen-all? false})))
