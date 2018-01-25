@@ -144,3 +144,6 @@
       get-details
       :assignment-measurement/value
       get-details))
+
+(defn get-project-templates-ids [db]
+  (get-all-vals :project-template/id db))
