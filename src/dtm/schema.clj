@@ -195,7 +195,7 @@
                     {:db/ident :user.channel/sms}
                     {:db/ident :user.channel/web}]
 
-   :m-value-types  [{:db/ident :measurement.value-type/int}
+   :m-value-types  [{:db/ident :measurement.value-type/integer}
                     {:db/ident :measurement.value-type/float}
                     {:db/ident :measurement.value-type/string}
                     {:db/ident :measurement.value-type/assignment}
