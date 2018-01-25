@@ -68,6 +68,7 @@
   {:id        s/Str
    :question  s/Str
    :hint      s/Str
+   (s/optional-key :hint)      s/Str
    :required  s/Bool
    :valueType s/Str        ; int, long, string, assignment etc.
 
@@ -99,7 +100,8 @@
    :assigneeName    s/Str
    :assigneePhone   s/Str
    :assigneeOrgUnit s/Str
-   :dueDate         s/Str})
+   :dueDate         s/Str
+   :status          s/Str})
 
 (s/defschema AssignmentTask
   {:id             s/Str
@@ -147,3 +149,12 @@
 (s/defschema TaskSubmissions
   {:tasks [TaskSubmission]
    :auth Auth})
+(s/defschema ProjectTemplate
+  {:id s/Str
+   :title s/Str
+   :description s/Str
+   :projectSchemaId s/Str})
+
+(s/defschema ProjectTemplatesDiff
+  {:insert [ProjectTemplate]
+   :delete [Id]})

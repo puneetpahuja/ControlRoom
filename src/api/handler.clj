@@ -90,3 +90,8 @@
                       :body [task-submissions schema/TaskSubmissions]
                       :summary "Submits completed or rejected tasks."
                       (write/tasks task-submissions)))))
+               (c/POST "/v0.1/templates/projects" []
+                       :return schema/ProjectTemplatesDiff
+                       :body [project-templates-manifest schema/Manifest]
+                       :summary "Returns all the project templates."
+                       (read/templates-projects project-templates-manifest))
