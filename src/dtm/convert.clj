@@ -208,6 +208,7 @@
       completed-task)))
 
 
+;;; ================================templates/projects==========================
 
 
 (defn template-project [emap]
