@@ -3,7 +3,8 @@
             [api.read :as read]
             [api.schema :as schema]
             [api.write :as write]
-            [compojure.api.sweet :as c]))
+            [compojure.api.sweet :as c]
+            [data.init :as data]))
 
 (comment TODO
          * have a parent-child heirarchy for entities like tasks, activities
@@ -100,3 +101,13 @@
                        :body [project-templates-manifest schema/Manifest]
                        :summary "Returns all the project templates."
                        (read/templates-projects project-templates-manifest))
+
+
+;;; ================================reset=======================================
+
+
+               (c/POST "/v0.1/reset" []
+                       :return schema/Result
+                       :body [credentials schema/Credentials]
+                       :summary "Resets the database to a predefined state. Used for testing."
+                       (write/reset credentials)))))
