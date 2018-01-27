@@ -83,6 +83,30 @@
                [name :string]
                [value :ref]))
 
+   (s/schema photo-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :string]))
+
+   (s/schema date-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :string]))
+
+   (s/schema location-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :string]))
+
+   (s/schema float-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :float]))
+
    (s/schema measurement-template
              (s/fields
                [id :uuid :unique-identity]
@@ -99,11 +123,10 @@
    (s/schema datasource
              (s/fields
                [id :uuid :unique-identity]
-               [name :string]
                [measurements :ref :many :component]
-
                [tags :string :many :fulltext]
-               [entity :ref]))
+
+               [entity :string]))
 
    (s/schema task
              (s/fields
@@ -141,7 +164,14 @@
                [updated-at :string]
                [due-date :string]
 
-               [completed-at :string]))])
+               [completed-at :string]))
+
+   (s/schema project-template
+             (s/fields
+               [id :uuid :unique-identity]
+               [title :string]
+               [description :string]
+               [project-schema-id :uuid :unique-identity]))])    ; TODO - make project-schema-id as ref which refs to project-schema
 
 (def enums
   {:task-status    [{:db/ident :task.status/pre-pending}
@@ -165,9 +195,13 @@
                     {:db/ident :user.channel/sms}
                     {:db/ident :user.channel/web}]
 
-   :m-value-types  [{:db/ident :measurement.value-type/int}
+   :m-value-types  [{:db/ident :measurement.value-type/integer}
+                    {:db/ident :measurement.value-type/float}
                     {:db/ident :measurement.value-type/string}
-                    {:db/ident :measurement.value-type/assignment}]})
+                    {:db/ident :measurement.value-type/assignment}
+                    {:db/ident :measurement.value-type/photo}
+                    {:db/ident :measurement.value-type/location}
+                    {:db/ident :measurement.value-type/date}]})
 
 (def generated-schema (mapv #(dissoc % :db.install/_attribute :db/id)
                             (s/generate-schema schemas {:gen-all? false})))

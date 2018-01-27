@@ -36,13 +36,9 @@
    :firstName s/Str
    :lastName  s/Str
    :title     s/Str
-   :username  s/Str   ; phone number
    :phone     s/Str
    :email     s/Str
-   :role      s/Str   ; supervisor or worker
-   :channels  [s/Str] ; sms, web or app
-   :orgUnit   s/Str
-   :orgUnitId s/Str})
+   :orgUnit   s/Str})
 
 (s/defschema UserAuth
   {:user User
@@ -71,7 +67,7 @@
 (s/defschema MeasurementTemplate
   {:id        s/Str
    :question  s/Str
-   :hint      s/Str
+   (s/optional-key :hint)      s/Str
    :required  s/Bool
    :valueType s/Str        ; int, long, string, assignment etc.
 
@@ -81,16 +77,11 @@
 (s/defschema PendingTask
   {:id                   s/Str
    :name                 s/Str
-   :description          s/Str
-   :projectId            s/Str
    :projectName          s/Str
    :type                 s/Str       ; assignment or measurement
-   :assignedTo           s/Str       ; id of the user this is assigned to
    :assignerName         s/Str
    :assignerPhone        s/Str
    :assignerOrgUnit      s/Str
-   :createdAt            s/Str       ; milliseconds since 1970
-   :updatedAt            s/Str
    :dueDate              s/Str
    :measurementTemplates [MeasurementTemplate]})
 
@@ -108,7 +99,8 @@
    :assigneeName    s/Str
    :assigneePhone   s/Str
    :assigneeOrgUnit s/Str
-   :dueDate         s/Str})
+   :dueDate         s/Str
+   :status          s/Str})
 
 (s/defschema AssignmentTask
   {:id             s/Str
@@ -136,12 +128,32 @@
    :delete [Id]})
 
 
-;;; ================================put /tasks==================================
+;;; ================================PUT tasks===================================
 
 
 (s/defschema Measurement
-  {:id    s/Str
-   :value s/Str
-   (s/optional-key :dataSource) s/Str
-   (s/optional-key :name)       s/Str
-   (s/optional-key :valueType)  s/Str})
+  {:id                        s/Str     ; measurement template id
+   :value                     s/Str
+   (s/optional-key :entityId) s/Str}    ; id of the entity if you are creating a
+                                        ; new entity or want to link it to an existing entity
+  )
+
+(s/defschema TaskSubmission
+  {:id              s/Str
+   :status          s/Str         ; completed, assigned, suspended or rejected
+   (s/optional-key
+     :measurements) [Measurement] ; present only in case of completed and assigned tasks
+   })
+
+(s/defschema TaskSubmissions
+  {:tasks [TaskSubmission]
+   :auth Auth})
+(s/defschema ProjectTemplate
+  {:id s/Str
+   :title s/Str
+   :description s/Str
+   :projectSchemaId s/Str})
+
+(s/defschema ProjectTemplatesDiff
+  {:insert [ProjectTemplate]
+   :delete [Id]})

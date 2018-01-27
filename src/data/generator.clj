@@ -15,6 +15,8 @@
                          :id :name :value])
 (def assignment-m-attrs [:assignment-measurement
                          :id :name :value])
+(def photo-m-attrs      [:photo-measurement
+                         :id :name :value])
 
 (def datasource-attrs   [:datasource
                          :id :measurements :tags
@@ -38,6 +40,10 @@
                          :created-at :updated-at :due-date
                          :completed-at])
 
+(def project-template-attrs [:project-template
+                             :id :title :description
+                             :project-schema-id])
+
 
 (defn make-tx [attrs vals]
   (let [namespace (first attrs)
@@ -54,7 +60,9 @@
 (def integer-m    (partial make-tx integer-m-attrs))
 (def string-m     (partial make-tx string-m-attrs))
 (def assignment-m (partial make-tx assignment-m-attrs))
+(def photo-m      (partial make-tx photo-m-attrs))
 (def datasource   (partial make-tx datasource-attrs))
 (def m-template   (partial make-tx m-template-attrs))
 (def task         (partial make-tx task-attrs))
 (def project      (partial make-tx project-attrs))
+(def project-template (partial make-tx project-template-attrs))

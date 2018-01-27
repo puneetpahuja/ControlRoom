@@ -57,8 +57,8 @@
         manifest-set     (set manifest)
         all-set          (set all)
 
-        not-in-manifest? (fn [x] (partial not-contains? manifest-set))
-        not-in-all?      (fn [x] (partial not-contains? all-set))
+        not-in-manifest? (partial not-contains? manifest-set)
+        not-in-all?      (partial not-contains? all-set)
 
         insert (filterv not-in-manifest? all)
         delete (filterv not-in-all?  manifest)]
@@ -144,3 +144,6 @@
       get-details
       :assignment-measurement/value
       get-details))
+
+(defn get-project-templates-ids [db]
+  (get-all-vals :project-template/id db))
