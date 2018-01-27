@@ -12,16 +12,16 @@
   {:username  s/Str
    :apiKey    s/Str})
 
-(def Id
-  s/Str)
+(def Id s/Str)
 
 (s/defschema Manifest
   {:ids       [Id]
    :auth      Auth})
 
 (s/defschema Result
-  {:result                 s/Bool
-   (s/optional-key :error) s/Str})
+  {:result           s/Bool
+   (s/optional-key
+     :error)         s/Str})
 
 
 ;;; ================================login=======================================
@@ -36,16 +36,12 @@
    :firstName s/Str
    :lastName  s/Str
    :title     s/Str
-   :username  s/Str   ; phone number
    :phone     s/Str
    :email     s/Str
-   :role      s/Str   ; supervisor or worker
-   :channels  [s/Str] ; sms, web or app
-   :orgUnit   s/Str
-   :orgUnitId s/Str})
+   :orgUnit   s/Str})
 
 (s/defschema UserAuth
-  {:user User
+  {:user      User
    :apiKey    s/Str})
 
 
@@ -69,28 +65,25 @@
   {})
 
 (s/defschema MeasurementTemplate
-  {:id        s/Str
-   :question  s/Str
-   :hint      s/Str
-   :required  s/Bool
-   :valueType s/Str        ; int, long, string, assignment etc.
-
-   (s/optional-key :validations)  [Validation]
-   (s/optional-key :defaultValue) s/Str})
+  {:id              s/Str
+   :question        s/Str
+   (s/optional-key
+     :hint)         s/Str
+   :required        s/Bool
+   :valueType       s/Str        ; int, long, string, assignment etc.
+   (s/optional-key
+     :validations)  [Validation]
+   (s/optional-key
+     :defaultValue) s/Str})
 
 (s/defschema PendingTask
   {:id                   s/Str
    :name                 s/Str
-   :description          s/Str
-   :projectId            s/Str
    :projectName          s/Str
    :type                 s/Str       ; assignment or measurement
-   :assignedTo           s/Str       ; id of the user this is assigned to
    :assignerName         s/Str
    :assignerPhone        s/Str
    :assignerOrgUnit      s/Str
-   :createdAt            s/Str       ; milliseconds since 1970
-   :updatedAt            s/Str
    :dueDate              s/Str
    :measurementTemplates [MeasurementTemplate]})
 
@@ -108,7 +101,8 @@
    :assigneeName    s/Str
    :assigneePhone   s/Str
    :assigneeOrgUnit s/Str
-   :dueDate         s/Str})
+   :dueDate         s/Str
+   :status          s/Str})
 
 (s/defschema AssignmentTask
   {:id             s/Str
@@ -140,10 +134,10 @@
 
 
 (s/defschema Measurement
-  {:id                        s/Str     ; measurement template id
-   :value                     s/Str
-   (s/optional-key :entityId) s/Str}    ; id of the entity if you are creating a
-                                        ; new entity or want to link it to an existing entity
+  {:id              s/Str     ; measurement template id
+   :value           s/Str
+   (s/optional-key
+     :entityId)     s/Str}    ; id of the entity if you are creating a new entity or want to link it to an existing entity
   )
 
 (s/defschema TaskSubmission
@@ -154,5 +148,19 @@
    })
 
 (s/defschema TaskSubmissions
-  {:tasks [TaskSubmission]
-   :auth Auth})
+  {:tasks  [TaskSubmission]
+   :auth   Auth})
+
+
+;;; ===============================templates/projects============================
+
+
+(s/defschema ProjectTemplate
+  {:id s/Str
+   :title s/Str
+   :description s/Str
+   :projectSchemaId s/Str})
+
+(s/defschema ProjectTemplatesDiff
+  {:insert [ProjectTemplate]
+   :delete [Id]})

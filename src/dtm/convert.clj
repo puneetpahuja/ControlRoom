@@ -35,11 +35,9 @@
 
           same-vals       (select-keys keys-converted
                                        [:firstName :lastName
-                                        :title :username :phone :email])
+                                        :title :phone :email])
           {:keys
-           [id role
-            username
-            channels
+           [id username
             apiKey]}       keys-converted
 
           db               (util/get-db)
@@ -50,10 +48,7 @@
 
           user             (assoc same-vals
                                   :id        (str id)
-                                  :role      (remove-namespace-str role)
-                                  :channels  (mapv remove-namespace-str channels)
-                                  :orgUnit   (:name org-unit-details)
-                                  :orgUnitId (str (:id org-unit-details)))
+                                  :orgUnit   (:name org-unit-details))
 
           user-auth        {:user user
                             :apiKey apiKey}]
@@ -100,20 +95,16 @@
     (let [keys-converted    (keys-emap emap)
 
           same-vals         (select-keys keys-converted
-                                         [:name :description :createdAt
-                                          :updatedAt :dueDate])
+                                         [:name :dueDate])
           {:keys
            [id type
             measurementTemplates
-            assignedTo
             assignedBy]}    keys-converted
 
           db                (util/get-db)
 
           project-eid       (util/get-project-eid id db)
           project-details   (keys-emap (util/get-details project-eid db))
-
-          assignee-details  (keys-emap (util/assignee-details assignedTo))
 
           assigner-details  (keys-emap (util/get-details assignedBy))
 
@@ -123,12 +114,8 @@
           pending-task      (assoc
                               same-vals
                               :id                   (str id)
-                              :projectId            (str (:id project-details))
                               :projectName          (:name project-details)
                               :type                 (remove-namespace-str type)
-                              :assignedTo           (-> assignee-details
-                                                        :id
-                                                        str)
                               :assignerName         (util/full-name assigner-details)
                               :assignerPhone        (:phone assigner-details)
                               :assignerOrgUnit      (util/org-unit-name assigner-details)
@@ -143,7 +130,7 @@
   (let [keys-converted    (keys-emap emap)
         same-vals         (select-keys keys-converted [:name :dueDate])
         {:keys
-         [id
+         [id status
           assignedTo]}    keys-converted
 
         assignee-details (keys-emap (util/assignee-details assignedTo))
@@ -152,7 +139,8 @@
                            :id (str id)
                            :assigneeName (util/full-name assignee-details)
                            :assigneePhone (:phone assignee-details)
-                           :assigneeOrgUnit (util/org-unit-name assignee-details))]
+                           :assigneeOrgUnit (util/org-unit-name assignee-details)
+                           :status (remove-namespace-str status))]
     assigned-task))
 
 (defn m-template->assigned-task [m-template-emap]
@@ -218,3 +206,24 @@
                               :projectName          (:name project-details)
                               :assignerPhone        (:phone assigner-details))]
       completed-task)))
+
+
+;;; ================================templates/projects==========================
+
+
+(defn template-project [emap]
+  (when emap
+    (let [keys-converted (keys-emap emap)
+
+          same-vals (select-keys keys-converted
+                                 [:title :description])
+
+          {:keys
+           [projectSchemaId
+            id]}   keys-converted
+
+          project-template (assoc
+                             same-vals
+                             :id  (str id)
+                             :projectSchemaId (str projectSchemaId))]
+      project-template)))
