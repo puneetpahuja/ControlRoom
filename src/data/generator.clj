@@ -17,6 +17,12 @@
                          :id :name :value])
 (def photo-m-attrs      [:photo-measurement
                          :id :name :value])
+(def date-m-attrs       [:date-measurement
+                         :id :name :value])
+(def location-m-attrs   [:location-measurement
+                         :id :name :value])
+(def float-m-attrs      [:float-measurement
+                         :id :name :value])
 
 (def datasource-attrs   [:datasource
                          :id :measurements :tags
@@ -61,6 +67,9 @@
 (def string-m     (partial make-tx string-m-attrs))
 (def assignment-m (partial make-tx assignment-m-attrs))
 (def photo-m      (partial make-tx photo-m-attrs))
+(def date-m       (partial make-tx date-m-attrs))
+(def location-m   (partial make-tx location-m-attrs))
+(def float-m      (partial make-tx float-m-attrs))
 (def datasource   (partial make-tx datasource-attrs))
 (def m-template   (partial make-tx m-template-attrs))
 (def task         (partial make-tx task-attrs))
