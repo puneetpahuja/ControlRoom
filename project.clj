@@ -1,6 +1,7 @@
 (defproject controlroom-api-poc "0.1.0-SNAPSHOT"
   :description "To make the api with datomic incrementally(one endpoint after another) from controlroom-dummy-api"
   :dependencies [[camel-snake-kebab "0.4.0"]
+                 [clj-time "0.14.2"]
                  [com.datomic/datomic-pro "0.9.5561.62"]
                  [datomic-schema "1.3.0"]
                  [metosin/compojure-api "1.1.11"]
