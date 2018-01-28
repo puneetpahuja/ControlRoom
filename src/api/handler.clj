@@ -3,8 +3,7 @@
             [api.read :as read]
             [api.schema :as schema]
             [api.write :as write]
-            [compojure.api.sweet :as c]
-            [data.init :as data]))
+            [compojure.api.sweet :as c]))
 
 (comment TODO
          * have a parent-child heirarchy for entities like tasks, activities
