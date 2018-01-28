@@ -139,7 +139,7 @@
                [status :ref]
 
                [assigned-to :ref]   ; assignment-measurement
-               [assigned-by :ref]   ; user
+               [due-date :string]
                [completed-at :string]
 
                [parent :ref]
@@ -147,8 +147,7 @@
                [sibling :ref]
 
                [created-at :string]
-               [updated-at :string]
-               [due-date :string]))
+               [updated-at :string]))
 
    (s/schema project
              (s/fields
@@ -156,15 +155,13 @@
                [name :string]
                [description :string]
 
-               [root :ref]    ; task
-               [status :ref]
+               [root :ref]    ; root task
+               [completed-at :string]
                [owner :ref]
 
                [created-at :string]
                [updated-at :string]
-               [due-date :string]
-
-               [completed-at :string]))
+               [due-date :string]))
 
 
 ;;; ================================templates/projects==========================

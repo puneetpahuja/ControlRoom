@@ -17,6 +17,12 @@
                          :id :name :value])
 (def photo-m-attrs      [:photo-measurement
                          :id :name :value])
+(def date-m-attrs       [:date-measurement
+                         :id :name :value])
+(def location-m-attrs   [:location-measurement
+                         :id :name :value])
+(def float-m-attrs      [:float-measurement
+                         :id :name :value])
 
 (def datasource-attrs   [:datasource
                          :id :measurements :tags
@@ -30,15 +36,14 @@
 (def task-attrs         [:task
                          :id :name :description
                          :measurement-templates :type :status
-                         :assigned-to :assigned-by :completed-at
+                         :assigned-to :due-date :completed-at
                          :parent :first-child :sibling
-                         :created-at :updated-at :due-date])
+                         :created-at :updated-at])
 
 (def project-attrs      [:project
                          :id :name :description
-                         :root :status :owner
-                         :created-at :updated-at :due-date
-                         :completed-at])
+                         :root :completed-at :owner
+                         :created-at :updated-at :due-date])
 
 (def project-template-attrs [:project-template
                              :id :title :description
@@ -61,6 +66,9 @@
 (def string-m     (partial make-tx string-m-attrs))
 (def assignment-m (partial make-tx assignment-m-attrs))
 (def photo-m      (partial make-tx photo-m-attrs))
+(def date-m       (partial make-tx date-m-attrs))
+(def location-m   (partial make-tx location-m-attrs))
+(def float-m      (partial make-tx float-m-attrs))
 (def datasource   (partial make-tx datasource-attrs))
 (def m-template   (partial make-tx m-template-attrs))
 (def task         (partial make-tx task-attrs))
