@@ -5,9 +5,10 @@
             [dtm.config :as config]
             [ring.util.http-response :as response]))
 
-(defn init [password]
+(defn init [{:keys [username password]}]
   (let [uri  config/uri]
-    (if (= password "fancyLikeThat")
+    (if (and (= username "admin")
+             (= password "fancyLikeThat"))
       (do
         (d/delete-database uri)
         (d/create-database uri)
@@ -18,5 +19,5 @@
           @(d/transact conn t/ro2)
           @(d/transact conn t/ro2-linking)
           @(d/transact conn t/templates)
-          (response/ok {})))
-      (response/unauthorized {:error "wrong password"}))))
+          (response/ok {:result true})))
+      (response/unauthorized {:error "wrong credentials"}))))

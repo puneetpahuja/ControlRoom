@@ -70,6 +70,10 @@
     {:insert (mapv task-completed insert-uuids)
      :delete delete}))
 
+
+;;; ================================templates/projects==========================
+
+
 (defn template-project [id]
   (convert/template-project (util/get-details :project-template/id id (util/get-db))))
 
