@@ -166,6 +166,10 @@
 
                [completed-at :string]))
 
+
+;;; ================================templates/projects==========================
+
+
    (s/schema project-template
              (s/fields
                [id :uuid :unique-identity]

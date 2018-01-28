@@ -12,16 +12,16 @@
   {:username  s/Str
    :apiKey    s/Str})
 
-(def Id
-  s/Str)
+(def Id s/Str)
 
 (s/defschema Manifest
   {:ids       [Id]
    :auth      Auth})
 
 (s/defschema Result
-  {:result                 s/Bool
-   (s/optional-key :error) s/Str})
+  {:result           s/Bool
+   (s/optional-key
+     :error)         s/Str})
 
 
 ;;; ================================login=======================================
@@ -41,7 +41,7 @@
    :orgUnit   s/Str})
 
 (s/defschema UserAuth
-  {:user User
+  {:user      User
    :apiKey    s/Str})
 
 
@@ -65,15 +65,16 @@
   {})
 
 (s/defschema MeasurementTemplate
-  {:id        s/Str
-   :question  s/Str
-   :hint      s/Str
-   (s/optional-key :hint)      s/Str
-   :required  s/Bool
-   :valueType s/Str        ; int, long, string, assignment etc.
-
-   (s/optional-key :validations)  [Validation]
-   (s/optional-key :defaultValue) s/Str})
+  {:id              s/Str
+   :question        s/Str
+   (s/optional-key
+     :hint)         s/Str
+   :required        s/Bool
+   :valueType       s/Str        ; int, long, string, assignment etc.
+   (s/optional-key
+     :validations)  [Validation]
+   (s/optional-key
+     :defaultValue) s/Str})
 
 (s/defschema PendingTask
   {:id                   s/Str
@@ -133,10 +134,10 @@
 
 
 (s/defschema Measurement
-  {:id                        s/Str     ; measurement template id
-   :value                     s/Str
-   (s/optional-key :entityId) s/Str}    ; id of the entity if you are creating a
-                                        ; new entity or want to link it to an existing entity
+  {:id              s/Str     ; measurement template id
+   :value           s/Str
+   (s/optional-key
+     :entityId)     s/Str}    ; id of the entity if you are creating a new entity or want to link it to an existing entity
   )
 
 (s/defschema TaskSubmission
@@ -147,8 +148,13 @@
    })
 
 (s/defschema TaskSubmissions
-  {:tasks [TaskSubmission]
-   :auth Auth})
+  {:tasks  [TaskSubmission]
+   :auth   Auth})
+
+
+;;; ===============================templates/projects============================
+
+
 (s/defschema ProjectTemplate
   {:id s/Str
    :title s/Str

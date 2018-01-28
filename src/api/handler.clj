@@ -3,7 +3,8 @@
             [api.read :as read]
             [api.schema :as schema]
             [api.write :as write]
-            [compojure.api.sweet :as c]))
+            [compojure.api.sweet :as c]
+            [data.init :as data]))
 
 (comment TODO
          * have a parent-child heirarchy for entities like tasks, activities
@@ -29,7 +30,7 @@
                (c/POST "/v0.1/login" []
                        :return schema/UserAuth
                        :body [credentials schema/Credentials]
-                       :summary "Returns the user data if the password is correct."
+                       :summary "Returns the user data."
                        (auth/login credentials))
 
 
@@ -39,7 +40,7 @@
                (c/POST "/v0.1/logout" []
                        :return schema/Result
                        :body [auth schema/Auth]
-                       :summary "Logs out the user if auth is correct."
+                       :summary "Logs out the user."
                        (auth/logout auth))
 
 
@@ -89,9 +90,33 @@
                       :return schema/Result
                       :body [task-submissions schema/TaskSubmissions]
                       :summary "Submits completed or rejected tasks."
-                      (write/tasks task-submissions)))))
+                      (write/tasks task-submissions))
+
+
+;;; ================================templates/projects==========================
+
+
                (c/POST "/v0.1/templates/projects" []
                        :return schema/ProjectTemplatesDiff
                        :body [project-templates-manifest schema/Manifest]
                        :summary "Returns all the project templates."
                        (read/templates-projects project-templates-manifest))
+
+
+;;; ================================init========================================
+
+
+               (c/POST "/v0.1/init" []
+                       :return schema/Result
+                       :body [credentials schema/Credentials]
+                       :summary "Initializes projects. Used for testing."
+                       (write/init credentials))
+
+;;; ================================test========================================
+
+
+               (c/POST "/v0.1/init-plus" []
+                       :return schema/Result
+                       :body [credentials schema/Credentials]
+                       :summary "Initializes projects and feeds some extra data. Used for testing."
+                       (write/init-plus credentials)))))
