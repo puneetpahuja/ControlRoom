@@ -69,3 +69,20 @@
         insert-uuids        (mapv util/str->uuid insert)]
     {:insert (mapv task-completed insert-uuids)
      :delete delete}))
+
+
+;;; ================================templates/projects==========================
+
+
+(defn template-project [id]
+  (convert/template-project (util/get-details :project-template/id id (util/get-db))))
+
+(defn templates-projects [_ ids]
+  (let [project-templates-ids  (util/get-project-templates-ids (util/get-db))
+        diff                   (util/diff ids (mapv str project-templates-ids))
+        {:keys
+         [insert
+          delete]}             diff
+        insert-uuids           (mapv util/str->uuid insert)]
+    {:insert (mapv template-project insert-uuids)
+     :delete delete}))
