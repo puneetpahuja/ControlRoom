@@ -103,11 +103,20 @@
                        (read/templates-projects project-templates-manifest))
 
 
-;;; ================================reset=======================================
+;;; ================================init========================================
 
 
-               (c/POST "/v0.1/reset" []
+               (c/POST "/v0.1/init" []
                        :return schema/Result
                        :body [credentials schema/Credentials]
-                       :summary "Resets the database to a predefined state. Used for testing."
-                       (write/reset credentials)))))
+                       :summary "Initializes projects. Used for testing."
+                       (write/init credentials))
+
+;;; ================================test========================================
+
+
+               (c/POST "/v0.1/init-plus" []
+                       :return schema/Result
+                       :body [credentials schema/Credentials]
+                       :summary "Initializes projects and feeds some extra data. Used for testing."
+                       (write/init-plus credentials)))))
