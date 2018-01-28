@@ -155,15 +155,13 @@
                [name :string]
                [description :string]
 
-               [root :ref]    ; task
-               [status :ref]
+               [root :ref]    ; root task
+               [completed-at :string]
                [owner :ref]
 
                [created-at :string]
                [updated-at :string]
-               [due-date :string]
-
-               [completed-at :string]))
+               [due-date :string]))
 
 
 ;;; ================================templates/projects==========================
