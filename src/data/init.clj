@@ -32,7 +32,9 @@
            (= password "fancyLikeThat"))
     (do
       (init)
-      @(d/transact t/ro1-linking)
-      @(d/transact t/ro2-linking)
+      (let [uri config/uri
+            conn (d/connect uri)]
+        @(d/transact conn t/ro1-linking)
+        @(d/transact conn t/ro2-linking))
       (response/ok {:result true}))
     (response/unauthorized {:error "wrong credentials"})))
