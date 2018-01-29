@@ -36,15 +36,14 @@
 (def task-attrs         [:task
                          :id :name :description
                          :measurement-templates :type :status
-                         :assigned-to :assigned-by :completed-at
+                         :assigned-to :due-date :completed-at
                          :parent :first-child :sibling
-                         :created-at :updated-at :due-date])
+                         :created-at :updated-at])
 
 (def project-attrs      [:project
                          :id :name :description
-                         :root :status :owner
-                         :created-at :updated-at :due-date
-                         :completed-at])
+                         :root :completed-at :owner
+                         :created-at :updated-at :due-date])
 
 (def project-template-attrs [:project-template
                              :id :title :description

@@ -98,15 +98,17 @@
                                          [:name :dueDate])
           {:keys
            [id type
-            measurementTemplates
-            assignedBy]}    keys-converted
+            measurementTemplates]}    keys-converted
 
           db                (util/get-db)
 
           project-eid       (util/get-project-eid id db)
           project-details   (keys-emap (util/get-details project-eid db))
 
-          assigner-details  (keys-emap (util/get-details assignedBy))
+          assigner-details  (-> id
+                                (util/get-assigner-eid db)
+                                (util/get-details db)
+                                keys-emap)
 
           m-templates-emaps (mapv util/get-details measurementTemplates)
           m-templates       (mapv measurement-template m-templates-emaps)
@@ -190,15 +192,17 @@
           same-vals         (select-keys keys-converted
                                          [:name :completedAt])
           {:keys
-           [id
-            assignedBy]}    keys-converted
+           [id]}            keys-converted
 
           db                (util/get-db)
 
           project-eid       (util/get-project-eid id db)
           project-details   (keys-emap (util/get-details project-eid db))
 
-          assigner-details  (keys-emap (util/get-details assignedBy))
+          assigner-details  (-> id
+                                (util/get-assigner-eid db)
+                                (util/get-details db)
+                                keys-emap)
 
           completed-task    (assoc
                               same-vals
