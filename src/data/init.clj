@@ -15,8 +15,8 @@
        @(d/transact conn t/users)
        @(d/transact conn t/ro1)
        @(d/transact conn t/ro1-init-linking)
-       @(d/transact conn t/ro2)
-       @(d/transact conn t/ro2-init-linking)
+       ;; @(d/transact conn t/ro2)
+       ;; @(d/transact conn t/ro2-init-linking)
        @(d/transact conn t/templates))))
 
   ([{:keys [username password]}]
@@ -35,6 +35,7 @@
       (let [uri config/uri
             conn (d/connect uri)]
         @(d/transact conn t/ro1-linking)
-        @(d/transact conn t/ro2-linking))
+        ;; @(d/transact conn t/ro2-linking)
+        )
       (response/ok {:result true}))
     (response/unauthorized {:error "wrong credentials"})))
