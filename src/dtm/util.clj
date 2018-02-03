@@ -175,3 +175,9 @@
 
 (defn get-project-templates-ids [db]
   (get-all-vals :project-template/id db))
+
+
+;;; ================================PUT tasks===================================
+
+(defn transact [tx]
+  @(d/transact (get-conn) tx))
