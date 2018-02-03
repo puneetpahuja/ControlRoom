@@ -45,7 +45,12 @@
                         :id)]
     (add-namespace m-namespace
                    {:id    m-id
-                    :value value})))
+                    :value (if (= m-namespace "assignment-measurement")
+                             [:user/username value]
+                             value)})))
+
+(defn task [t]
+  )
 
 (defn split-task-and-measurement-data [tasks]
   {:tasks (mapv #(select-keys % [:id :status])
