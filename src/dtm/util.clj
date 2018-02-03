@@ -155,8 +155,9 @@
     (let [project-eid (get-project-eid task-id db)
           q           `[:find ?e-owner
                         :where
-                        [~project-eid :project/owner ?e-owner]]]
-      (d/q q db))
+                        [~project-eid :project/owner ?e-owner]]
+          assigner-eid (d/q q db)]
+      (ffirst assigner-eid))
 
     (let [q `[:find ?e-assigner
               :where
