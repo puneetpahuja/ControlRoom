@@ -23,6 +23,9 @@
                          :id :name :value])
 (def float-m-attrs      [:float-measurement
                          :id :name :value])
+(def any-m-attrs        [:any-measurement
+                         :id :name :value
+                         :value-type])
 
 (def datasource-attrs   [:datasource
                          :id :measurements :tags

@@ -135,6 +135,7 @@
 
 (s/defschema Measurement
   {:id              s/Str     ; measurement template id
+   :valueType       s/Str     ; can be integer, float, string, photo, location, date
    :value           s/Str
    (s/optional-key
      :entityId)     s/Str}    ; id of the entity if you are creating a new entity or want to link it to an existing entity

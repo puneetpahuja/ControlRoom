@@ -27,6 +27,7 @@
 (defn measurement [m]
   (let [{:keys
          [id
+          valueType
           value]}   m
         db          (util/get-db)
         m-e         (util/get-attr
@@ -42,17 +43,20 @@
                         get-namespace)
         m-id        (-> m-details
                         convert/keys-emap
-                        :id)]
+                        :id)
+        tx          {:id    m-id
+                     :value (case m-namespace
+                              "assignment-measurement"
+                              [:user/username value]
+
+                              ("float-measurement" "integer-measurement")
+                              (read-string value)
+
+                              value)}]
     (add-namespace m-namespace
-                   {:id    m-id
-                    :value (case m-namespace
-                             "assignment-measurement"
-                             [:user/username value]
-
-                             ("float-measurement" "integer-measurement")
-                             (read-string value)
-
-                             value)})))
+                   (if (= m-namespace "any-measurement")
+                     (assoc tx :value-type valueType)
+                     tx))))
 
 (defn task [t]
   (let [{:keys
