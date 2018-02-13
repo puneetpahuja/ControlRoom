@@ -75,7 +75,7 @@
   (let [q  `[:find ?e-org-unit
              :where
              [?eu         :user/username ~username]
-             [?e-org-unit :org-unit/users ?eu]]]
+             [?e-org-unit :vertical/users ?eu]]]
     (ffirst (d/q q db))))
 
 
@@ -99,9 +99,15 @@
   (let [task-eid (get-eid :task/id task-id db)]
     (root task-eid db)))
 
+(defn get-activity-eid [task-id db]
+  (let [root-eid     (get-root-eid task-id db)
+        activity-eid (get-eid :activity/root root-eid db)]
+    activity-eid))
+
 (defn get-project-eid [task-id db]
-  (let [root-eid (get-root-eid task-id db)]
-    (get-eid :project/root root-eid db)))
+  (let [activity-eid (get-activity-eid task-id db)
+        project-eid  (get-eid :project/activities activity-eid db)]
+    project-eid))
 
 (defn get-tasks-ids [status username db]
   (let [q `[:find ?tid
@@ -137,7 +143,7 @@
         :username
         (get-org-unit-eid db)
         (get-details db)
-        :org-unit/name)))
+        :vertical/name)))
 
 (defn assignee-details [assignment-measurement-entity]
   (-> assignment-measurement-entity
@@ -152,12 +158,12 @@
 
 (defn get-assigner-eid [task-id db]
   (if (root? task-id db)
-    (let [project-eid (get-project-eid task-id db)
+    (let [activity-eid (get-activity-eid task-id db)
           q           `[:find ?e-owner
                         :where
-                        [~project-eid :project/owner ?e-owner]]
-          assigner-eid (d/q q db)]
-      (ffirst assigner-eid))
+                        [~activity-eid :activity/owner ?e-owner]]
+          assigner-eid (ffirst (d/q q db))]
+      assigner-eid)
 
     (let [q `[:find ?e-assigner
               :where
