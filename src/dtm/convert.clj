@@ -71,7 +71,7 @@
                                 :name name)]
       org-unit-user)))
 
-(defn org-unit-vertical [emap]
+(defn vertical [emap]
   (when emap
     (let [keys-converted    (keys-emap emap)
 
@@ -83,12 +83,12 @@
 
           users             (mapv (comp org-unit-user util/get-details) users)
 
-          org-unit-vertical (assoc same-vals
+          vertical (assoc same-vals
                                    :id (str id)
                                    :users users)]
-      org-unit-vertical)))
+      vertical)))
 
-(defn org-unit-state [emap]
+(defn state [emap]
   (when emap
     (let [keys-converted (keys-emap emap)
 
@@ -99,14 +99,14 @@
            [id
             verticals]}  keys-converted
 
-          verticals      (mapv (comp org-unit-vertical util/get-details) verticals)
+          verticals      (mapv (comp vertical util/get-details) verticals)
 
-          org-unit-state (assoc same-vals
+          state (assoc same-vals
                                 :id (str id)
                                 :vertical/departments verticals)]
-      org-unit-state)))
+      state)))
 
-(defn org-unit-project [emap]
+(defn project [emap]
   (when emap
     (let [keys-converted   (keys-emap emap)
 
@@ -115,12 +115,12 @@
           {:keys
            [id states]}     keys-converted
 
-          states           (mapv (comp org-unit-state util/get-details) states)
+          states           (mapv (comp state util/get-details) states)
 
-          org-unit-project (assoc same-vals
+          project (assoc same-vals
                                   :id   (str id)
                                   :states states)]
-      org-unit-project)))
+      project)))
 
 
 ;;; ================================tasks/pending===============================

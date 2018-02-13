@@ -13,9 +13,9 @@
      (let [conn (d/connect uri)]
        @(d/transact conn s/schema)
        @(d/transact conn t/users)
-       @(d/transact conn t/org-unit-verticals)
-       @(d/transact conn t/org-unit-states)
-       @(d/transact conn t/org-unit-projects)
+       @(d/transact conn t/verticals)
+       @(d/transact conn t/states)
+       @(d/transact conn t/projects)
        @(d/transact conn t/org-units)
        ;; @(d/transact conn t/ro1)
        ;; @(d/transact conn t/ro1-init-linking)
