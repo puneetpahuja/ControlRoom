@@ -155,8 +155,9 @@
     (let [project-eid (get-project-eid task-id db)
           q           `[:find ?e-owner
                         :where
-                        [~project-eid :project/owner ?e-owner]]]
-      (d/q q db))
+                        [~project-eid :project/owner ?e-owner]]
+          assigner-eid (d/q q db)]
+      (ffirst assigner-eid))
 
     (let [q `[:find ?e-assigner
               :where
@@ -174,3 +175,9 @@
 
 (defn get-project-templates-ids [db]
   (get-all-vals :project-template/id db))
+
+
+;;; ================================PUT tasks===================================
+
+(defn transact [tx]
+  @(d/transact (get-conn) tx))

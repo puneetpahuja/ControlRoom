@@ -51,7 +51,23 @@
 ;;; ================================org-units===================================
 
 
-   (s/schema org-unit
+   (s/schema org-units
+             (s/fields
+               [version :long]))
+
+   (s/schema org-unit-project
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [states :ref :many]))
+
+   (s/schema org-unit-state
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [verticals :ref :many]))
+
+   (s/schema org-unit-vertical
              (s/fields
                [id :uuid :unique-identity]
                [name :string]
@@ -106,6 +122,13 @@
                [id :uuid :unique-identity]
                [name :string]
                [value :float]))
+
+   (s/schema any-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :string]
+               [value-type :string]))
 
    (s/schema measurement-template
              (s/fields
@@ -202,7 +225,8 @@
                     {:db/ident :measurement.value-type/assignment}
                     {:db/ident :measurement.value-type/photo}
                     {:db/ident :measurement.value-type/location}
-                    {:db/ident :measurement.value-type/date}]})
+                    {:db/ident :measurement.value-type/date}
+                    {:db/ident :measurement.value-type/any}]})
 
 (def generated-schema (mapv #(dissoc % :db.install/_attribute :db/id)
                             (s/generate-schema schemas {:gen-all? false})))
