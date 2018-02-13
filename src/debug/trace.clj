@@ -7,10 +7,20 @@
 (trace 'api.auth
        'api.handler
        'api.read
-       'api.schema)
+       'api.schema
+       'api.write)
+
+(trace 'data.generator
+       'data.ids
+       'data.init
+       'data.repl-commands
+       'data.test
+       'data.util)
 
 (trace 'dtm.auth
        'dtm.config
        'dtm.convert
+       'dtm.read
+       'dtm.schema
        'dtm.util
-       'dtm.read)
+       'dtm.write)
