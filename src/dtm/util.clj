@@ -145,9 +145,39 @@
       :assignment-measurement/value
       get-details))
 
+(defn root? [task-id db]
+  (let [task-eid (get-eid :task/id task-id db)
+        root-eid (get-root-eid task-id db)]
+    (= task-eid root-eid)))
+
+(defn get-assigner-eid [task-id db]
+  (if (root? task-id db)
+    (let [project-eid (get-project-eid task-id db)
+          q           `[:find ?e-owner
+                        :where
+                        [~project-eid :project/owner ?e-owner]]
+          assigner-eid (d/q q db)]
+      (ffirst assigner-eid))
+
+    (let [q `[:find ?e-assigner
+              :where
+              [?e-assigned-t :task/id ~task-id]
+              [?e-assigned-t :task/assigned-to ?e-assignment-m]
+              [?e-m-template :measurement-template/measurement ?e-assignment-m]
+              [?e-assigner-t :task/measurement-templates ?e-m-template]
+              [?e-assigner-t :task/assigned-to ?e-assigner-t-assignment-m]
+              [?e-assigner-t-assignment-m :assignment-measurement/value ?e-assigner]]]
+      (ffirst (d/q q db)))))
+
 
 ;;; ================================templates/projects==========================
 
 
 (defn get-project-templates-ids [db]
   (get-all-vals :project-template/id db))
+
+
+;;; ================================PUT tasks===================================
+
+(defn transact [tx]
+  @(d/transact (get-conn) tx))

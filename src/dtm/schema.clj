@@ -51,7 +51,24 @@
 ;;; ================================org-units===================================
 
 
-   (s/schema org-unit
+   (s/schema org-units
+             (s/fields
+               [version :long]))
+
+   (s/schema project
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [states :ref :many]
+               [activities :ref :many :component]))
+
+   (s/schema state
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [verticals :ref :many]))
+
+   (s/schema vertical
              (s/fields
                [id :uuid :unique-identity]
                [name :string]
@@ -107,6 +124,13 @@
                [name :string]
                [value :float]))
 
+   (s/schema any-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :string]
+               [value-type :string]))
+
    (s/schema measurement-template
              (s/fields
                [id :uuid :unique-identity]
@@ -139,7 +163,7 @@
                [status :ref]
 
                [assigned-to :ref]   ; assignment-measurement
-               [assigned-by :ref]   ; user
+               [due-date :string]
                [completed-at :string]
 
                [parent :ref]
@@ -147,24 +171,21 @@
                [sibling :ref]
 
                [created-at :string]
-               [updated-at :string]
-               [due-date :string]))
+               [updated-at :string]))
 
-   (s/schema project
+   (s/schema activity
              (s/fields
                [id :uuid :unique-identity]
                [name :string]
                [description :string]
 
-               [root :ref]    ; task
-               [status :ref]
+               [root :ref]    ; root task
+               [completed-at :string]
                [owner :ref]
 
                [created-at :string]
                [updated-at :string]
-               [due-date :string]
-
-               [completed-at :string]))
+               [due-date :string]))
 
 
 ;;; ================================templates/projects==========================
@@ -205,7 +226,8 @@
                     {:db/ident :measurement.value-type/assignment}
                     {:db/ident :measurement.value-type/photo}
                     {:db/ident :measurement.value-type/location}
-                    {:db/ident :measurement.value-type/date}]})
+                    {:db/ident :measurement.value-type/date}
+                    {:db/ident :measurement.value-type/any}]})
 
 (def generated-schema (mapv #(dissoc % :db.install/_attribute :db/id)
                             (s/generate-schema schemas {:gen-all? false})))

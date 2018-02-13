@@ -3,8 +3,7 @@
             [api.read :as read]
             [api.schema :as schema]
             [api.write :as write]
-            [compojure.api.sweet :as c]
-            [data.init :as data]))
+            [compojure.api.sweet :as c]))
 
 (comment TODO
          * have a parent-child heirarchy for entities like tasks, activities
@@ -49,7 +48,7 @@
 
                (c/POST "/v0.1/org-units" []
                        :return schema/OrgUnitsDiff
-                       :body [org-units-manifest schema/Manifest]
+                       :body [org-units-manifest schema/VersionManifest]
                        :summary "Returns all the org units."
                        (read/org-units org-units-manifest))
 
@@ -103,11 +102,20 @@
                        (read/templates-projects project-templates-manifest))
 
 
-;;; ================================reset=======================================
+;;; ================================init========================================
 
 
-               (c/POST "/v0.1/reset" []
+               (c/POST "/v0.1/init" []
                        :return schema/Result
                        :body [credentials schema/Credentials]
-                       :summary "Resets the database to a predefined state. Used for testing."
-                       (write/reset credentials)))))
+                       :summary "Initializes projects. Used for testing."
+                       (write/init credentials))
+
+;;; ================================test========================================
+
+
+               (c/POST "/v0.1/init-plus" []
+                       :return schema/Result
+                       :body [credentials schema/Credentials]
+                       :summary "Initializes projects and feeds some extra data. Used for testing."
+                       (write/init-plus credentials)))))

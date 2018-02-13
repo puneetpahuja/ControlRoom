@@ -14,5 +14,12 @@
 ;;; ================================reset=======================================
 
 
-(defn reset [credentials]
+(defn init [credentials]
   (data/init credentials))
+
+
+;;; ================================test========================================
+
+
+(defn init-plus [credentials]
+  (data/init-plus credentials))
