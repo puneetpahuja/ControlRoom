@@ -6,8 +6,17 @@
                          :email :role :channels
                          :password :api-key])
 
-(def org-unit-attrs     [:org-unit
-                         :id :name :users])
+(def org-units-attrs    [:org-units
+                         :version])
+
+(def org-unit-project-attrs [:org-unit-project
+                             :id :name :states])
+
+(def org-unit-state-attrs [:org-unit-state
+                           :id :name :verticals])
+
+(def org-unit-vertical-attrs [:org-unit-vertical
+                              :id :name :users])
 
 (def integer-m-attrs    [:integer-measurement
                          :id :name :value])
@@ -64,7 +73,10 @@
     non-nil-attrs-map))
 
 (def user         (partial make-tx user-attrs))
-(def org-unit     (partial make-tx org-unit-attrs))
+(def org-units    (partial make-tx org-units-attrs))
+(def org-unit-project  (partial make-tx org-unit-project-attrs))
+(def org-unit-state    (partial make-tx org-unit-state-attrs))
+(def org-unit-vertical (partial make-tx org-unit-vertical-attrs))
 (def integer-m    (partial make-tx integer-m-attrs))
 (def string-m     (partial make-tx string-m-attrs))
 (def assignment-m (partial make-tx assignment-m-attrs))

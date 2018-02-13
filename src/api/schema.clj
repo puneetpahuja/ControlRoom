@@ -47,15 +47,33 @@
 
 ;;; ================================org-units===================================
 
+(s/defschema OrgUnitUser
+  {:name     s/Str
+   :username s/Str})
 
-(s/defschema OrgUnit
+(s/defschema OrgUnitVertical
+  {:id    s/Str
+   :name  s/Str
+   :users [OrgUnitUser]})
+
+(s/defschema OrgUnitState
+  {:id                   s/Str
+   :name                 s/Str
+   :vertical/departments [OrgUnitVertical]})
+
+(s/defschema OrgUnitProject
   {:id        s/Str
    :name      s/Str
-   :users     [User]})
+   :states    [OrgUnitState]})
 
 (s/defschema OrgUnitsDiff
-  {:insert    [OrgUnit]
-   :delete    [Id]})
+  {:version    s/Int
+   (s/optional-key
+     :projects) [OrgUnitProject]})
+
+(s/defschema VersionManifest
+  {:version   s/Int
+   :auth      Auth})
 
 
 ;;; ================================tasks/pending===============================

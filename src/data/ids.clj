@@ -119,13 +119,70 @@
   p-id2         (util/str->uuid "65b1b2e5-bcfb-4f3f-b4af-fadfa90dd070"))
 
 (defs
-  s1-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd050")
-  s2-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd051")
-  w1-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd052")
-  w2-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd053")
+  ;; users
+  tvs-mp-edu-s-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd000")
+  tvs-mp-edu-w-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd001")
+  tvs-mp-liv-s-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd002")
+  tvs-mp-liv-w-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd003")
+  tvs-mp-admin-s-id      (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd004")
+  tvs-mp-admin-w-id      (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd005")
+  tvs-mp-ops-s-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd006")
+  tvs-mp-ops-w-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd007")
 
-  o1-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd060")
-  o2-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd061")
+  tvs-odisha-health-s-id (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd008")
+  tvs-odisha-health-w-id (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd009")
+  tvs-odisha-admin-s-id  (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd010")
+  tvs-odisha-admin-w-id  (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd011")
+  tvs-odisha-ops-s-id    (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd012")
+  tvs-odisha-ops-w-id    (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd013")
+
+  mrg-tn-edu-s-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd014")
+  mrg-tn-edu-w-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd015")
+  mrg-tn-health-s-id     (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd016")
+  mrg-tn-health-w-id     (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd017")
+  mrg-tn-admin-s-id      (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd018")
+  mrg-tn-admin-w-id      (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd019")
+  mrg-tn-ops-s-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd020")
+  mrg-tn-ops-w-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd021")
+
+  mrg-mhr-edu-s-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd022")
+  mrg-mhr-edu-w-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd023")
+  mrg-mhr-health-s-id    (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd024")
+  mrg-mhr-health-w-id    (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd025")
+  mrg-mhr-admin-s-id     (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd026")
+  mrg-mhr-admin-w-id     (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd027")
+  mrg-mhr-ops-s-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd028")
+  mrg-mhr-ops-w-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd029")
+
+  ;; verticals
+  tvs-mp-admin-id      (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd061")
+  tvs-mp-ops-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd062")
+  tvs-mp-edu-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd063")
+  tvs-mp-liv-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd064")
+
+  tvs-odisha-admin-id  (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd065")
+  tvs-odisha-ops-id    (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd066")
+  tvs-odisha-health-id (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd067")
+
+  mrg-tn-admin-id      (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd068")
+  mrg-tn-ops-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd069")
+  mrg-tn-edu-id        (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd070")
+  mrg-tn-health-id     (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd071")
+
+  mrg-mhr-admin-id     (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd072")
+  mrg-mhr-ops-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd073")
+  mrg-mhr-edu-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd074")
+  mrg-mhr-health-id    (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd075")
+
+  ;; states
+  tvs-mp-id      (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd090")
+  tvs-odisha-id  (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd091")
+  mrg-tn-id      (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd092")
+  mrg-mhr-id     (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd093")
+
+  ;; projects
+  tvs-id   (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd080")
+  mrg-id   (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd081")
 
   pt1-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd100")
   ps1-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd101")

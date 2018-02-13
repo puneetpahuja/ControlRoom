@@ -51,7 +51,23 @@
 ;;; ================================org-units===================================
 
 
-   (s/schema org-unit
+   (s/schema org-units
+             (s/fields
+               [version :long]))
+
+   (s/schema org-unit-project
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [states :ref :many]))
+
+   (s/schema org-unit-state
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [verticals :ref :many]))
+
+   (s/schema org-unit-vertical
              (s/fields
                [id :uuid :unique-identity]
                [name :string]
