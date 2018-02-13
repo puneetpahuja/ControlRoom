@@ -10,18 +10,14 @@
 (defn remove-namespace-str [namespaced-keyword]
   (-> namespaced-keyword
       name
-      (s/split #"/")
-      last
       convert-case/->camelCase))
 
 (def remove-namespace (comp keyword remove-namespace-str))
 
 (defn keys [cmap]
-  (let [transformer (comp convert-case/->camelCase
-                          remove-namespace)]
-    (into {}
-          (for [[k v] cmap]
-            [(transformer k) v]))))
+  (into {}
+        (for [[k v] cmap]
+          [(remove-namespace k) v])))
 
 (def keys-emap (comp keys entity-map))
 
