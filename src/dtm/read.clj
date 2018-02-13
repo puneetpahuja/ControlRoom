@@ -6,18 +6,17 @@
 ;;; ================================org-units===================================
 
 
-(defn org-unit [id]
-  (convert/org-unit (util/get-details :org-unit/id id (util/get-db))))
+(defn org-unit-project [id]
+  (convert/org-unit-project (util/get-details :org-unit-project/id id (util/get-db))))
 
-(defn org-units [_username ids]
-  (let [org-unit-ids (util/get-all-vals :org-unit/id (util/get-db))
-        diff         (util/diff ids (mapv str org-unit-ids))
-        {:keys
-         [insert
-          delete]}   diff
-        insert-uuids (mapv util/str->uuid insert)]
-    {:insert (mapv org-unit insert-uuids)
-     :delete delete}))
+(defn org-units [_username version]
+  (let [db                (util/get-db)
+        org-units-version (first (util/get-all-vals :org-units/version db))]
+    (if (= org-units-version version)
+      {:version  version}
+      (let [org-unit-uuids (util/get-all-vals :org-unit-project/id db)]
+        {:version  org-units-version
+         :projects (mapv org-unit-project org-unit-uuids)}))))
 
 
 ;;; ================================tasks/pending===============================

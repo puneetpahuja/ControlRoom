@@ -58,19 +58,69 @@
 ;;; ================================org-units===================================
 
 
-(defn org-unit [emap]
+(defn org-unit-user [emap]
+  (when emap
+    (let [keys-converted (keys-emap emap)
+
+          same-vals      (select-keys keys-converted
+                                      [:username])
+
+          name           (util/full-name keys-converted)
+
+          org-unit-user  (assoc same-vals
+                                :name name)]
+      org-unit-user)))
+
+(defn org-unit-vertical [emap]
+  (when emap
+    (let [keys-converted    (keys-emap emap)
+
+          same-vals         (select-keys keys-converted
+                                         [:name])
+
+          {:keys
+           [id users]}      keys-converted
+
+          users             (mapv (comp org-unit-user util/get-details) users)
+
+          org-unit-vertical (assoc same-vals
+                                   :id (str id)
+                                   :users users)]
+      org-unit-vertical)))
+
+(defn org-unit-state [emap]
+  (when emap
+    (let [keys-converted (keys-emap emap)
+
+          same-vals      (select-keys keys-converted
+                                      [:name])
+
+          {:keys
+           [id
+            verticals]}  keys-converted
+
+          verticals      (mapv (comp org-unit-vertical util/get-details) verticals)
+
+          org-unit-state (assoc same-vals
+                                :id (str id)
+                                :vertical/departments verticals)]
+      org-unit-state)))
+
+(defn org-unit-project [emap]
   (when emap
     (let [keys-converted   (keys-emap emap)
 
           same-vals        (select-keys keys-converted [:name])
-          {:keys
-           [id users]}     keys-converted
 
-          users            (mapv (comp :user user-auth util/get-details) users)
-          org-unit         (assoc same-vals
+          {:keys
+           [id states]}     keys-converted
+
+          states           (mapv (comp org-unit-state util/get-details) states)
+
+          org-unit-project (assoc same-vals
                                   :id   (str id)
-                                  :users users)]
-      org-unit)))
+                                  :states states)]
+      org-unit-project)))
 
 
 ;;; ================================tasks/pending===============================
@@ -98,15 +148,17 @@
                                          [:name :dueDate])
           {:keys
            [id type
-            measurementTemplates
-            assignedBy]}    keys-converted
+            measurementTemplates]}    keys-converted
 
           db                (util/get-db)
 
           project-eid       (util/get-project-eid id db)
           project-details   (keys-emap (util/get-details project-eid db))
 
-          assigner-details  (keys-emap (util/get-details assignedBy))
+          assigner-details  (-> id
+                                (util/get-assigner-eid db)
+                                (util/get-details db)
+                                keys-emap)
 
           m-templates-emaps (mapv util/get-details measurementTemplates)
           m-templates       (mapv measurement-template m-templates-emaps)
@@ -190,15 +242,17 @@
           same-vals         (select-keys keys-converted
                                          [:name :completedAt])
           {:keys
-           [id
-            assignedBy]}    keys-converted
+           [id]}            keys-converted
 
           db                (util/get-db)
 
           project-eid       (util/get-project-eid id db)
           project-details   (keys-emap (util/get-details project-eid db))
 
-          assigner-details  (keys-emap (util/get-details assignedBy))
+          assigner-details  (-> id
+                                (util/get-assigner-eid db)
+                                (util/get-details db)
+                                keys-emap)
 
           completed-task    (assoc
                               same-vals
