@@ -13,7 +13,7 @@
       (response/unauthorized {:error "user does not exist"})
       (if-not (= check-api-key (db/get-api-key check-username))
         (response/unauthorized {:error "wrong api key"})
-        (response/ok (apply logic check-username params))))))
+        (response/ok (apply logic check-username params))))))   ; TODO - move response/ok out of here and to the individual logic functions
 
 
 ;;; ================================login=======================================

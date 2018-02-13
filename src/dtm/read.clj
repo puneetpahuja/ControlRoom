@@ -6,17 +6,17 @@
 ;;; ================================org-units===================================
 
 
-(defn org-unit-project [id]
-  (convert/org-unit-project (util/get-details :org-unit-project/id id (util/get-db))))
+(defn project [id]
+  (convert/project (util/get-details :project/id id (util/get-db))))
 
 (defn org-units [_username version]
   (let [db                (util/get-db)
         org-units-version (first (util/get-all-vals :org-units/version db))]
     (if (= org-units-version version)
       {:version  version}
-      (let [org-unit-uuids (util/get-all-vals :org-unit-project/id db)]
+      (let [project-uuids (util/get-all-vals :project/id db)]
         {:version  org-units-version
-         :projects (mapv org-unit-project org-unit-uuids)}))))
+         :projects (mapv project project-uuids)}))))
 
 
 ;;; ================================tasks/pending===============================

@@ -55,19 +55,20 @@
              (s/fields
                [version :long]))
 
-   (s/schema org-unit-project
+   (s/schema project
              (s/fields
                [id :uuid :unique-identity]
                [name :string]
-               [states :ref :many]))
+               [states :ref :many]
+               [activities :ref :many :component]))
 
-   (s/schema org-unit-state
+   (s/schema state
              (s/fields
                [id :uuid :unique-identity]
                [name :string]
                [verticals :ref :many]))
 
-   (s/schema org-unit-vertical
+   (s/schema vertical
              (s/fields
                [id :uuid :unique-identity]
                [name :string]
@@ -172,7 +173,7 @@
                [created-at :string]
                [updated-at :string]))
 
-   (s/schema project
+   (s/schema activity
              (s/fields
                [id :uuid :unique-identity]
                [name :string]
