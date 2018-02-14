@@ -38,7 +38,8 @@
    :title     s/Str
    :phone     s/Str
    :email     s/Str
-   :orgUnit   s/Str})
+   :orgUnit   s/Str
+   :state     s/Str})
 
 (s/defschema UserAuth
   {:user      User

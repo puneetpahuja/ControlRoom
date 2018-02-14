@@ -39,12 +39,15 @@
           db               (util/get-db)
 
           org-unit-eid     (util/get-org-unit-eid username db)
-
           org-unit-details (keys-emap (util/get-details org-unit-eid db))
+
+          state-eid        (util/get-eid :state/verticals org-unit-eid db)
+          state-details    (keys-emap (util/get-details state-eid db))
 
           user             (assoc same-vals
                                   :id        (str id)
-                                  :orgUnit   (:name org-unit-details))
+                                  :orgUnit   (:name org-unit-details)
+                                  :state     (:name state-details))
 
           user-auth        {:user user
                             :apiKey apiKey}]
