@@ -6,8 +6,8 @@
 ;;; ================================org-units===================================
 
 
-(defn org-units [{:keys [auth ids]}]
-  (auth/authorize-and-respond auth db/org-units ids))
+(defn org-units [{:keys [auth version]}]
+  (auth/authorize-and-respond auth db/org-units version))
 
 
 ;;; ================================tasks/pending===============================

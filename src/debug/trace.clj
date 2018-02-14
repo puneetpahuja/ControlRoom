@@ -13,7 +13,6 @@
 (trace 'data.generator
        'data.ids
        'data.init
-       'data.repl-commands
        'data.test
        'data.util)
 

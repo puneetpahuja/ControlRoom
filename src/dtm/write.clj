@@ -27,6 +27,7 @@
 (defn measurement [m]
   (let [{:keys
          [id
+          valueType
           value]}   m
         db          (util/get-db)
         m-e         (util/get-attr
@@ -42,28 +43,86 @@
                         get-namespace)
         m-id        (-> m-details
                         convert/keys-emap
-                        :id)]
+                        :id)
+        tx          {:id    m-id
+                     :value (case m-namespace
+                              "assignment-measurement"
+                              [:user/username value]
+
+                              ("float-measurement" "integer-measurement")
+                              (read-string value)
+
+                              value)}]
     (add-namespace m-namespace
-                   {:id    m-id
-                    :value (if (= m-namespace "assignment-measurement")
-                             [:user/username value]
-                             value)})))
+                   (if (= m-namespace "any-measurement")
+                     (assoc tx :value-type valueType)
+                     tx))))
 
 (defn task [t]
-  )
+  (let [{:keys
+         [id
+          status]}      t
+        db              (util/get-db)
+        details         (-> (util/get-details :task/id id db)
+                            convert/keys-emap)
+        {:keys
+         [parent
+          firstChild
+          sibling]}     details
+
+        parent-id       (:task/id (util/get-details parent))
+        first-child-id  (:task/id (util/get-details firstChild))
+        sibling-id      (:task/id (util/get-details sibling))]
+
+    (case status
+      "completed"
+      (cond
+        sibling-id
+        [{:task/id id
+          :task/status :task.status/completed}
+         {:task/id sibling-id
+          :task/status :task.status/pending}]
+
+        parent-id
+        (into [{:task/id id
+                :task/status :task.status/completed}]
+              (task {:id parent-id
+                     :status "completed"}))
+
+        :else
+        [{:task/id id
+          :task/status :task.status/completed}])
+
+      "assigned"
+      (cond
+        first-child-id
+        [{:task/id id
+          :task/status :task.status/assigned}
+         {:task/id first-child-id
+          :task/status :task.status/pending}]
+
+        :else
+        []))))
 
 (defn split-task-and-measurement-data [tasks]
-  {:tasks (mapv #(select-keys % [:id :status])
-                tasks)
-   :measurements (->> tasks
-                      (mapv :measurements)
-                      util/concat-lists)})
+  (let [ts (mapv #(select-keys % [:id :status])
+                 tasks)
+        ts (mapv #(update % :id util/str->uuid)
+                 ts)
+        ms (->> tasks
+                (mapv :measurements)
+                util/concat-lists)]
+    {:tasks ts
+     :measurements ms}))
 
 ;; TODO : Do we want to check if the task is assigned to this user or not and also
 ;;        whether the measurement templates belong to the task or not?
 (defn tasks [_username tasks]
   (let [splitted-data   (split-task-and-measurement-data tasks)
         ms              (:measurements splitted-data)
-        m-tx            (mapv measurement ms)]
-    ;;{:result true}
-    m-tx))
+        ms-tx           (mapv measurement ms)
+        ts              (:tasks splitted-data)
+        ts-tx           (util/concat-lists (mapv task ts))
+        tx              (into ms-tx ts-tx)]
+    (util/transact tx)
+    {:result true}))
