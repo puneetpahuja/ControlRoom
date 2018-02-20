@@ -11,6 +11,9 @@
 (defn str->uuid [s]
   (java.util.UUID/fromString s))
 
+(defn uuid []
+  (java.util.UUID/randomUUID))
+
 (defn concat-lists [collection-of-lists]
   (vec (reduce concat [] collection-of-lists)))
 
