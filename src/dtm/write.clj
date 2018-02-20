@@ -73,19 +73,22 @@
       (cond
         sibling-id
         [{:task/id id
-          :task/status :task.status/completed}
+          :task/status :task.status/completed
+          :task/completed-at (data-util/now)}
          {:task/id sibling-id
           :task/status :task.status/pending}]
 
         parent-id
         (into [{:task/id id
-                :task/status :task.status/completed}]
+                :task/status :task.status/completed
+                :task/completed-at (data-util/now)}]
               (task {:id parent-id
                      :status "completed"}))
 
         :else
         [{:task/id id
-          :task/status :task.status/completed}])
+          :task/status :task.status/completed
+          :task/completed-at (data-util/now)}])
 
       "assigned"
       (cond
