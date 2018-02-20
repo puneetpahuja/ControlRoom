@@ -8,13 +8,6 @@
 ;;; ====================================tasks===================================
 
 
-(defn get-namespace [key]
-  (-> key
-      str
-      (s/split #"/")
-      first
-      (subs 1)))
-
 (defn add-namespace [namespace cmap]
   (let [transformer (comp keyword
                           (partial str
@@ -41,7 +34,7 @@
                         convert/entity-map
                         keys
                         first
-                        get-namespace)
+                        namespace)
         m-id        (-> m-details
                         convert/keys-emap
                         :id)
