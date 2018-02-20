@@ -1,7 +1,8 @@
 (ns dtm.write
   (:require [dtm.util :as util]
             [dtm.convert :as convert]
-            [clojure.string :as s]))
+            [clojure.string :as s]
+            [data.util :as data-util]))
 
 
 ;;; ====================================tasks===================================
@@ -126,3 +127,140 @@
         tx              (into ms-tx ts-tx)]
     (util/transact tx)
     {:result true}))
+
+
+;;; ================================activities==================================
+
+
+(defn measurement-tx [mt]
+  (let [{:keys
+         [valueType]} mt
+        tx            {:id (util/uuid)}
+        namespace     (str valueType "-measurement")]
+    (add-namespace namespace tx)))
+
+(defn measurement-template-tx [mt]
+  (let [{:keys
+         [question
+          hint
+          required
+          valueType]} mt
+        m-namespace   (str valueType "-measurement")
+        tx            {:id (util/uuid)
+                       :question question
+                       :hint hint
+                       :required required
+                       :value-type (->> valueType
+                                        (str "measurement.value-type/")
+                                        keyword)
+                       :measurement (measurement-tx mt)}]
+    (add-namespace "measurement-template" tx)))
+
+(defn a-measurement-tx [name assignee-username]
+  (let  [tx {:id    (util/uuid)
+             :name  name
+             :value [:user/username assignee-username]}]
+    (add-namespace "assignment-measurement" tx)))
+
+(defn a-measurement-template-tx [activity]
+  (let [{:keys
+         [name
+          assignee]}   activity
+        id    (util/uuid)
+        tx    {:id          id
+               :question    (str "Assign " name)
+               :required    true
+               :value-type  :measurement.value-type/assignment
+               :measurement (a-measurement-tx (str id)
+                                              assignee)}]
+    (add-namespace "measurement-template" tx)))
+
+(defn m-task-tx [activity]
+  (let [{:keys
+         [name
+          measurementTemplates
+          dueDate
+          assignee]}            activity
+        id     (util/uuid)
+        tx
+        {:id                    id
+         :name                  name
+         :measurement-templates (mapv measurement-template-tx measurementTemplates)
+         :type                  :task.type/measurement
+         :status                :task.status/pending
+         :due-date              dueDate
+         :created-at            (data-util/now)
+         :updated-at            (data-util/now)}]
+    (add-namespace "task" tx)))
+
+(defn a-task-tx [assigner activity]
+  (let [{:keys
+         [name
+          dueDate]}      activity
+        id               (util/uuid)
+        mt               (a-measurement-template-tx activity)
+        tx
+        {:id                    id
+         :name                  (str "Assign " name)
+         :measurement-templates [mt]
+         :type                  :task.type/assignment
+         :status                :task.status/assigned
+         :assigned-to           (a-measurement-tx (str id)
+                                                  assigner)
+         :due-date              dueDate
+         :first-child           (m-task-tx activity)
+         :created-at            (data-util/now)
+         :updated-at            (data-util/now)}]
+    (add-namespace "task" tx)))
+
+(defn activity [owner activity]
+  (let [{:keys
+         [projectId
+          name
+          dueDate]}  activity
+        tx            {:project/id
+                       (util/str->uuid projectId)
+
+                       :project/activities
+                       (add-namespace "activity"
+                                      {:id          (util/uuid)
+                                       :name        name
+                                       :owner       [:user/username owner]
+                                       :created-at  (data-util/now)
+                                       :updated-at  (data-util/now)
+                                       :due-date    dueDate
+                                       :root        (a-task-tx owner activity)})}]
+    (clojure.pprint/pprint tx)
+    (util/transact [tx])
+    (let [m-task-id
+          (-> tx
+              :project/activities
+              :activity/root
+              :task/first-child
+              :task/id)
+          m-task-a-measument-id
+          (-> tx
+              :project/activities
+              :activity/root
+              :task/measurement-templates
+              first
+              :measurement-template/measurement
+              :assignment-measurement/id)
+          a-task-id
+          (-> tx
+              :project/activities
+              :activity/root
+              :task/id)
+          tx
+          {:task/id m-task-id
+           :task/assigned-to
+           [:assignment-measurement/id
+            m-task-a-measument-id]
+           :task/parent
+           [:task/id a-task-id]}]
+      (clojure.pprint/pprint tx)
+      (util/transact [tx]))))
+
+(defn activities [username activities]
+  (mapv (partial activity username) activities)
+  {:result true})

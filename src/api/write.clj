@@ -11,6 +11,13 @@
   (auth/authorize-and-respond auth db/tasks tasks))
 
 
+;;; ================================activities==================================
+
+
+(defn activities [{:keys [auth activities]}]
+  (auth/authorize-and-respond auth db/activities activities))
+
+
 ;;; ================================reset=======================================
 
 
