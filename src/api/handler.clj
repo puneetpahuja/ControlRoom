@@ -48,7 +48,7 @@
 
                (c/POST "/v0.1/org-units" []
                        :return schema/OrgUnitsDiff
-                       :body [org-units-manifest schema/Manifest]
+                       :body [org-units-manifest schema/VersionManifest]
                        :summary "Returns all the org units."
                        (read/org-units org-units-manifest))
 
@@ -90,6 +90,16 @@
                       :body [task-submissions schema/TaskSubmissions]
                       :summary "Submits completed or rejected tasks."
                       (write/tasks task-submissions))
+
+
+;;; ================================PUT activities==============================
+
+
+               (c/PUT "/v0.1/activities" []
+                      :return schema/Result
+                      :body [activity-submissions schema/ActivitySubmissions]
+                      :summary "Creates new activities in a project."
+                      (write/activities activity-submissions))
 
 
 ;;; ================================templates/projects==========================

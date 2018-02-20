@@ -10,18 +10,14 @@
 (defn remove-namespace-str [namespaced-keyword]
   (-> namespaced-keyword
       name
-      (s/split #"/")
-      last
       convert-case/->camelCase))
 
 (def remove-namespace (comp keyword remove-namespace-str))
 
 (defn keys [cmap]
-  (let [transformer (comp convert-case/->camelCase
-                          remove-namespace)]
-    (into {}
-          (for [[k v] cmap]
-            [(transformer k) v]))))
+  (into {}
+        (for [[k v] cmap]
+          [(remove-namespace k) v])))
 
 (def keys-emap (comp keys entity-map))
 
@@ -43,12 +39,15 @@
           db               (util/get-db)
 
           org-unit-eid     (util/get-org-unit-eid username db)
-
           org-unit-details (keys-emap (util/get-details org-unit-eid db))
+
+          state-eid        (util/get-eid :state/verticals org-unit-eid db)
+          state-details    (keys-emap (util/get-details state-eid db))
 
           user             (assoc same-vals
                                   :id        (str id)
-                                  :orgUnit   (:name org-unit-details))
+                                  :orgUnit   (:name org-unit-details)
+                                  :state     (:name state-details))
 
           user-auth        {:user user
                             :apiKey apiKey}]
@@ -58,19 +57,69 @@
 ;;; ================================org-units===================================
 
 
-(defn org-unit [emap]
+(defn org-unit-user [emap]
+  (when emap
+    (let [keys-converted (keys-emap emap)
+
+          same-vals      (select-keys keys-converted
+                                      [:username])
+
+          name           (util/full-name keys-converted)
+
+          org-unit-user  (assoc same-vals
+                                :name name)]
+      org-unit-user)))
+
+(defn vertical [emap]
+  (when emap
+    (let [keys-converted    (keys-emap emap)
+
+          same-vals         (select-keys keys-converted
+                                         [:name])
+
+          {:keys
+           [id users]}      keys-converted
+
+          users             (mapv (comp org-unit-user util/get-details) users)
+
+          vertical (assoc same-vals
+                                   :id (str id)
+                                   :users users)]
+      vertical)))
+
+(defn state [emap]
+  (when emap
+    (let [keys-converted (keys-emap emap)
+
+          same-vals      (select-keys keys-converted
+                                      [:name])
+
+          {:keys
+           [id
+            verticals]}  keys-converted
+
+          verticals      (mapv (comp vertical util/get-details) verticals)
+
+          state (assoc same-vals
+                                :id (str id)
+                                :vertical/departments verticals)]
+      state)))
+
+(defn project [emap]
   (when emap
     (let [keys-converted   (keys-emap emap)
 
           same-vals        (select-keys keys-converted [:name])
-          {:keys
-           [id users]}     keys-converted
 
-          users            (mapv (comp :user user-auth util/get-details) users)
-          org-unit         (assoc same-vals
+          {:keys
+           [id states]}     keys-converted
+
+          states           (mapv (comp state util/get-details) states)
+
+          project (assoc same-vals
                                   :id   (str id)
-                                  :users users)]
-      org-unit)))
+                                  :states states)]
+      project)))
 
 
 ;;; ================================tasks/pending===============================

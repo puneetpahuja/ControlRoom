@@ -22,3 +22,6 @@
               (t/plus date-time (t/days days-offset))
               (t/minus date-time (t/days (- days-offset))))]
      (milliseconds dt))))
+
+(defn now []
+  (milliseconds (t/now)))
