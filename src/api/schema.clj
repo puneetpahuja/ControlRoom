@@ -38,7 +38,8 @@
    :title     s/Str
    :phone     s/Str
    :email     s/Str
-   :orgUnit   s/Str})
+   :orgUnit   s/Str
+   :state     s/Str})
 
 (s/defschema UserAuth
   {:user      User
@@ -169,6 +170,30 @@
 (s/defschema TaskSubmissions
   {:tasks  [TaskSubmission]
    :auth   Auth})
+
+
+;;; ================================PUT activities==============================
+
+
+(s/defschema CreateMeasurementTemplate
+  {:question        s/Str
+   :hint            s/Str
+   :required        s/Bool
+   :valueType       s/Str        ; int, long, string, assignment etc.
+   })
+
+(s/defschema ActivitySubmission
+  {:projectId            s/Str
+   :name                 s/Str
+   (s/optional-key
+     :description)       s/Str
+   :dueDate              s/Str
+   :measurementTemplates [CreateMeasurementTemplate]
+   :assignee             s/Str})
+
+(s/defschema ActivitySubmissions
+  {:activities [ActivitySubmission]
+   :auth       Auth})
 
 
 ;;; ===============================templates/projects============================
