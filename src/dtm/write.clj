@@ -8,13 +8,6 @@
 ;;; ====================================tasks===================================
 
 
-(defn get-namespace [key]
-  (-> key
-      str
-      (s/split #"/")
-      first
-      (subs 1)))
-
 (defn add-namespace [namespace cmap]
   (let [transformer (comp keyword
                           (partial str
@@ -41,7 +34,7 @@
                         convert/entity-map
                         keys
                         first
-                        get-namespace)
+                        namespace)
         m-id        (-> m-details
                         convert/keys-emap
                         :id)
@@ -80,19 +73,22 @@
       (cond
         sibling-id
         [{:task/id id
-          :task/status :task.status/completed}
+          :task/status :task.status/completed
+          :task/completed-at (data-util/now)}
          {:task/id sibling-id
           :task/status :task.status/pending}]
 
         parent-id
         (into [{:task/id id
-                :task/status :task.status/completed}]
+                :task/status :task.status/completed
+                :task/completed-at (data-util/now)}]
               (task {:id parent-id
                      :status "completed"}))
 
         :else
         [{:task/id id
-          :task/status :task.status/completed}])
+          :task/status :task.status/completed
+          :task/completed-at (data-util/now)}])
 
       "assigned"
       (cond
