@@ -159,7 +159,9 @@
                                 (util/get-details db)
                                 keys-emap)
 
-          m-templates-emaps (mapv util/get-details measurementTemplates)
+          m-templates-emaps (util/sort-by-position (mapv util/get-details measurementTemplates)
+                                                   :measurement-template/position)
+
           m-templates       (mapv measurement-template m-templates-emaps)
 
           pending-task      (assoc
@@ -220,7 +222,8 @@
 
           assignee-details  (keys-emap (util/assignee-details assignedTo))
 
-          m-templates-emaps (mapv util/get-details measurementTemplates)
+          m-templates-emaps (util/sort-by-position (mapv util/get-details measurementTemplates)
+                                                   :measurement-template/position)
 
           assigned-tasks    (mapv m-template->assigned-task m-templates-emaps)
 

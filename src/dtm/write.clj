@@ -181,7 +181,8 @@
         tx
         {:id                    id
          :name                  name
-         :measurement-templates (mapv measurement-template-tx measurementTemplates)
+         :measurement-templates (-> (mapv measurement-template-tx measurementTemplates)
+                                    (util/add-position :measurement-template/position))
          :type                  :task.type/measurement
          :status                :task.status/pending
          :due-date              dueDate
@@ -198,7 +199,7 @@
         tx
         {:id                    id
          :name                  (str "Assign " name)
-         :measurement-templates [mt]
+         :measurement-templates (util/add-position [mt] :measurement-template/position)
          :type                  :task.type/assignment
          :status                :task.status/assigned
          :assigned-to           (a-measurement-tx (str id)

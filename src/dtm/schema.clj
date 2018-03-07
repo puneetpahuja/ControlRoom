@@ -142,7 +142,8 @@
                [value-type :ref]
 
                [default-value :string]
-               [measurement :ref]))
+               [measurement :ref]
+               [position :long]))
 
    (s/schema datasource
              (s/fields

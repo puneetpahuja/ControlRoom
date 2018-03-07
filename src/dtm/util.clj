@@ -190,3 +190,32 @@
 
 (defn transact [tx]
   @(d/transact (get-conn) tx))
+
+
+;;; ==============================ordering datomic set==========================
+
+
+(defn add-position-recur
+  ([maps attr pos]
+   (let [first-map (first maps)]
+     (if first-map
+       (let [appended-first-map (assoc first-map attr pos)]
+         (into [appended-first-map] (add-position-recur (rest maps)
+                                                        attr
+                                                        (inc pos))))
+       []))))
+
+(defn add-position
+  ([maps attr]
+   (add-position-recur maps attr 1))
+
+  ([maps]
+   (add-position maps :position)))
+
+(defn sort-by-position
+  ([maps attr]
+   (let [cmaps       (map (partial into {}) maps)
+         sorted-maps (vec (sort-by attr cmaps))]
+     (map #(dissoc % attr) sorted-maps)))
+  ([maps]
+   (sort-by-position maps :position)))
