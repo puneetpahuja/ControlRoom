@@ -72,6 +72,17 @@
                        :summary "Returns all the unsynced pending assigned tasks of the user."
                        (read/tasks-assigned-pending assigned-pending-tasks-manifest))
 
+
+;;; =============================tasks/assigned/completed=======================
+
+
+               (c/POST "/v0.1/tasks/assigned/completed" []
+                       :return schema/AssignmentCompletedTasksDiff
+                       :body [assigned-completed-tasks-manifest schema/Manifest]
+                       :summary "Returns all the unsynced completed assigned tasks of the user."
+                       (read/tasks-assigned-completed assigned-completed-tasks-manifest))
+
+
 ;;; ================================tasks/completed=============================
 
 

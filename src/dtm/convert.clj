@@ -176,7 +176,7 @@
       pending-task)))
 
 
-;;; ================================tasks/assigned==============================
+;;; =========================tasks/assigned/pending=============================
 
 
 (defn assigned-pending-task [emap]
@@ -234,6 +234,66 @@
                                        :projectName   (:name project-details)
                                        :assignedTasks assigned-tasks)]
       task-assigned-pending)))
+
+
+;;; ============================tasks/assigned/completed========================
+
+
+(defn assigned-completed-task [emap]
+  (let [keys-converted          (keys-emap emap)
+        same-vals               (select-keys keys-converted [:name
+                                                             :completedAt])
+        {:keys
+         [id
+          assignedTo]}           keys-converted
+
+        assignee-details         (keys-emap (util/assignee-details assignedTo))
+        assigned-completed-task    (assoc
+                                     same-vals
+                                     :id (str id)
+                                     :assigneeName (util/full-name assignee-details)
+                                     :assigneePhone (:phone assignee-details)
+                                     :assigneeOrgUnit (util/org-unit-name assignee-details))]
+    assigned-completed-task))
+
+(defn m-template->assigned-completed-task [m-template-emap]
+  (let [keys-converted               (keys-emap m-template-emap)
+        measurement-eid              (:db/id (:measurement keys-converted))
+        db                           (util/get-db)
+        assigned-completed-task-eid  (util/get-task-assigned-to-eid measurement-eid db)
+        assigned-completed-task-emap (util/get-details assigned-completed-task-eid db)]
+    (assigned-completed-task assigned-completed-task-emap)))
+
+(defn task-assigned-completed [emap]
+  (when emap
+    (let [keys-converted          (keys-emap emap)
+
+          same-vals               (select-keys keys-converted
+                                               [:name])
+          {:keys
+           [id
+            measurementTemplates
+            assignedTo]}        keys-converted
+
+          db                      (util/get-db)
+
+          project-eid             (util/get-project-eid id db)
+          project-details         (keys-emap (util/get-details project-eid db))
+
+          assignee-details        (keys-emap (util/assignee-details assignedTo))
+
+          m-templates-emaps       (util/sort-by-position
+                                    (mapv util/get-details measurementTemplates)
+                                    :measurement-template/position)
+
+          assigned-tasks          (mapv m-template->assigned-completed-task
+                                        m-templates-emaps)
+
+          task-assigned-completed (assoc same-vals
+                                         :id            (str id)
+                                         :projectName   (:name project-details)
+                                         :assignedTasks assigned-tasks)]
+      task-assigned-completed)))
 
 
 ;;; ================================tasks/completed=============================

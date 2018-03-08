@@ -166,7 +166,7 @@
    :projectName    s/Str
    :assignedTasks [AssignedCompletedTask]})
 
-(s/defschema AssignmentCompletedDiff
+(s/defschema AssignmentCompletedTasksDiff
   {:insert [AssignmentCompletedTask]
    :delete [Id]})
 
