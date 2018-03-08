@@ -142,7 +142,8 @@
                [value-type :ref]
 
                [default-value :string]
-               [measurement :ref]))
+               [measurement :ref]
+               [position :long]))
 
    (s/schema datasource
              (s/fields
@@ -223,11 +224,11 @@
    :m-value-types  [{:db/ident :measurement.value-type/integer}
                     {:db/ident :measurement.value-type/float}
                     {:db/ident :measurement.value-type/string}
-                    {:db/ident :measurement.value-type/assignment}
                     {:db/ident :measurement.value-type/photo}
                     {:db/ident :measurement.value-type/location}
                     {:db/ident :measurement.value-type/date}
-                    {:db/ident :measurement.value-type/any}]})
+                    {:db/ident :measurement.value-type/any}
+                    {:db/ident :measurement.value-type/assignment}]})
 
 (def generated-schema (mapv #(dissoc % :db.install/_attribute :db/id)
                             (s/generate-schema schemas {:gen-all? false})))

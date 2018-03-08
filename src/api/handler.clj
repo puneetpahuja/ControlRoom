@@ -92,6 +92,16 @@
                       (write/tasks task-submissions))
 
 
+;;; ================================PUT activities==============================
+
+
+               (c/PUT "/v0.1/activities" []
+                      :return schema/Result
+                      :body [activity-submissions schema/ActivitySubmissions]
+                      :summary "Creates new activities in a project."
+                      (write/activities activity-submissions))
+
+
 ;;; ================================templates/projects==========================
 
 
