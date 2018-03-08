@@ -44,7 +44,7 @@
 (def m-template-attrs   [:measurement-template
                          :id :question :hint
                          :validations :required :value-type
-                         :default-value :measurement])
+                         :default-value :measurement :position])
 
 (def task-attrs         [:task
                          :id :name :description
