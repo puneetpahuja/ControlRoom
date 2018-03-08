@@ -128,7 +128,7 @@
 (defn get-completed-tasks-ids [username db]
   (get-tasks-ids :task.status/completed username db))
 
-(defn get-assigned-tasks-ids [username db]
+(defn get-assigned-pending-tasks-ids [username db]
   (get-tasks-ids :task.status/assigned username db))
 
 (defn get-task-assigned-to-eid [assignment-measurement-id db]

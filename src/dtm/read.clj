@@ -39,17 +39,21 @@
 ;;; ================================tasks/assigned==============================
 
 
-(defn task-assigned [id]
-  (convert/task-assigned (util/get-details :task/id id (util/get-db))))
+(defn task-assigned-pending [id]
+  (convert/task-assigned-pending (util/get-details :task/id id (util/get-db))))
 
-(defn tasks-assigned [username ids]
-  (let [tasks-assigned-ids (util/get-assigned-tasks-ids username (util/get-db))
-        diff               (util/diff ids (mapv str tasks-assigned-ids))
+(defn tasks-assigned-pending [username ids]
+  (let [tasks-assigned-pending-ids (util/get-assigned-pending-tasks-ids
+                                     username
+                                     (util/get-db))
+        diff                       (util/diff ids (mapv
+                                                    str
+                                                    tasks-assigned-pending-ids))
         {:keys
          [insert
-          delete]}         diff
-        insert-uuids       (mapv util/str->uuid insert)]
-    {:insert (mapv task-assigned insert-uuids)
+          delete]}                 diff
+        insert-uuids               (mapv util/str->uuid insert)]
+    {:insert (mapv task-assigned-pending insert-uuids)
      :delete delete}))
 
 

@@ -111,29 +111,6 @@
    :delete [Id]})
 
 
-;;; ================================tasks/assigned==============================
-
-
-(s/defschema AssignedTask
-  {:id              s/Str
-   :name            s/Str
-   :assigneeName    s/Str
-   :assigneePhone   s/Str
-   :assigneeOrgUnit s/Str
-   :dueDate         s/Str
-   :status          s/Str})
-
-(s/defschema AssignmentTask
-  {:id             s/Str
-   :name           s/Str
-   :projectName    s/Str
-   :assignedTasks [AssignedTask]})
-
-(s/defschema AssignmentTasksDiff
-  {:insert [AssignmentTask]
-   :delete [Id]})
-
-
 ;;; ================================tasks/completed=============================
 
 
@@ -146,6 +123,51 @@
 
 (s/defschema CompletedTasksDiff
   {:insert [CompletedTask]
+   :delete [Id]})
+
+
+;;; ============================tasks/assigned/pending==========================
+
+
+(s/defschema AssignedPendingTask
+  {:id              s/Str
+   :name            s/Str
+   :assigneeName    s/Str
+   :assigneePhone   s/Str
+   :assigneeOrgUnit s/Str
+   :dueDate         s/Str
+   :status          s/Str})
+
+(s/defschema AssignmentPendingTask
+  {:id             s/Str
+   :name           s/Str
+   :projectName    s/Str
+   :assignedTasks [AssignedPendingTask]})
+
+(s/defschema AssignmentPendingTasksDiff
+  {:insert [AssignmentPendingTask]
+   :delete [Id]})
+
+
+;;; ============================tasks/assigned/completed========================
+
+
+(s/defschema AssignedCompletedTask
+  {:id              s/Str
+   :name            s/Str
+   :assigneeName    s/Str
+   :assigneePhone   s/Str
+   :assigneeOrgUnit s/Str
+   :completedAt     s/Str})
+
+(s/defschema AssignmentCompletedTask
+  {:id             s/Str
+   :name           s/Str
+   :projectName    s/Str
+   :assignedTasks [AssignedCompletedTask]})
+
+(s/defschema AssignmentCompletedDiff
+  {:insert [AssignmentCompletedTask]
    :delete [Id]})
 
 
