@@ -1,6 +1,6 @@
 (ns dtm.util
   (:require [datomic.api :as d]
-            [dtm.config :as config]))
+            [config.dtm :as config]))
 
 (defn get-conn []
   (d/connect config/uri))

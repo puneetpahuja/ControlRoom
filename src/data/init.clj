@@ -2,7 +2,7 @@
   (:require [data.test :as t]
             [dtm.schema :as s]
             [datomic.api :as d]
-            [dtm.config :as config]
+            [config.dtm :as config]
             [ring.util.http-response :as response]))
 
 (defn init
