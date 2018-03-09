@@ -63,14 +63,25 @@
                        (read/tasks-pending pending-tasks-manifest))
 
 
-;;; ================================tasks/assigned==============================
+;;; =============================tasks/assigned/pending=========================
 
 
-               (c/POST "/v0.1/tasks/assigned" []
-                       :return schema/AssignmentTasksDiff
-                       :body [assigned-tasks-manifest schema/Manifest]
-                       :summary "Returns all the unsynced assigned tasks of the user."
-                       (read/tasks-assigned assigned-tasks-manifest))
+               (c/POST "/v0.1/tasks/assigned/pending" []
+                       :return schema/AssignmentPendingTasksDiff
+                       :body [assigned-pending-tasks-manifest schema/Manifest]
+                       :summary "Returns all the unsynced pending assigned tasks of the user."
+                       (read/tasks-assigned-pending assigned-pending-tasks-manifest))
+
+
+;;; =============================tasks/assigned/completed=======================
+
+
+               (c/POST "/v0.1/tasks/assigned/completed" []
+                       :return schema/AssignmentCompletedTasksDiff
+                       :body [assigned-completed-tasks-manifest schema/Manifest]
+                       :summary "Returns all the unsynced completed assigned tasks of the user."
+                       (read/tasks-assigned-completed assigned-completed-tasks-manifest))
+
 
 ;;; ================================tasks/completed=============================
 

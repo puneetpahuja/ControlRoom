@@ -227,7 +227,7 @@
                                        :updated-at  (data-util/now)
                                        :due-date    dueDate
                                        :root        (a-task-tx owner activity)})}]
-    (clojure.pprint/pprint tx)
+    ;; (clojure.pprint/pprint tx)
     (util/transact [tx])
     (let [m-task-id
           (-> tx
@@ -255,7 +255,7 @@
             m-task-a-measument-id]
            :task/parent
            [:task/id a-task-id]}]
-      (clojure.pprint/pprint tx)
+      ;; (clojure.pprint/pprint tx)
       (util/transact [tx]))))
 
 (defn activities [username activities]
