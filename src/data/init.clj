@@ -17,6 +17,7 @@
        @(d/transact conn t/states)
        @(d/transact conn t/projects)
        @(d/transact conn t/org-units)
+       @(d/transact conn t/client)
        ;; @(d/transact conn t/ro1)
        ;; @(d/transact conn t/ro1-init-linking)
        ;; @(d/transact conn t/ro2)
