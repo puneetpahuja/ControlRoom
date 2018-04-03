@@ -172,7 +172,8 @@
                [sibling :ref]
 
                [created-at :string]
-               [updated-at :string]))
+               [updated-at :string]
+               [tags       :string :many]))
 
    (s/schema activity
              (s/fields
