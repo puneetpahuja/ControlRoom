@@ -23,6 +23,12 @@
                  key
                  (java.io.File. file)))
 
+(defn put-string [bucket key string]
+  (s3/put-object config/credentials
+                 bucket
+                 key
+                 string))
+
 (defn get-object-metadata [bucket key]
   (s3/get-object-metadata config/credentials
                           bucket
@@ -44,4 +50,4 @@
   ([bucket prefix]
    (s3/list-objects-v2 config/credentials bucket prefix))
   ([bucket]
-   (list-objects bucket "=")))
+   (list-objects bucket "")))
