@@ -211,7 +211,8 @@
      :description)       s/Str
    :dueDate              s/Str
    :measurementTemplates [CreateMeasurementTemplate]
-   :assignee             s/Str})
+   :assignee             s/Str
+   :tags                 [s/Str]})
 
 (s/defschema ActivitySubmissions
   {:activities [ActivitySubmission]

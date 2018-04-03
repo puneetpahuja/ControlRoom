@@ -193,7 +193,8 @@
 (defn a-task-tx [assigner activity]
   (let [{:keys
          [name
-          dueDate]}      activity
+          dueDate
+          tags]}      activity
         id               (util/uuid)
         mt               (a-measurement-template-tx activity)
         tx
@@ -207,14 +208,16 @@
          :due-date              dueDate
          :first-child           (m-task-tx activity)
          :created-at            (data-util/now)
-         :updated-at            (data-util/now)}]
+         :updated-at            (data-util/now)
+         :tags                  tags}]
     (add-namespace "task" tx)))
 
 (defn activity [owner activity]
   (let [{:keys
          [projectId
           name
-          dueDate]}  activity
+          dueDate
+          tags]}  activity
         tx            {:project/id
                        (util/str->uuid projectId)
 
@@ -254,7 +257,8 @@
            [:assignment-measurement/id
             m-task-a-measument-id]
            :task/parent
-           [:task/id a-task-id]}]
+           [:task/id a-task-id]
+           :task/tags tags}]
       ;; (clojure.pprint/pprint tx)
       (util/transact [tx]))))
 
