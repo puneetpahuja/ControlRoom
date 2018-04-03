@@ -33,6 +33,16 @@
                        (auth/login credentials))
 
 
+;;; ================================PUT user====================================
+
+
+               ;; (c/PUT "/v0.1/user" []
+               ;;        :return schema/Credentials
+               ;;        :body [user-details schema/AddUser]
+               ;;        :summary "Returns the user data."
+               ;;        (write/user user-details))
+
+
 ;;; ================================logout======================================
 
 
@@ -48,7 +58,7 @@
 
                (c/POST "/v0.1/org-units" []
                        :return schema/OrgUnitsDiff
-                       :body [org-units-manifest schema/Manifest]
+                       :body [org-units-manifest schema/VersionManifest]
                        :summary "Returns all the org units."
                        (read/org-units org-units-manifest))
 
@@ -63,14 +73,25 @@
                        (read/tasks-pending pending-tasks-manifest))
 
 
-;;; ================================tasks/assigned==============================
+;;; =============================tasks/assigned/pending=========================
 
 
-               (c/POST "/v0.1/tasks/assigned" []
-                       :return schema/AssignmentTasksDiff
-                       :body [assigned-tasks-manifest schema/Manifest]
-                       :summary "Returns all the unsynced assigned tasks of the user."
-                       (read/tasks-assigned assigned-tasks-manifest))
+               (c/POST "/v0.1/tasks/assigned/pending" []
+                       :return schema/AssignmentPendingTasksDiff
+                       :body [assigned-pending-tasks-manifest schema/Manifest]
+                       :summary "Returns all the unsynced pending assigned tasks of the user."
+                       (read/tasks-assigned-pending assigned-pending-tasks-manifest))
+
+
+;;; =============================tasks/assigned/completed=======================
+
+
+               (c/POST "/v0.1/tasks/assigned/completed" []
+                       :return schema/AssignmentCompletedTasksDiff
+                       :body [assigned-completed-tasks-manifest schema/Manifest]
+                       :summary "Returns all the unsynced completed assigned tasks of the user."
+                       (read/tasks-assigned-completed assigned-completed-tasks-manifest))
+
 
 ;;; ================================tasks/completed=============================
 
@@ -90,6 +111,16 @@
                       :body [task-submissions schema/TaskSubmissions]
                       :summary "Submits completed or rejected tasks."
                       (write/tasks task-submissions))
+
+
+;;; ================================PUT activities==============================
+
+
+               (c/PUT "/v0.1/activities" []
+                      :return schema/Result
+                      :body [activity-submissions schema/ActivitySubmissions]
+                      :summary "Creates new activities in a project."
+                      (write/activities activity-submissions))
 
 
 ;;; ================================templates/projects==========================
