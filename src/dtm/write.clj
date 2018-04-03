@@ -265,3 +265,49 @@
 (defn activities [username activities]
   (mapv (partial activity username) activities)
   {:result true})
+
+
+;;; ================================user========================================
+
+(defn assoc-non-nil
+  ([cmap key val]
+   (if val
+     (assoc cmap key val)
+     cmap))
+
+  ([cmap key val & kvs]
+   (let [ret (assoc-non-nil cmap key val)]
+     (if kvs
+       (if (next kvs)
+         (recur ret (first kvs) (second kvs) (nnext kvs))
+         (throw (IllegalArgumentException.
+                  "assoc-non-nil expects even number of arguments after map/vector, found odd number")))
+       ret))))
+
+(defn gen-password
+  ([]
+   (gen-password 10))
+  ([n]
+   (let [chars (->> (range 33 127)
+                    (remove #{34 92})
+                    (map char))]
+     (apply str
+            (take n (repeatedly #(rand-nth chars)))))))
+
+(defn user [_ user-details]
+  (let [{:keys [firstName lastName title
+                phone email orgUnit state
+                password]} user-details
+        pass (if password
+               password
+               (gen-password))]
+    (-> {}
+        (assoc :id (util/uuid))
+        (assoc-non-nil :first-name firstName
+                       :last-name lastName
+                       :title title
+                       :username phone
+                       :phone phone
+                       :email email
+                       ;; TODO :channel
+                       :password pass))))
