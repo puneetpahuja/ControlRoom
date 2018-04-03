@@ -4,6 +4,13 @@
             [data.init :as data]))
 
 
+;;; ================================PUT user====================================
+
+
+(defn user [{:keys [auth user]}]
+  (auth/authorize-and-respond auth db/user user))
+
+
 ;;; ================================tasks=======================================
 
 
