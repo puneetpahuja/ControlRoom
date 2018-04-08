@@ -103,6 +103,16 @@
                        (read/tasks-completed completed-tasks-manifest))
 
 
+;;; ================================tasks/tags==================================
+
+
+               (c/POST "/v0.1/tasks/tags" []
+                       :return schema/TagsDiff
+                       :body [tags-manifest schema/VersionManifest]
+                       :summary "Returns all the tasks tags."
+                       (read/tasks-tags tags-manifest))
+
+
 ;;; ================================PUT tasks===================================
 
 

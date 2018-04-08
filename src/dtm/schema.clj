@@ -181,6 +181,11 @@
                [updated-at :string]
                [tags       :string :many]))
 
+   (s/schema task-tags
+             (s/fields
+               [version :long]
+               [values :string :many]))
+
    (s/schema activity
              (s/fields
                [id :uuid :unique-identity]

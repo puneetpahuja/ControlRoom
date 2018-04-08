@@ -96,6 +96,19 @@
      :delete delete}))
 
 
+;;; ================================tasks/tags==================================
+
+
+(defn tasks-tags [_username version]
+  (let [db     (util/get-db)
+        tags-version (first (util/get-all-vals :task-tags/version db))]
+    (if (= tags-version version)
+      {:version version}
+      (let [tags (util/get-all-vals :task-tags/values db)]
+        {:version version
+         :tags tags}))))
+
+
 ;;; ================================templates/projects==========================
 
 
