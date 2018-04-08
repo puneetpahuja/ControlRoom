@@ -105,7 +105,7 @@
     (if (= tags-version version)
       {:version version}
       (let [tags (util/get-all-vals :task-tags/values db)]
-        {:version version
+        {:version tags-version
          :tags tags}))))
 
 
