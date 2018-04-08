@@ -259,7 +259,7 @@
    :auth       Auth})
 
 
-;;; ===============================templates/projects============================
+;;; ===============================templates/projects===========================
 
 
 (s/defschema ProjectTemplate
@@ -271,3 +271,10 @@
 (s/defschema ProjectTemplatesDiff
   {:insert [ProjectTemplate]
    :delete [Id]})
+
+
+;;; ================================upload======================================
+
+
+(s/defschema Filepath
+  {:filepath s/Str})

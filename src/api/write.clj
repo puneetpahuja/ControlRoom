@@ -1,7 +1,8 @@
 (ns api.write
   (:require [dtm.write :as db]
             [api.auth :as auth]
-            [data.init :as data]))
+            [data.init :as data]
+            [fileserver.file :as file]))
 
 
 ;;; ================================PUT user====================================
@@ -37,3 +38,10 @@
 
 (defn init-plus [credentials]
   (data/init-plus credentials))
+
+
+;;; ================================upload======================================
+
+
+(defn upload [auth file]
+  (auth/authorize-and-respond auth file/upload file))
