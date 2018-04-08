@@ -1,6 +1,6 @@
 (ns dtm.util
   (:require [datomic.api :as d]
-            [dtm.config :as config]))
+            [config.dtm :as config]))
 
 (defn get-conn []
   (d/connect config/uri))
@@ -68,6 +68,9 @@
     {:insert insert
      :delete delete}))
 
+(defn filter-nil [cmap]
+  (into {} (filter second cmap)))
+
 
 ;;; ================================user========================================
 
@@ -112,23 +115,38 @@
         project-eid  (get-eid :project/activities activity-eid db)]
     project-eid))
 
-(defn get-tasks-ids [status username db]
-  (let [q `[:find ?tid
-            :where
-            [?eu :user/username ~username]
-            [?em :assignment-measurement/value ?eu]
-            [?et :task/assigned-to ?em]
-            [?et :task/status ~status]
-            [?et :task/id ?tid]]]
-    (concat-lists (d/q q db))))
+(defn get-tasks-ids
+  ([status username db]
+   (let [q `[:find ?tid
+             :where
+             [?eu :user/username ~username]
+             [?em :assignment-measurement/value ?eu]
+             [?et :task/assigned-to ?em]
+             [?et :task/status ~status]
+             [?et :task/id ?tid]]]
+     (concat-lists (d/q q db))))
+
+  ([status username type db]
+   (let [q `[:find ?tid
+             :where
+             [?eu :user/username ~username]
+             [?em :assignment-measurement/value ?eu]
+             [?et :task/assigned-to ?em]
+             [?et :task/status ~status]
+             [?et :task/type ~type]
+             [?et :task/id ?tid]]]
+     (concat-lists (d/q q db)))))
 
 (defn get-pending-tasks-ids [username db]
   (get-tasks-ids :task.status/pending username db))
 
 (defn get-completed-tasks-ids [username db]
-  (get-tasks-ids :task.status/completed username db))
+  (get-tasks-ids :task.status/completed username :task.type/measurement db))
 
-(defn get-assigned-tasks-ids [username db]
+(defn get-assigned-completed-tasks-ids [username db]
+  (get-tasks-ids :task.status/completed username :task.type/assignment db))
+
+(defn get-assigned-pending-tasks-ids [username db]
   (get-tasks-ids :task.status/assigned username db))
 
 (defn get-task-assigned-to-eid [assignment-measurement-id db]

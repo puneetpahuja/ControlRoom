@@ -33,6 +33,16 @@
                        (auth/login credentials))
 
 
+;;; ================================PUT user====================================
+
+
+               ;; (c/PUT "/v0.1/user" []
+               ;;        :return schema/Credentials
+               ;;        :body [user-details schema/AddUser]
+               ;;        :summary "Returns the user data."
+               ;;        (write/user user-details))
+
+
 ;;; ================================logout======================================
 
 
@@ -63,14 +73,25 @@
                        (read/tasks-pending pending-tasks-manifest))
 
 
-;;; ================================tasks/assigned==============================
+;;; =============================tasks/assigned/pending=========================
 
 
-               (c/POST "/v0.1/tasks/assigned" []
-                       :return schema/AssignmentTasksDiff
-                       :body [assigned-tasks-manifest schema/Manifest]
-                       :summary "Returns all the unsynced assigned tasks of the user."
-                       (read/tasks-assigned assigned-tasks-manifest))
+               (c/POST "/v0.1/tasks/assigned/pending" []
+                       :return schema/AssignmentPendingTasksDiff
+                       :body [assigned-pending-tasks-manifest schema/Manifest]
+                       :summary "Returns all the unsynced pending assigned tasks of the user."
+                       (read/tasks-assigned-pending assigned-pending-tasks-manifest))
+
+
+;;; =============================tasks/assigned/completed=======================
+
+
+               (c/POST "/v0.1/tasks/assigned/completed" []
+                       :return schema/AssignmentCompletedTasksDiff
+                       :body [assigned-completed-tasks-manifest schema/Manifest]
+                       :summary "Returns all the unsynced completed assigned tasks of the user."
+                       (read/tasks-assigned-completed assigned-completed-tasks-manifest))
+
 
 ;;; ================================tasks/completed=============================
 
@@ -80,6 +101,16 @@
                        :body [completed-tasks-manifest schema/Manifest]
                        :summary "Returns all the unsynced completed tasks of the user."
                        (read/tasks-completed completed-tasks-manifest))
+
+
+;;; ================================tasks/tags==================================
+
+
+               (c/POST "/v0.1/tasks/tags" []
+                       :return schema/TagsDiff
+                       :body [tags-manifest schema/VersionManifest]
+                       :summary "Returns all the tasks tags."
+                       (read/tasks-tags tags-manifest))
 
 
 ;;; ================================PUT tasks===================================

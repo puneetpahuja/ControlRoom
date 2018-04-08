@@ -193,7 +193,8 @@
 (defn a-task-tx [assigner activity]
   (let [{:keys
          [name
-          dueDate]}      activity
+          dueDate
+          tags]}      activity
         id               (util/uuid)
         mt               (a-measurement-template-tx activity)
         tx
@@ -207,14 +208,16 @@
          :due-date              dueDate
          :first-child           (m-task-tx activity)
          :created-at            (data-util/now)
-         :updated-at            (data-util/now)}]
+         :updated-at            (data-util/now)
+         :tags                  tags}]
     (add-namespace "task" tx)))
 
 (defn activity [owner activity]
   (let [{:keys
          [projectId
           name
-          dueDate]}  activity
+          dueDate
+          tags]}  activity
         tx            {:project/id
                        (util/str->uuid projectId)
 
@@ -227,7 +230,7 @@
                                        :updated-at  (data-util/now)
                                        :due-date    dueDate
                                        :root        (a-task-tx owner activity)})}]
-    (clojure.pprint/pprint tx)
+    ;; (clojure.pprint/pprint tx)
     (util/transact [tx])
     (let [m-task-id
           (-> tx
@@ -254,10 +257,57 @@
            [:assignment-measurement/id
             m-task-a-measument-id]
            :task/parent
-           [:task/id a-task-id]}]
-      (clojure.pprint/pprint tx)
+           [:task/id a-task-id]
+           :task/tags tags}]
+      ;; (clojure.pprint/pprint tx)
       (util/transact [tx]))))
 
 (defn activities [username activities]
   (mapv (partial activity username) activities)
   {:result true})
+
+
+;;; ================================user========================================
+
+(defn assoc-non-nil
+  ([cmap key val]
+   (if val
+     (assoc cmap key val)
+     cmap))
+
+  ([cmap key val & kvs]
+   (let [ret (assoc-non-nil cmap key val)]
+     (if kvs
+       (if (next kvs)
+         (recur ret (first kvs) (second kvs) (nnext kvs))
+         (throw (IllegalArgumentException.
+                  "assoc-non-nil expects even number of arguments after map/vector, found odd number")))
+       ret))))
+
+(defn gen-password
+  ([]
+   (gen-password 10))
+  ([n]
+   (let [chars (->> (range 33 127)
+                    (remove #{34 92})
+                    (map char))]
+     (apply str
+            (take n (repeatedly #(rand-nth chars)))))))
+
+(defn user [_ user-details]
+  (let [{:keys [firstName lastName title
+                phone email orgUnit state
+                password]} user-details
+        pass (if password
+               password
+               (gen-password))]
+    (-> {}
+        (assoc :id (util/uuid))
+        (assoc-non-nil :first-name firstName
+                       :last-name lastName
+                       :title title
+                       :username phone
+                       :phone phone
+                       :email email
+                       ;; TODO :channel
+                       :password pass))))
