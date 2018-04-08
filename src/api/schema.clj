@@ -32,18 +32,49 @@
    :password  s/Str})
 
 (s/defschema User
-  {:id        s/Str
-   :firstName s/Str
-   :lastName  s/Str
-   :title     s/Str
-   :phone     s/Str
-   :email     s/Str
-   :orgUnit   s/Str
-   :state     s/Str})
+  {:id             s/Str
+   (s/optional-key
+     :firstName)   s/Str
+   (s/optional-key
+     :lastName)    s/Str
+   (s/optional-key
+     :title)       s/Str
+   :phone          s/Str
+   (s/optional-key
+     :email)       s/Str
+   (s/optional-key
+     :orgUnit)     s/Str
+   (s/optional-key
+     :state)       s/Str})
 
 (s/defschema UserAuth
   {:user      User
    :apiKey    s/Str})
+
+
+;;; ================================PUT user====================================
+
+
+(s/defschema OptionalUser
+  {(s/optional-key
+     :firstName)    s/Str
+   (s/optional-key
+     :lastName)     s/Str
+   (s/optional-key
+     :title)        s/Str
+   :phone           s/Str
+   (s/optional-key
+     :email)        s/Str
+   (s/optional-key
+     :orgUnit)      s/Str
+   (s/optional-key
+     :state)        s/Str
+   (s/optional-key
+     :password)     s/Str})
+
+(s/defschema AddUser
+  {:user  OptionalUser
+   :auth  Auth})
 
 
 ;;; ================================org-units===================================

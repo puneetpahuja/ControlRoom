@@ -51,6 +51,12 @@
 ;;; ================================org-units===================================
 
 
+   (s/schema client
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [projects :ref :many :component]))
+
    (s/schema org-units
              (s/fields
                [version :long]))

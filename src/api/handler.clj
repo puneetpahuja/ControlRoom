@@ -33,6 +33,16 @@
                        (auth/login credentials))
 
 
+;;; ================================PUT user====================================
+
+
+               ;; (c/PUT "/v0.1/user" []
+               ;;        :return schema/Credentials
+               ;;        :body [user-details schema/AddUser]
+               ;;        :summary "Returns the user data."
+               ;;        (write/user user-details))
+
+
 ;;; ================================logout======================================
 
 

@@ -68,6 +68,9 @@
     {:insert insert
      :delete delete}))
 
+(defn filter-nil [cmap]
+  (into {} (filter second cmap)))
+
 
 ;;; ================================user========================================
 
