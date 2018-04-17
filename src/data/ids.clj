@@ -191,4 +191,7 @@
   ps2-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd201")
 
   pt3-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd300")
-  ps3-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd301"))
+  ps3-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd301")
+
+  ;; client
+  hih-id       (util/str->uuid "99b1b2e5-bcfb-4f3f-b4af-fadfa90dd400"))
