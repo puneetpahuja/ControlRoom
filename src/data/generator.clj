@@ -57,6 +57,9 @@
                          :parent :first-child :sibling
                          :created-at :updated-at])
 
+(def task-tags-attrs    [:task-tags
+                         :version :values])
+
 (def activity-attrs      [:activity
                           :id :name :description
                           :root :completed-at :owner
@@ -94,5 +97,6 @@
 (def datasource   (partial make-tx datasource-attrs))
 (def m-template   (partial make-tx m-template-attrs))
 (def task         (partial make-tx task-attrs))
+(def task-tags    (partial make-tx task-tags-attrs))
 (def activity     (partial make-tx activity-attrs))
 (def project-template (partial make-tx project-template-attrs))

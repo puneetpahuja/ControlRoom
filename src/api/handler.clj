@@ -3,7 +3,8 @@
             [api.read :as read]
             [api.schema :as schema]
             [api.write :as write]
-            [compojure.api.sweet :as c]))
+            [compojure.api.sweet :as c]
+            [ring.swagger.upload :as upload]))
 
 (comment TODO
          * have a parent-child heirarchy for entities like tasks, activities
@@ -103,6 +104,16 @@
                        (read/tasks-completed completed-tasks-manifest))
 
 
+;;; ================================tasks/tags==================================
+
+
+               (c/POST "/v0.1/tasks/tags" []
+                       :return schema/TagsDiff
+                       :body [tags-manifest schema/VersionManifest]
+                       :summary "Returns all the tasks tags."
+                       (read/tasks-tags tags-manifest))
+
+
 ;;; ================================PUT tasks===================================
 
 
@@ -142,7 +153,7 @@
                        :summary "Initializes projects. Used for testing."
                        (write/init credentials))
 
-;;; ================================test========================================
+;;; ================================upload======================================
 
 
                (c/POST "/v0.1/init-plus" []
@@ -150,3 +161,15 @@
                        :body [credentials schema/Credentials]
                        :summary "Initializes projects and feeds some extra data. Used for testing."
                        (write/init-plus credentials)))))
+
+               (c/PUT "/v0.1/upload" []
+                      :return schema/Filepath
+                      :multipart-params [file :- upload/TempFileUpload
+                                         username
+                                         apiKey]
+                      :middleware [upload/wrap-multipart-params]
+                      (let [auth {:username username
+                                  :apiKey apiKey}]
+                        (write/upload auth file)))
+
+               )))
