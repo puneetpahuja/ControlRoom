@@ -1,6 +1,6 @@
 (ns dtm.util
   (:require [datomic.api :as d]
-            [dtm.config :as config]))
+            [config.dtm :as config]))
 
 (defn get-conn []
   (d/connect config/uri))
@@ -10,6 +10,9 @@
 
 (defn str->uuid [s]
   (java.util.UUID/fromString s))
+
+(defn uuid []
+  (java.util.UUID/randomUUID))
 
 (defn concat-lists [collection-of-lists]
   (vec (reduce concat [] collection-of-lists)))
@@ -65,6 +68,9 @@
     {:insert insert
      :delete delete}))
 
+(defn filter-nil [cmap]
+  (into {} (filter second cmap)))
+
 
 ;;; ================================user========================================
 
@@ -75,7 +81,7 @@
   (let [q  `[:find ?e-org-unit
              :where
              [?eu         :user/username ~username]
-             [?e-org-unit :org-unit/users ?eu]]]
+             [?e-org-unit :vertical/users ?eu]]]
     (ffirst (d/q q db))))
 
 
@@ -99,27 +105,48 @@
   (let [task-eid (get-eid :task/id task-id db)]
     (root task-eid db)))
 
-(defn get-project-eid [task-id db]
-  (let [root-eid (get-root-eid task-id db)]
-    (get-eid :project/root root-eid db)))
+(defn get-activity-eid [task-id db]
+  (let [root-eid     (get-root-eid task-id db)
+        activity-eid (get-eid :activity/root root-eid db)]
+    activity-eid))
 
-(defn get-tasks-ids [status username db]
-  (let [q `[:find ?tid
-            :where
-            [?eu :user/username ~username]
-            [?em :assignment-measurement/value ?eu]
-            [?et :task/assigned-to ?em]
-            [?et :task/status ~status]
-            [?et :task/id ?tid]]]
-    (concat-lists (d/q q db))))
+(defn get-project-eid [task-id db]
+  (let [activity-eid (get-activity-eid task-id db)
+        project-eid  (get-eid :project/activities activity-eid db)]
+    project-eid))
+
+(defn get-tasks-ids
+  ([status username db]
+   (let [q `[:find ?tid
+             :where
+             [?eu :user/username ~username]
+             [?em :assignment-measurement/value ?eu]
+             [?et :task/assigned-to ?em]
+             [?et :task/status ~status]
+             [?et :task/id ?tid]]]
+     (concat-lists (d/q q db))))
+
+  ([status username type db]
+   (let [q `[:find ?tid
+             :where
+             [?eu :user/username ~username]
+             [?em :assignment-measurement/value ?eu]
+             [?et :task/assigned-to ?em]
+             [?et :task/status ~status]
+             [?et :task/type ~type]
+             [?et :task/id ?tid]]]
+     (concat-lists (d/q q db)))))
 
 (defn get-pending-tasks-ids [username db]
   (get-tasks-ids :task.status/pending username db))
 
 (defn get-completed-tasks-ids [username db]
-  (get-tasks-ids :task.status/completed username db))
+  (get-tasks-ids :task.status/completed username :task.type/measurement db))
 
-(defn get-assigned-tasks-ids [username db]
+(defn get-assigned-completed-tasks-ids [username db]
+  (get-tasks-ids :task.status/completed username :task.type/assignment db))
+
+(defn get-assigned-pending-tasks-ids [username db]
   (get-tasks-ids :task.status/assigned username db))
 
 (defn get-task-assigned-to-eid [assignment-measurement-id db]
@@ -137,7 +164,7 @@
         :username
         (get-org-unit-eid db)
         (get-details db)
-        :org-unit/name)))
+        :vertical/name)))
 
 (defn assignee-details [assignment-measurement-entity]
   (-> assignment-measurement-entity
@@ -152,12 +179,12 @@
 
 (defn get-assigner-eid [task-id db]
   (if (root? task-id db)
-    (let [project-eid (get-project-eid task-id db)
+    (let [activity-eid (get-activity-eid task-id db)
           q           `[:find ?e-owner
                         :where
-                        [~project-eid :project/owner ?e-owner]]
-          assigner-eid (d/q q db)]
-      (ffirst assigner-eid))
+                        [~activity-eid :activity/owner ?e-owner]]
+          assigner-eid (ffirst (d/q q db))]
+      assigner-eid)
 
     (let [q `[:find ?e-assigner
               :where
@@ -181,3 +208,32 @@
 
 (defn transact [tx]
   @(d/transact (get-conn) tx))
+
+
+;;; ==============================ordering datomic set==========================
+
+
+(defn add-position-recur
+  ([maps attr pos]
+   (let [first-map (first maps)]
+     (if first-map
+       (let [appended-first-map (assoc first-map attr pos)]
+         (into [appended-first-map] (add-position-recur (rest maps)
+                                                        attr
+                                                        (inc pos))))
+       []))))
+
+(defn add-position
+  ([maps attr]
+   (add-position-recur maps attr 1))
+
+  ([maps]
+   (add-position maps :position)))
+
+(defn sort-by-position
+  ([maps attr]
+   (let [cmaps       (map (partial into {}) maps)
+         sorted-maps (vec (sort-by attr cmaps))]
+     (map #(dissoc % attr) sorted-maps)))
+  ([maps]
+   (sort-by-position maps :position)))

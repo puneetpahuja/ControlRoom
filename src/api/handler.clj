@@ -3,7 +3,8 @@
             [api.read :as read]
             [api.schema :as schema]
             [api.write :as write]
-            [compojure.api.sweet :as c]))
+            [compojure.api.sweet :as c]
+            [ring.swagger.upload :as upload]))
 
 (comment TODO
          * have a parent-child heirarchy for entities like tasks, activities
@@ -31,6 +32,16 @@
                        :body [credentials schema/Credentials]
                        :summary "Returns the user data."
                        (auth/login credentials))
+
+
+;;; ================================PUT user====================================
+
+
+               ;; (c/PUT "/v0.1/user" []
+               ;;        :return schema/Credentials
+               ;;        :body [user-details schema/AddUser]
+               ;;        :summary "Returns the user data."
+               ;;        (write/user user-details))
 
 
 ;;; ================================logout======================================
@@ -63,14 +74,25 @@
                        (read/tasks-pending pending-tasks-manifest))
 
 
-;;; ================================tasks/assigned==============================
+;;; =============================tasks/assigned/pending=========================
 
 
-               (c/POST "/v0.1/tasks/assigned" []
-                       :return schema/AssignmentTasksDiff
-                       :body [assigned-tasks-manifest schema/Manifest]
-                       :summary "Returns all the unsynced assigned tasks of the user."
-                       (read/tasks-assigned assigned-tasks-manifest))
+               (c/POST "/v0.1/tasks/assigned/pending" []
+                       :return schema/AssignmentPendingTasksDiff
+                       :body [assigned-pending-tasks-manifest schema/Manifest]
+                       :summary "Returns all the unsynced pending assigned tasks of the user."
+                       (read/tasks-assigned-pending assigned-pending-tasks-manifest))
+
+
+;;; =============================tasks/assigned/completed=======================
+
+
+               (c/POST "/v0.1/tasks/assigned/completed" []
+                       :return schema/AssignmentCompletedTasksDiff
+                       :body [assigned-completed-tasks-manifest schema/Manifest]
+                       :summary "Returns all the unsynced completed assigned tasks of the user."
+                       (read/tasks-assigned-completed assigned-completed-tasks-manifest))
+
 
 ;;; ================================tasks/completed=============================
 
@@ -82,6 +104,16 @@
                        (read/tasks-completed completed-tasks-manifest))
 
 
+;;; ================================tasks/tags==================================
+
+
+               (c/POST "/v0.1/tasks/tags" []
+                       :return schema/TagsDiff
+                       :body [tags-manifest schema/VersionManifest]
+                       :summary "Returns all the tasks tags."
+                       (read/tasks-tags tags-manifest))
+
+
 ;;; ================================PUT tasks===================================
 
 
@@ -90,6 +122,16 @@
                       :body [task-submissions schema/TaskSubmissions]
                       :summary "Submits completed or rejected tasks."
                       (write/tasks task-submissions))
+
+
+;;; ================================PUT activities==============================
+
+
+               (c/PUT "/v0.1/activities" []
+                      :return schema/Result
+                      :body [activity-submissions schema/ActivitySubmissions]
+                      :summary "Creates new activities in a project."
+                      (write/activities activity-submissions))
 
 
 ;;; ================================templates/projects==========================
@@ -111,7 +153,7 @@
                        :summary "Initializes projects. Used for testing."
                        (write/init credentials))
 
-;;; ================================test========================================
+;;; ================================upload======================================
 
 
                (c/POST "/v0.1/init-plus" []
@@ -119,3 +161,15 @@
                        :body [credentials schema/Credentials]
                        :summary "Initializes projects and feeds some extra data. Used for testing."
                        (write/init-plus credentials)))))
+
+               (c/PUT "/v0.1/upload" []
+                      :return schema/Filepath
+                      :multipart-params [file :- upload/TempFileUpload
+                                         username
+                                         apiKey]
+                      :middleware [upload/wrap-multipart-params]
+                      (let [auth {:username username
+                                  :apiKey apiKey}]
+                        (write/upload auth file)))
+
+               )))

@@ -2,7 +2,7 @@
   (:require [data.test :as t]
             [dtm.schema :as s]
             [datomic.api :as d]
-            [dtm.config :as config]
+            [config.dtm :as config]
             [ring.util.http-response :as response]))
 
 (defn init
@@ -17,6 +17,8 @@
        @(d/transact conn t/states)
        @(d/transact conn t/projects)
        @(d/transact conn t/org-units)
+       @(d/transact conn t/client)
+       @(d/transact conn t/task-tags)
        ;; @(d/transact conn t/ro1)
        ;; @(d/transact conn t/ro1-init-linking)
        ;; @(d/transact conn t/ro2)
