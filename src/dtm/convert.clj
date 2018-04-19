@@ -10,18 +10,14 @@
 (defn remove-namespace-str [namespaced-keyword]
   (-> namespaced-keyword
       name
-      (s/split #"/")
-      last
       convert-case/->camelCase))
 
 (def remove-namespace (comp keyword remove-namespace-str))
 
 (defn keys [cmap]
-  (let [transformer (comp convert-case/->camelCase
-                          remove-namespace)]
-    (into {}
-          (for [[k v] cmap]
-            [(transformer k) v]))))
+  (into {}
+        (for [[k v] cmap]
+          [(remove-namespace k) v])))
 
 (def keys-emap (comp keys entity-map))
 
@@ -43,12 +39,16 @@
           db               (util/get-db)
 
           org-unit-eid     (util/get-org-unit-eid username db)
-
           org-unit-details (keys-emap (util/get-details org-unit-eid db))
 
-          user             (assoc same-vals
-                                  :id        (str id)
-                                  :orgUnit   (:name org-unit-details))
+          state-eid        (util/get-eid :state/verticals org-unit-eid db)
+          state-details    (keys-emap (util/get-details state-eid db))
+
+          user             (util/filter-nil
+                             (assoc same-vals
+                                    :id        (str id)
+                                    :orgUnit   (:name org-unit-details)
+                                    :state     (:name state-details)))
 
           user-auth        {:user user
                             :apiKey apiKey}]
@@ -58,19 +58,69 @@
 ;;; ================================org-units===================================
 
 
-(defn org-unit [emap]
+(defn org-unit-user [emap]
+  (when emap
+    (let [keys-converted (keys-emap emap)
+
+          same-vals      (select-keys keys-converted
+                                      [:username])
+
+          name           (util/full-name keys-converted)
+
+          org-unit-user  (assoc same-vals
+                                :name name)]
+      org-unit-user)))
+
+(defn vertical [emap]
+  (when emap
+    (let [keys-converted    (keys-emap emap)
+
+          same-vals         (select-keys keys-converted
+                                         [:name])
+
+          {:keys
+           [id users]}      keys-converted
+
+          users             (mapv (comp org-unit-user util/get-details) users)
+
+          vertical (assoc same-vals
+                                   :id (str id)
+                                   :users users)]
+      vertical)))
+
+(defn state [emap]
+  (when emap
+    (let [keys-converted (keys-emap emap)
+
+          same-vals      (select-keys keys-converted
+                                      [:name])
+
+          {:keys
+           [id
+            verticals]}  keys-converted
+
+          verticals      (mapv (comp vertical util/get-details) verticals)
+
+          state (assoc same-vals
+                                :id (str id)
+                                :vertical/departments verticals)]
+      state)))
+
+(defn project [emap]
   (when emap
     (let [keys-converted   (keys-emap emap)
 
           same-vals        (select-keys keys-converted [:name])
-          {:keys
-           [id users]}     keys-converted
 
-          users            (mapv (comp :user user-auth util/get-details) users)
-          org-unit         (assoc same-vals
+          {:keys
+           [id states]}     keys-converted
+
+          states           (mapv (comp state util/get-details) states)
+
+          project (assoc same-vals
                                   :id   (str id)
-                                  :users users)]
-      org-unit)))
+                                  :states states)]
+      project)))
 
 
 ;;; ================================tasks/pending===============================
@@ -110,7 +160,9 @@
                                 (util/get-details db)
                                 keys-emap)
 
-          m-templates-emaps (mapv util/get-details measurementTemplates)
+          m-templates-emaps (util/sort-by-position (mapv util/get-details measurementTemplates)
+                                                   :measurement-template/position)
+
           m-templates       (mapv measurement-template m-templates-emaps)
 
           pending-task      (assoc
@@ -125,61 +177,124 @@
       pending-task)))
 
 
-;;; ================================tasks/assigned==============================
+;;; =========================tasks/assigned/pending=============================
 
 
-(defn assigned-task [emap]
-  (let [keys-converted    (keys-emap emap)
-        same-vals         (select-keys keys-converted [:name :dueDate])
+(defn assigned-pending-task [emap]
+  (let [keys-converted          (keys-emap emap)
+        same-vals               (select-keys keys-converted [:name :dueDate])
         {:keys
          [id status
-          assignedTo]}    keys-converted
+          assignedTo]}           keys-converted
 
-        assignee-details (keys-emap (util/assignee-details assignedTo))
-        assigned-task    (assoc
-                           same-vals
-                           :id (str id)
-                           :assigneeName (util/full-name assignee-details)
-                           :assigneePhone (:phone assignee-details)
-                           :assigneeOrgUnit (util/org-unit-name assignee-details)
-                           :status (remove-namespace-str status))]
-    assigned-task))
+        assignee-details         (keys-emap (util/assignee-details assignedTo))
+        assigned-pending-task    (assoc
+                                   same-vals
+                                   :id (str id)
+                                   :assigneeName (util/full-name assignee-details)
+                                   :assigneePhone (:phone assignee-details)
+                                   :assigneeOrgUnit (util/org-unit-name assignee-details)
+                                   :status (remove-namespace-str status))]
+    assigned-pending-task))
 
-(defn m-template->assigned-task [m-template-emap]
-  (let [keys-converted     (keys-emap m-template-emap)
-        measurement-eid    (:db/id (:measurement keys-converted))
-        db                 (util/get-db)
-        assigned-task-eid  (util/get-task-assigned-to-eid measurement-eid db)
-        assigned-task-emap (util/get-details assigned-task-eid db)]
-    (assigned-task assigned-task-emap)))
+(defn m-template->assigned-pending-task [m-template-emap]
+  (let [keys-converted             (keys-emap m-template-emap)
+        measurement-eid            (:db/id (:measurement keys-converted))
+        db                         (util/get-db)
+        assigned-pending-task-eid  (util/get-task-assigned-to-eid measurement-eid db)
+        assigned-pending-task-emap (util/get-details assigned-pending-task-eid db)]
+    (assigned-pending-task assigned-pending-task-emap)))
 
-(defn task-assigned [emap]
+(defn task-assigned-pending [emap]
   (when emap
-    (let [keys-converted    (keys-emap emap)
+    (let [keys-converted        (keys-emap emap)
 
-          same-vals         (select-keys keys-converted
-                                         [:name])
+          same-vals             (select-keys keys-converted
+                                             [:name])
           {:keys
            [id
             measurementTemplates
-            assignedTo]}    keys-converted
+            assignedTo]}        keys-converted
 
-          db                (util/get-db)
+          db                    (util/get-db)
 
-          project-eid       (util/get-project-eid id db)
-          project-details   (keys-emap (util/get-details project-eid db))
+          project-eid           (util/get-project-eid id db)
+          project-details       (keys-emap (util/get-details project-eid db))
 
-          assignee-details  (keys-emap (util/assignee-details assignedTo))
+          assignee-details      (keys-emap (util/assignee-details assignedTo))
 
-          m-templates-emaps (mapv util/get-details measurementTemplates)
+          m-templates-emaps     (util/sort-by-position
+                                  (mapv util/get-details measurementTemplates)
+                                  :measurement-template/position)
 
-          assigned-tasks    (mapv m-template->assigned-task m-templates-emaps)
+          assigned-tasks        (mapv m-template->assigned-pending-task
+                                      m-templates-emaps)
 
-          task-assigned     (assoc same-vals
-                                   :id            (str id)
-                                   :projectName   (:name project-details)
-                                   :assignedTasks assigned-tasks)]
-      task-assigned)))
+          task-assigned-pending (assoc same-vals
+                                       :id            (str id)
+                                       :projectName   (:name project-details)
+                                       :assignedTasks assigned-tasks)]
+      task-assigned-pending)))
+
+
+;;; ============================tasks/assigned/completed========================
+
+
+(defn assigned-completed-task [emap]
+  (let [keys-converted          (keys-emap emap)
+        same-vals               (select-keys keys-converted [:name
+                                                             :completedAt])
+        {:keys
+         [id
+          assignedTo]}           keys-converted
+
+        assignee-details         (keys-emap (util/assignee-details assignedTo))
+        assigned-completed-task    (assoc
+                                     same-vals
+                                     :id (str id)
+                                     :assigneeName (util/full-name assignee-details)
+                                     :assigneePhone (:phone assignee-details)
+                                     :assigneeOrgUnit (util/org-unit-name assignee-details))]
+    assigned-completed-task))
+
+(defn m-template->assigned-completed-task [m-template-emap]
+  (let [keys-converted               (keys-emap m-template-emap)
+        measurement-eid              (:db/id (:measurement keys-converted))
+        db                           (util/get-db)
+        assigned-completed-task-eid  (util/get-task-assigned-to-eid measurement-eid db)
+        assigned-completed-task-emap (util/get-details assigned-completed-task-eid db)]
+    (assigned-completed-task assigned-completed-task-emap)))
+
+(defn task-assigned-completed [emap]
+  (when emap
+    (let [keys-converted          (keys-emap emap)
+
+          same-vals               (select-keys keys-converted
+                                               [:name])
+          {:keys
+           [id
+            measurementTemplates
+            assignedTo]}        keys-converted
+
+          db                      (util/get-db)
+
+          project-eid             (util/get-project-eid id db)
+          project-details         (keys-emap (util/get-details project-eid db))
+
+          assignee-details        (keys-emap (util/assignee-details assignedTo))
+
+          m-templates-emaps       (util/sort-by-position
+                                    (mapv util/get-details measurementTemplates)
+                                    :measurement-template/position)
+
+          assigned-tasks          (mapv m-template->assigned-completed-task
+                                        m-templates-emaps)
+
+          task-assigned-completed (assoc same-vals
+                                         :id            (str id)
+                                         :projectName   (:name project-details)
+                                         :assignedTasks assigned-tasks)]
+      task-assigned-completed)))
 
 
 ;;; ================================tasks/completed=============================

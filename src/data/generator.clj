@@ -1,4 +1,5 @@
-(ns data.generator)
+(ns data.generator
+  (:require [dtm.util :as util]))
 
 (def user-attrs         [:user
                          :id :first-name :last-name
@@ -6,8 +7,21 @@
                          :email :role :channels
                          :password :api-key])
 
-(def org-unit-attrs     [:org-unit
-                         :id :name :users])
+(def org-units-attrs    [:org-units
+                         :version])
+
+(def client-attrs      [:client
+                        :id :name :projects])
+
+(def project-attrs [:project
+                    :id :name :states
+                    :activities])
+
+(def state-attrs [:state
+                  :id :name :verticals])
+
+(def vertical-attrs [:vertical
+                     :id :name :users])
 
 (def integer-m-attrs    [:integer-measurement
                          :id :name :value])
@@ -23,6 +37,9 @@
                          :id :name :value])
 (def float-m-attrs      [:float-measurement
                          :id :name :value])
+(def any-m-attrs        [:any-measurement
+                         :id :name :value
+                         :value-type])
 
 (def datasource-attrs   [:datasource
                          :id :measurements :tags
@@ -31,7 +48,7 @@
 (def m-template-attrs   [:measurement-template
                          :id :question :hint
                          :validations :required :value-type
-                         :default-value :measurement])
+                         :default-value :measurement :position])
 
 (def task-attrs         [:task
                          :id :name :description
@@ -40,14 +57,18 @@
                          :parent :first-child :sibling
                          :created-at :updated-at])
 
-(def project-attrs      [:project
-                         :id :name :description
-                         :root :completed-at :owner
-                         :created-at :updated-at :due-date])
+(def task-tags-attrs    [:task-tags
+                         :version :values])
+
+(def activity-attrs      [:activity
+                          :id :name :description
+                          :root :completed-at :owner
+                          :created-at :updated-at :due-date])
 
 (def project-template-attrs [:project-template
                              :id :title :description
                              :project-schema-id])
+
 
 
 (defn make-tx [attrs vals]
@@ -57,11 +78,15 @@
                                              (name %)))
                               (rest attrs))
         all-attrs-map (zipmap namespaced-attrs vals)
-        non-nil-attrs-map (into {} (filter second all-attrs-map))]
+        non-nil-attrs-map (util/filter-nil all-attrs-map)]
     non-nil-attrs-map))
 
 (def user         (partial make-tx user-attrs))
-(def org-unit     (partial make-tx org-unit-attrs))
+(def org-units    (partial make-tx org-units-attrs))
+(def client       (partial make-tx client-attrs))
+(def project      (partial make-tx project-attrs))
+(def state        (partial make-tx state-attrs))
+(def vertical     (partial make-tx vertical-attrs))
 (def integer-m    (partial make-tx integer-m-attrs))
 (def string-m     (partial make-tx string-m-attrs))
 (def assignment-m (partial make-tx assignment-m-attrs))
@@ -72,5 +97,6 @@
 (def datasource   (partial make-tx datasource-attrs))
 (def m-template   (partial make-tx m-template-attrs))
 (def task         (partial make-tx task-attrs))
-(def project      (partial make-tx project-attrs))
+(def task-tags    (partial make-tx task-tags-attrs))
+(def activity     (partial make-tx activity-attrs))
 (def project-template (partial make-tx project-template-attrs))
