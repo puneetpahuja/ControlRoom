@@ -38,6 +38,13 @@
   (auth/authorize-and-respond auth db/tasks-completed ids))
 
 
+;;; ================================tasks/tags==================================
+
+
+(defn tasks-tags [{:keys [auth version]}]
+  (auth/authorize-and-respond auth db/tasks-tags version))
+
+
 ;;; ================================templates/projects==========================
 
 

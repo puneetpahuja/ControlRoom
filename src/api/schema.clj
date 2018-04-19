@@ -32,18 +32,49 @@
    :password  s/Str})
 
 (s/defschema User
-  {:id        s/Str
-   :firstName s/Str
-   :lastName  s/Str
-   :title     s/Str
-   :phone     s/Str
-   :email     s/Str
-   :orgUnit   s/Str
-   :state     s/Str})
+  {:id             s/Str
+   (s/optional-key
+     :firstName)   s/Str
+   (s/optional-key
+     :lastName)    s/Str
+   (s/optional-key
+     :title)       s/Str
+   :phone          s/Str
+   (s/optional-key
+     :email)       s/Str
+   (s/optional-key
+     :orgUnit)     s/Str
+   (s/optional-key
+     :state)       s/Str})
 
 (s/defschema UserAuth
   {:user      User
    :apiKey    s/Str})
+
+
+;;; ================================PUT user====================================
+
+
+(s/defschema OptionalUser
+  {(s/optional-key
+     :firstName)    s/Str
+   (s/optional-key
+     :lastName)     s/Str
+   (s/optional-key
+     :title)        s/Str
+   :phone           s/Str
+   (s/optional-key
+     :email)        s/Str
+   (s/optional-key
+     :orgUnit)      s/Str
+   (s/optional-key
+     :state)        s/Str
+   (s/optional-key
+     :password)     s/Str})
+
+(s/defschema AddUser
+  {:user  OptionalUser
+   :auth  Auth})
 
 
 ;;; ================================org-units===================================
@@ -171,6 +202,15 @@
    :delete [Id]})
 
 
+;;; ================================tasks/tags==================================
+
+
+(s/defschema TagsDiff
+  {:version        s/Int
+   (s/optional-key
+     :tags)        [s/Str]})
+
+
 ;;; ================================PUT tasks===================================
 
 
@@ -211,14 +251,15 @@
      :description)       s/Str
    :dueDate              s/Str
    :measurementTemplates [CreateMeasurementTemplate]
-   :assignee             s/Str})
+   :assignee             s/Str
+   :tags                 [s/Str]})
 
 (s/defschema ActivitySubmissions
   {:activities [ActivitySubmission]
    :auth       Auth})
 
 
-;;; ===============================templates/projects============================
+;;; ===============================templates/projects===========================
 
 
 (s/defschema ProjectTemplate
@@ -230,3 +271,14 @@
 (s/defschema ProjectTemplatesDiff
   {:insert [ProjectTemplate]
    :delete [Id]})
+
+
+;;; ================================upload======================================
+
+
+(s/defschema Filepath
+  {:filepath s/Str})
+(s/defschema DB
+  {:username s/Str
+   :password s/Str
+   (s/optional-key :init) s/Bool})
