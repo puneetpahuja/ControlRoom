@@ -3,7 +3,9 @@
             [config.postgres :as config]
             [dtm.util :as util]
             [clojure.java.jdbc :as j]
-            [dashboard.convert :as c]))
+            [dashboard.convert :as c]
+            [ring.util.http-response :as response]
+            [clojure.tools.trace :as trace]))
 
 (def convert {:entities convert-case/->snake_case})
 
@@ -232,14 +234,49 @@
   (fill-activities-table))
 
 
+(defn cron-once []
+  (trace/trace-ns 'dashboard.postgres)
+  (j/query config/db-spec ["select pg_terminate_backend(pid) from pg_stat_activity where datname='hihdemo' and application_name='' and pid <> pg_backend_pid();"])
+  (empty-tables :tasks
+                :integer_measurements
+                :string_measurements
+                :assignment_measurements
+                :photo_measurements
+                :date_measurements
+                :location_measurements
+                :float_measurements
+                :measurement_templates
+                :activities)
+  (fill-tasks-table)
+  (fill-integer-measurements-table)
+  (fill-string-measurements-table)
+  (fill-assignment-measurements-table)
+  (fill-photo-measurements-table)
+  (fill-date-measurements-table)
+  (fill-location-measurements-table)
+  (fill-float-measurements-table)
+  (fill-measurement-templates-table)
+  (fill-activities-table)
+  (j/query config/db-spec ["select pg_terminate_backend(pid) from pg_stat_activity where datname='hihdemo' and application_name='' and pid <> pg_backend_pid();"]))
+
+
 (defn cron []
   (while true
     (println "refreshing")
-    (empty-tables :tasks)
-    (Thread/sleep 20)
-    (fill-tasks-table)
+    (cron-once)
     (Thread/sleep 3000)))
 
-(defn cron-once []
-  (empty-tables :tasks)
-  (fill-tasks-table))
+
+
+(defn update-db [{:keys [username password init]}]
+  (trace/trace-ns 'dashboard.postgres)
+  (if (and (= username "db-admin")
+           (= password "update{DB}syvylyze<PostGres>"))
+    (do
+      (if init
+        (do
+          (create-all-tables)
+          (fill-all-tables)))
+      (cron-once)
+      (response/ok {:result true}))
+    (response/unauthorized {:error "wrong credentials"})))

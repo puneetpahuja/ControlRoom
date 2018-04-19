@@ -278,3 +278,7 @@
 
 (s/defschema Filepath
   {:filepath s/Str})
+(s/defschema DB
+  {:username s/Str
+   :password s/Str
+   (s/optional-key :init) s/Bool})
