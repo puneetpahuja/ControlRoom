@@ -26,6 +26,14 @@
                       (assoc m k (f val)))]
       (transform-map updated-m (rest fs)))))
 
+(defn transform-map-plus [m fs]
+  (if (empty? fs)
+    m
+    (let [[k f]    (first fs)
+          val      (k m)
+          updated-m (assoc m k (f val))]
+      (transform-map-plus updated-m (rest fs)))))
+
 (defn user [emap]
   (let [keys-converted (keys emap)
         keys-needed    (dissoc keys-converted :password :api-key)
@@ -142,7 +150,11 @@
 (defn activity [emap]
   (let [keys-converted (keys emap)
         get-root (partial util/get-attr :task/id)
+        root-task-id (get-root (:root keys-converted))
         get-owner (partial util/get-attr :user/id)
         val-fs {:root get-root
-                :owner get-owner}]
-    (transform-map keys-converted val-fs)))
+                :owner get-owner
+                :tasks (fn [_]
+                         (-> (util/connected-tasks root-task-id (util/get-db))
+                             (vec->array java.util.UUID "uuid")))}]
+    (transform-map-plus keys-converted val-fs)))

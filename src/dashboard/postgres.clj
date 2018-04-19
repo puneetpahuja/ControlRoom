@@ -129,6 +129,7 @@
                              [:name :text]
                              [:description :text]
                              [:root :uuid]
+                             [:tasks "uuid[]"]
                              [:completed-at :text]
                              [:owner :uuid]
                              [:created-at :text]
