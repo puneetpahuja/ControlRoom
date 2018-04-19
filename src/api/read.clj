@@ -1,6 +1,7 @@
 (ns api.read
   (:require [dtm.read :as db]
-            [api.auth :as auth]))
+            [api.auth :as auth]
+            [fileserver.file :as file]))
 
 
 ;;; ================================org-units===================================
@@ -50,3 +51,10 @@
 
 (defn templates-projects [{:keys [auth ids]}]
   (auth/authorize-and-respond auth db/templates-projects ids))
+
+
+;;; ==============================download======================================
+
+
+(defn download [{:keys [auth filename]}]
+  (auth/authorize-and-respond auth file/download filename))

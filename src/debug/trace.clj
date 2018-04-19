@@ -17,9 +17,14 @@
        'data.util)
 
 (trace 'dtm.auth
-       'dtm.config
        'dtm.convert
        'dtm.read
        'dtm.schema
        'dtm.util
        'dtm.write)
+
+(trace 'fileserver.file
+       'fileserver.s3)
+
+(trace 'dashboard.convert
+       'dashboard.postgres)

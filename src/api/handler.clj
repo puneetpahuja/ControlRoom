@@ -4,7 +4,7 @@
             [api.schema :as schema]
             [api.write :as write]
             [compojure.api.sweet :as c]
-            [ring.swagger.upload :as upload]))
+            [dashboard.postgres :as dashboard]))
 
 (comment TODO
          * have a parent-child heirarchy for entities like tasks, activities
@@ -172,4 +172,17 @@
                                   :apiKey apiKey}]
                         (write/upload auth file)))
 
-               )))
+
+;;; ==============================download======================================
+
+
+               (c/POST "/v0.1/download" []
+                       ;; :return schema/File
+                       :body [file-manifest schema/FileManifest]
+                       (read/download file-manifest))
+
+               (c/POST "/v0.1/dashboard/db-update" []
+                       :return schema/Result
+                       :body [db schema/DB]
+                       :summary "Updates postgres db for dashboard."
+                       (dashboard/update-db db)))))
