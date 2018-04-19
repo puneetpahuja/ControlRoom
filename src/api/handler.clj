@@ -173,6 +173,13 @@
                         (write/upload auth file)))
 
 
+;;; ==============================download======================================
+
+
+               (c/POST "/v0.1/download" []
+                       ;; :return schema/File
+                       :body [file-manifest schema/FileManifest]
+                       (read/download file-manifest))
 
                (c/POST "/v0.1/dashboard/db-update" []
                        :return schema/Result
