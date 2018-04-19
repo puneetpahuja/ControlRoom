@@ -158,11 +158,11 @@
 ;;; ================================upload======================================
 
 
-               (c/POST "/v0.1/init-plus" []
-                       :return schema/Result
-                       :body [credentials schema/Credentials]
-                       :summary "Initializes projects and feeds some extra data. Used for testing."
-                       (write/init-plus credentials)))))
+               ;; (c/POST "/v0.1/init-plus" []
+               ;;         :return schema/Result
+               ;;         :body [credentials schema/Credentials]
+               ;;         :summary "Initializes projects and feeds some extra data. Used for testing."
+               ;;         (write/init-plus credentials))
 
                (c/PUT "/v0.1/upload" []
                       :return schema/Filepath
