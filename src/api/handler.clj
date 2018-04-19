@@ -4,7 +4,9 @@
             [api.schema :as schema]
             [api.write :as write]
             [compojure.api.sweet :as c]
-            [ring.swagger.upload :as upload]))
+            [ring.swagger.upload :as upload]
+            [schema.core :as s]
+            [dashboard.postgres :as dashboard]))
 
 (comment TODO
          * have a parent-child heirarchy for entities like tasks, activities
@@ -156,20 +158,33 @@
 ;;; ================================upload======================================
 
 
-               (c/POST "/v0.1/init-plus" []
-                       :return schema/Result
-                       :body [credentials schema/Credentials]
-                       :summary "Initializes projects and feeds some extra data. Used for testing."
-                       (write/init-plus credentials)))))
+               ;; (c/POST "/v0.1/init-plus" []
+               ;;         :return schema/Result
+               ;;         :body [credentials schema/Credentials]
+               ;;         :summary "Initializes projects and feeds some extra data. Used for testing."
+               ;;         (write/init-plus credentials))
 
                (c/PUT "/v0.1/upload" []
                       :return schema/Filepath
                       :multipart-params [file :- upload/TempFileUpload
-                                         username
-                                         apiKey]
+                                         username :- s/Str
+                                         apiKey :- s/Str]
                       :middleware [upload/wrap-multipart-params]
                       (let [auth {:username username
                                   :apiKey apiKey}]
                         (write/upload auth file)))
 
-               )))
+
+;;; ==============================download======================================
+
+
+               (c/POST "/v0.1/download" []
+                       ;; :return schema/File
+                       :body [file-manifest schema/FileManifest]
+                       (read/download file-manifest))
+
+               (c/POST "/v0.1/dashboard/db-update" []
+                       :return schema/Result
+                       :body [db schema/DB]
+                       :summary "Updates postgres db for dashboard."
+                       (dashboard/update-db db)))))

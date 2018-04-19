@@ -278,3 +278,23 @@
 
 (s/defschema Filepath
   {:filepath s/Str})
+
+
+;;; ==============================download======================================
+
+
+(s/defschema FileManifest
+  {:filename s/Str
+   :auth     Auth})
+
+
+(s/defschema File
+  {:file java.io.File})
+
+
+
+
+(s/defschema DB
+  {:username s/Str
+   :password s/Str
+   (s/optional-key :init) s/Bool})
