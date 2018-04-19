@@ -6,18 +6,17 @@
 ;;; ================================org-units===================================
 
 
-(defn org-unit [id]
-  (convert/org-unit (util/get-details :org-unit/id id (util/get-db))))
+(defn project [id]
+  (convert/project (util/get-details :project/id id (util/get-db))))
 
-(defn org-units [_ ids]
-  (let [org-unit-ids (util/get-all-vals :org-unit/id (util/get-db))
-        diff         (util/diff ids (mapv str org-unit-ids))
-        {:keys
-         [insert
-          delete]}   diff
-        insert-uuids (mapv util/str->uuid insert)]
-    {:insert (mapv org-unit insert-uuids)
-     :delete delete}))
+(defn org-units [_username version]
+  (let [db                (util/get-db)
+        org-units-version (first (util/get-all-vals :org-units/version db))]
+    (if (= org-units-version version)
+      {:version  version}
+      (let [project-uuids (util/get-all-vals :project/id db)]
+        {:version  org-units-version
+         :projects (mapv project project-uuids)}))))
 
 
 ;;; ================================tasks/pending===============================
@@ -37,20 +36,46 @@
      :delete delete}))
 
 
-;;; ================================tasks/assigned==============================
+;;; ==========================tasks/assigned/pending============================
 
 
-(defn task-assigned [id]
-  (convert/task-assigned (util/get-details :task/id id (util/get-db))))
+(defn task-assigned-pending [id]
+  (convert/task-assigned-pending (util/get-details :task/id id (util/get-db))))
 
-(defn tasks-assigned [username ids]
-  (let [tasks-assigned-ids (util/get-assigned-tasks-ids username (util/get-db))
-        diff               (util/diff ids (mapv str tasks-assigned-ids))
+(defn tasks-assigned-pending [username ids]
+  (let [tasks-assigned-pending-ids (util/get-assigned-pending-tasks-ids
+                                     username
+                                     (util/get-db))
+        diff                       (util/diff ids (mapv
+                                                    str
+                                                    tasks-assigned-pending-ids))
         {:keys
          [insert
-          delete]}         diff
-        insert-uuids       (mapv util/str->uuid insert)]
-    {:insert (mapv task-assigned insert-uuids)
+          delete]}                 diff
+        insert-uuids               (mapv util/str->uuid insert)]
+    {:insert (mapv task-assigned-pending insert-uuids)
+     :delete delete}))
+
+
+;;; ========================tasks/assigned/completed============================
+
+
+(defn task-assigned-completed [id]
+  (convert/task-assigned-completed (util/get-details :task/id id (util/get-db))))
+
+(defn tasks-assigned-completed [username ids]
+  (let [tasks-assigned-completed-ids (util/get-assigned-completed-tasks-ids
+                                       username
+                                       (util/get-db))
+        diff                         (util/diff ids
+                                                (mapv
+                                                  str
+                                                  tasks-assigned-completed-ids))
+        {:keys
+         [insert
+          delete]}                   diff
+        insert-uuids                 (mapv util/str->uuid insert)]
+    {:insert (mapv task-assigned-completed insert-uuids)
      :delete delete}))
 
 
@@ -68,4 +93,34 @@
           delete]}          diff
         insert-uuids        (mapv util/str->uuid insert)]
     {:insert (mapv task-completed insert-uuids)
+     :delete delete}))
+
+
+;;; ================================tasks/tags==================================
+
+
+(defn tasks-tags [_username version]
+  (let [db     (util/get-db)
+        tags-version (first (util/get-all-vals :task-tags/version db))]
+    (if (= tags-version version)
+      {:version version}
+      (let [tags (util/get-all-vals :task-tags/values db)]
+        {:version tags-version
+         :tags tags}))))
+
+
+;;; ================================templates/projects==========================
+
+
+(defn template-project [id]
+  (convert/template-project (util/get-details :project-template/id id (util/get-db))))
+
+(defn templates-projects [_ ids]
+  (let [project-templates-ids  (util/get-project-templates-ids (util/get-db))
+        diff                   (util/diff ids (mapv str project-templates-ids))
+        {:keys
+         [insert
+          delete]}             diff
+        insert-uuids           (mapv util/str->uuid insert)]
+    {:insert (mapv template-project insert-uuids)
      :delete delete}))

@@ -4,7 +4,7 @@
 (comment DOC
          * javascript naming conventions used
          TODO
-         * add templates endpoints templates.task-processes
+
          TODO LATER
          * add tags and properties[key-value pairs] to all entities)
 
@@ -12,12 +12,16 @@
   {:username  s/Str
    :apiKey    s/Str})
 
-(def Id
-  s/Str)
+(def Id s/Str)
 
 (s/defschema Manifest
   {:ids       [Id]
    :auth      Auth})
+
+(s/defschema Result
+  {:result           s/Bool
+   (s/optional-key
+     :error)         s/Str})
 
 
 ;;; ================================login=======================================
@@ -28,41 +32,80 @@
    :password  s/Str})
 
 (s/defschema User
-  {:id        s/Str
-   :firstName s/Str
-   :lastName  s/Str
-   :title     s/Str
-   :username  s/Str   ; phone number
-   :phone     s/Str
-   :email     s/Str
-   :role      s/Str   ; supervisor or worker
-   :channels  [s/Str] ; sms, web or app
-   :orgUnit   s/Str
-   :orgUnitId s/Str})
+  {:id             s/Str
+   (s/optional-key
+     :firstName)   s/Str
+   (s/optional-key
+     :lastName)    s/Str
+   (s/optional-key
+     :title)       s/Str
+   :phone          s/Str
+   (s/optional-key
+     :email)       s/Str
+   (s/optional-key
+     :orgUnit)     s/Str
+   (s/optional-key
+     :state)       s/Str})
 
 (s/defschema UserAuth
-  {:user User
+  {:user      User
    :apiKey    s/Str})
 
 
-;;; ================================logout======================================
+;;; ================================PUT user====================================
 
 
-(s/defschema Result
-  {:result    s/Bool})
+(s/defschema OptionalUser
+  {(s/optional-key
+     :firstName)    s/Str
+   (s/optional-key
+     :lastName)     s/Str
+   (s/optional-key
+     :title)        s/Str
+   :phone           s/Str
+   (s/optional-key
+     :email)        s/Str
+   (s/optional-key
+     :orgUnit)      s/Str
+   (s/optional-key
+     :state)        s/Str
+   (s/optional-key
+     :password)     s/Str})
+
+(s/defschema AddUser
+  {:user  OptionalUser
+   :auth  Auth})
 
 
 ;;; ================================org-units===================================
 
+(s/defschema OrgUnitUser
+  {:name     s/Str
+   :username s/Str})
 
-(s/defschema OrgUnit
+(s/defschema OrgUnitVertical
+  {:id    s/Str
+   :name  s/Str
+   :users [OrgUnitUser]})
+
+(s/defschema OrgUnitState
+  {:id                   s/Str
+   :name                 s/Str
+   :vertical/departments [OrgUnitVertical]})
+
+(s/defschema OrgUnitProject
   {:id        s/Str
    :name      s/Str
-   :users     [User]})
+   :states    [OrgUnitState]})
 
 (s/defschema OrgUnitsDiff
-  {:insert    [OrgUnit]
-   :delete    [Id]})
+  {:version    s/Int
+   (s/optional-key
+     :projects) [OrgUnitProject]})
+
+(s/defschema VersionManifest
+  {:version   s/Int
+   :auth      Auth})
 
 
 ;;; ================================tasks/pending===============================
@@ -72,55 +115,30 @@
   {})
 
 (s/defschema MeasurementTemplate
-  {:id        s/Str
-   :question  s/Str
-   :hint      s/Str
-   :required  s/Bool
-   :valueType s/Str        ; int, long, string, assignment etc.
-
-   (s/optional-key :validations)  [Validation]
-   (s/optional-key :defaultValue) s/Str})
+  {:id              s/Str
+   :question        s/Str
+   (s/optional-key
+     :hint)         s/Str
+   :required        s/Bool
+   :valueType       s/Str        ; int, long, string, assignment etc.
+   (s/optional-key
+     :validations)  [Validation]
+   (s/optional-key
+     :defaultValue) s/Str})
 
 (s/defschema PendingTask
   {:id                   s/Str
    :name                 s/Str
-   :description          s/Str
-   :projectId            s/Str
    :projectName          s/Str
    :type                 s/Str       ; assignment or measurement
-   :assignedTo           s/Str       ; id of the user this is assigned to
    :assignerName         s/Str
    :assignerPhone        s/Str
    :assignerOrgUnit      s/Str
-   :createdAt            s/Str       ; milliseconds since 1970
-   :updatedAt            s/Str
    :dueDate              s/Str
    :measurementTemplates [MeasurementTemplate]})
 
 (s/defschema PendingTasksDiff
   {:insert [PendingTask]
-   :delete [Id]})
-
-
-;;; ================================tasks/assigned==============================
-
-
-(s/defschema AssignedTask
-  {:id              s/Str
-   :name            s/Str
-   :assigneeName    s/Str
-   :assigneePhone   s/Str
-   :assigneeOrgUnit s/Str
-   :dueDate         s/Str})
-
-(s/defschema AssignmentTask
-  {:id             s/Str
-   :name           s/Str
-   :projectName    s/Str
-   :assignedTasks [AssignedTask]})
-
-(s/defschema AssignmentTasksDiff
-  {:insert [AssignmentTask]
    :delete [Id]})
 
 
@@ -139,12 +157,144 @@
    :delete [Id]})
 
 
-;;; ================================put /tasks==================================
+;;; ============================tasks/assigned/pending==========================
+
+
+(s/defschema AssignedPendingTask
+  {:id              s/Str
+   :name            s/Str
+   :assigneeName    s/Str
+   :assigneePhone   s/Str
+   :assigneeOrgUnit s/Str
+   :dueDate         s/Str
+   :status          s/Str})
+
+(s/defschema AssignmentPendingTask
+  {:id             s/Str
+   :name           s/Str
+   :projectName    s/Str
+   :assignedTasks [AssignedPendingTask]})
+
+(s/defschema AssignmentPendingTasksDiff
+  {:insert [AssignmentPendingTask]
+   :delete [Id]})
+
+
+;;; ============================tasks/assigned/completed========================
+
+
+(s/defschema AssignedCompletedTask
+  {:id              s/Str
+   :name            s/Str
+   :assigneeName    s/Str
+   :assigneePhone   s/Str
+   :assigneeOrgUnit s/Str
+   :completedAt     s/Str})
+
+(s/defschema AssignmentCompletedTask
+  {:id             s/Str
+   :name           s/Str
+   :projectName    s/Str
+   :assignedTasks [AssignedCompletedTask]})
+
+(s/defschema AssignmentCompletedTasksDiff
+  {:insert [AssignmentCompletedTask]
+   :delete [Id]})
+
+
+;;; ================================tasks/tags==================================
+
+
+(s/defschema TagsDiff
+  {:version        s/Int
+   (s/optional-key
+     :tags)        [s/Str]})
+
+
+;;; ================================PUT tasks===================================
 
 
 (s/defschema Measurement
-  {:id    s/Str
-   :value s/Str
-   (s/optional-key :dataSource) s/Str
-   (s/optional-key :name)       s/Str
-   (s/optional-key :valueType)  s/Str})
+  {:id              s/Str     ; measurement template id
+   :valueType       s/Str     ; can be integer, float, string, photo, location, date
+   :value           s/Str
+   (s/optional-key
+     :entityId)     s/Str}    ; id of the entity if you are creating a new entity or want to link it to an existing entity
+  )
+
+(s/defschema TaskSubmission
+  {:id              s/Str
+   :status          s/Str         ; completed, assigned, suspended or rejected
+   (s/optional-key
+     :measurements) [Measurement] ; present only in case of completed and assigned tasks
+   })
+
+(s/defschema TaskSubmissions
+  {:tasks  [TaskSubmission]
+   :auth   Auth})
+
+
+;;; ================================PUT activities==============================
+
+
+(s/defschema CreateMeasurementTemplate
+  {:question        s/Str
+   :hint            s/Str
+   :required        s/Bool
+   :valueType       s/Str        ; int, long, string, assignment etc.
+   })
+
+(s/defschema ActivitySubmission
+  {:projectId            s/Str
+   :name                 s/Str
+   (s/optional-key
+     :description)       s/Str
+   :dueDate              s/Str
+   :measurementTemplates [CreateMeasurementTemplate]
+   :assignee             s/Str
+   :tags                 [s/Str]})
+
+(s/defschema ActivitySubmissions
+  {:activities [ActivitySubmission]
+   :auth       Auth})
+
+
+;;; ===============================templates/projects===========================
+
+
+(s/defschema ProjectTemplate
+  {:id s/Str
+   :title s/Str
+   :description s/Str
+   :projectSchemaId s/Str})
+
+(s/defschema ProjectTemplatesDiff
+  {:insert [ProjectTemplate]
+   :delete [Id]})
+
+
+;;; ================================upload======================================
+
+
+(s/defschema Filepath
+  {:filepath s/Str})
+
+
+;;; ==============================download======================================
+
+
+(s/defschema FileManifest
+  {:filename s/Str
+   :auth     Auth})
+
+
+(s/defschema File
+  {:file java.io.File})
+
+
+
+
+(s/defschema DB
+  {:username s/Str
+   :password s/Str
+   (s/optional-key :init) s/Bool})

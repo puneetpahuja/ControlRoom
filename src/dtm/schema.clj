@@ -51,7 +51,30 @@
 ;;; ================================org-units===================================
 
 
-   (s/schema org-unit
+   (s/schema client
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [projects :ref :many :component]))
+
+   (s/schema org-units
+             (s/fields
+               [version :long]))
+
+   (s/schema project
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [states :ref :many]
+               [activities :ref :many :component]))
+
+   (s/schema state
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [verticals :ref :many]))
+
+   (s/schema vertical
              (s/fields
                [id :uuid :unique-identity]
                [name :string]
@@ -83,6 +106,37 @@
                [name :string]
                [value :ref]))
 
+   (s/schema photo-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :string]))
+
+   (s/schema date-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :string]))
+
+   (s/schema location-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :string]))
+
+   (s/schema float-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :float]))
+
+   (s/schema any-measurement
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [value :string]
+               [value-type :string]))
+
    (s/schema measurement-template
              (s/fields
                [id :uuid :unique-identity]
@@ -94,16 +148,16 @@
                [value-type :ref]
 
                [default-value :string]
-               [measurement :ref]))
+               [measurement :ref]
+               [position :long]))
 
    (s/schema datasource
              (s/fields
                [id :uuid :unique-identity]
-               [name :string]
                [measurements :ref :many :component]
-
                [tags :string :many :fulltext]
-               [entity :ref]))
+
+               [entity :string]))
 
    (s/schema task
              (s/fields
@@ -116,7 +170,7 @@
                [status :ref]
 
                [assigned-to :ref]   ; assignment-measurement
-               [assigned-by :ref]   ; user
+               [due-date :string]
                [completed-at :string]
 
                [parent :ref]
@@ -125,23 +179,37 @@
 
                [created-at :string]
                [updated-at :string]
-               [due-date :string]))
+               [tags       :string :many]))
 
-   (s/schema project
+   (s/schema task-tags
+             (s/fields
+               [version :long]
+               [values :string :many]))
+
+   (s/schema activity
              (s/fields
                [id :uuid :unique-identity]
                [name :string]
                [description :string]
 
-               [root :ref]    ; task
-               [status :ref]
+               [root :ref]    ; root task
+               [completed-at :string]
                [owner :ref]
 
                [created-at :string]
                [updated-at :string]
-               [due-date :string]
+               [due-date :string]))
 
-               [completed-at :string]))])
+
+;;; ================================templates/projects==========================
+
+
+   (s/schema project-template
+             (s/fields
+               [id :uuid :unique-identity]
+               [title :string]
+               [description :string]
+               [project-schema-id :uuid :unique-identity]))])    ; TODO - make project-schema-id as ref which refs to project-schema
 
 (def enums
   {:task-status    [{:db/ident :task.status/pre-pending}
@@ -165,8 +233,13 @@
                     {:db/ident :user.channel/sms}
                     {:db/ident :user.channel/web}]
 
-   :m-value-types  [{:db/ident :measurement.value-type/int}
+   :m-value-types  [{:db/ident :measurement.value-type/integer}
+                    {:db/ident :measurement.value-type/float}
                     {:db/ident :measurement.value-type/string}
+                    {:db/ident :measurement.value-type/photo}
+                    {:db/ident :measurement.value-type/location}
+                    {:db/ident :measurement.value-type/date}
+                    {:db/ident :measurement.value-type/any}
                     {:db/ident :measurement.value-type/assignment}]})
 
 (def generated-schema (mapv #(dissoc % :db.install/_attribute :db/id)
