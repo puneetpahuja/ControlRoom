@@ -26,3 +26,8 @@
     (object-store/put-object "hih-poc" new-filename file)
     (io/delete-file file true)
     {:filepath new-filename}))
+
+(defn download [_username filepath]
+  (with-open [input-stream (:input-stream (object-store/get-object "hih-poc" filepath))]
+    (io/copy input-stream (io/file filepath))
+    {:file input-stream}))
