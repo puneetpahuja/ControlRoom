@@ -4,6 +4,8 @@
             [api.schema :as schema]
             [api.write :as write]
             [compojure.api.sweet :as c]
+            [ring.swagger.upload :as upload]
+            [schema.core :as s]
             [dashboard.postgres :as dashboard]))
 
 (comment TODO
@@ -165,8 +167,8 @@
                (c/PUT "/v0.1/upload" []
                       :return schema/Filepath
                       :multipart-params [file :- upload/TempFileUpload
-                                         username
-                                         apiKey]
+                                         username :- s/Str
+                                         apiKey :- s/Str]
                       :middleware [upload/wrap-multipart-params]
                       (let [auth {:username username
                                   :apiKey apiKey}]
