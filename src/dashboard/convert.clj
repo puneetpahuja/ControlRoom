@@ -21,19 +21,19 @@
 (defn transform-map [m fs]
   (if (empty? fs)
     m
-    (let [[k f]    (first fs)
-          val      (k m)
-          updated-m (if (nil? val)
-                      m
-                      (assoc m k (f val)))]
+    (let [[k f]      (first fs)
+          val        (k m)
+          updated-m  (if (nil? val)
+                       m
+                       (assoc m k (f val)))]
       (transform-map updated-m (rest fs)))))
 
 (defn transform-map-plus [m fs]
   (if (empty? fs)
     m
-    (let [[k f]    (first fs)
-          val      (k m)
-          updated-m (assoc m k (f val))]
+    (let [[k f]      (first fs)
+          val        (k m)
+          updated-m  (assoc m k (f val))]
       (transform-map-plus updated-m (rest fs)))))
 
 (defn user [emap]
@@ -67,11 +67,11 @@
     (unfold-array vals-converted :channels)))
 
 (defn task [emap]
-  (let [keys-converted                  (keys emap)
-        get-task-id                      (partial util/get-attr :task/id)
+  (let [keys-converted (keys emap)
         keys-needed    (dissoc keys-converted
                                :measurement-templates
                                :tags)
+        get-task-id    (partial util/get-attr :task/id)
         val-fs         {:type name
                         :status name
                         :assigned-to (partial util/get-attr :assignment-measurement/id)
@@ -117,9 +117,9 @@
    (get-attr-array attr identity entities)))
 
 (defn client [emap]
-  (let [keys-converted (keys emap)
-        val-fs    {:projects get-projects-ids}]
+  (let [keys-converted     (keys emap)
         get-projects-ids   (partial get-attr-list :project/id)
+        val-fs             {:projects get-projects-ids}
         vals-converted     (transform-map keys-converted val-fs)]
     (unfold-array vals-converted :projects)))
 
@@ -144,17 +144,17 @@
         (unfold-array :activities :activity))))
 
 (defn state [emap]
-  (let [keys-converted (keys emap)
-        val-fs {:verticals get-verticals-ids}]
+  (let [keys-converted    (keys emap)
         get-verticals-ids (partial get-attr-list :vertical/id)
+        val-fs            {:verticals get-verticals-ids}]
     (-> keys-converted
         (transform-map val-fs)
         (unfold-array :verticals))))
 
 (defn vertical [emap]
-  (let [keys-converted (keys emap)
-        val-fs {:users get-users-ids}]
+  (let [keys-converted  (keys emap)
         get-users-ids   (partial get-attr-list :user/id)
+        val-fs          {:users get-users-ids}]
     (-> keys-converted
         (transform-map val-fs)
         (set/rename-keys {:users :usrs})
@@ -181,43 +181,43 @@
 (def float-measurement measurement)
 
 (defn measurement-template [emap]
-  (let [keys-converted (keys emap)
-        keys-needed  (dissoc keys-converted
-                             :position
-                             :validations)
+  (let [keys-converted      (keys emap)
+        keys-needed         (dissoc keys-converted
+                                    :position
+                                    :validations)
         get-measurement-id  (fn [measurement-entity]
                               (-> measurement-entity
                                   util/get-details
                                   keys
                                   :id))
-        val-fs {:value-type name
-                :measurement get-measurement-id}]
+        val-fs              {:value-type name
+                             :measurement get-measurement-id}]
     (transform-map keys-needed val-fs)))
 
 (defn datasource [emap]
-  (let [keys-converted (keys emap)
-        get-tags #(vec->array % String "text")
-        val-fs {:measurements get-measurements-ids
-                :tags get-tags}]
+  (let [keys-converted       (keys emap)
         get-measurements-ids (partial get-attr-array :id keys)
+        get-tags             #(vec->array % String "text")
+        val-fs               {:measurements get-measurements-ids
+                              :tags get-tags}]
     (transform-map keys-converted val-fs)))
 
-  (let [keys-converted (keys emap)
 (defn tag [emap]
+  (let [keys-converted  (keys emap)
         keys-needed     (dissoc keys-converted :version)]
     (unfold-array keys-needed :values)))
 
 (defn activity [emap]
   (let [keys-converted  (keys emap)
         keys-needed     (dissoc keys-converted :tasks)
+        get-root        (partial util/get-attr :task/id)
+        get-owner       (partial util/get-attr :user/id)
+        val-fs          {:root get-root
                          :owner get-owner}]
     (transform-map keys-needed val-fs)))
 
 (defn activity-task [emap]
   (let [keys-converted (keys emap)
-        get-root (partial util/get-attr :task/id)
-        get-owner (partial util/get-attr :user/id)
-        val-fs {:root get-root
         keys-needed    (select-keys keys-converted [:id :tasks])
         get-root       (partial util/get-attr :task/id)
         root-task-id   (get-root (:root keys-converted))

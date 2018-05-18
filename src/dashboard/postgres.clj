@@ -308,14 +308,11 @@
   (fill-activity-tasks-table)
   (j/query config/db-spec ["select pg_terminate_backend(pid) from pg_stat_activity where datname='hihdemo' and application_name='' and pid <> pg_backend_pid();"]))
 
-
 (defn cron []
   (while true
     (println "refreshing")
     (cron-once)
     (Thread/sleep 3000)))
-
-
 
 (defn update-db [{:keys [username password init]}]
   (trace/trace-ns 'dashboard.postgres)
