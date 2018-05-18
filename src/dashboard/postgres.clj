@@ -9,6 +9,13 @@
 
 (def convert {:entities convert-case/->snake_case})
 
+(def all-tables
+  [:users :user_channels :tasks :task_measurement_templates :task_tags :clients
+   :projects :project_activities :states :verticals :integer_measurements
+   :string_measurements :assignment_measurements :photo_measurements
+   :date_measurements :location_measurements :float_measurements
+   :measurement_templates :datasources :tags :activities :activity_tasks])
+
 (defn get-all-rows [attr]
   (let [db (util/get-db)]
     (as-> (util/get-all-vals attr db) x
@@ -19,7 +26,10 @@
     (j/db-do-commands conn commands)))
 
 (defn drop-tables [& tables]
-  (apply exec (map #(j/drop-table-ddl %) tables)))
+  (apply exec (map #(j/drop-table-ddl % {:conditional? true}) tables)))
+
+(defn drop-all-tables []
+  (apply drop-tables all-tables))
 
 (defn create-table [table columns]
   (exec (j/create-table-ddl table
@@ -321,6 +331,7 @@
     (do
       (if init
         (do
+          (drop-all-tables)
           (create-all-tables)
           (fill-all-tables)))
       (cron-once)
