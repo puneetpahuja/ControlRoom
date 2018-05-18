@@ -39,14 +39,16 @@
                         [:username :text]
                         [:phone :text]
                         [:email :text]
-                        [:role :text]
-                        [:channels "text[]"]]))
+                        [:role :text]]))
+
+(defn create-user-channels-table []
+  (create-table :user_channels [[:id :uuid]
+                                [:channel :text ", UNIQUE (id, channel)"]]))
 
 (defn create-tasks-table []
   (create-table :tasks [[:id :uuid :primary :key]
                         [:name :text]
                         [:description :text]
-                        [:measurement-templates "uuid[]"]
                         [:type :text]
                         [:status :text]
                         [:assigned-to :uuid]
@@ -56,29 +58,40 @@
                         [:first-child :uuid]
                         [:sibling :uuid]
                         [:created-at :text]
-                        [:updated-at :text]
-                        [:tags "text[]"]]))
+                        [:updated-at :text]]))
+
+(defn create-task-measurement-templates-table []
+  (create-table :task_measurement_templates [[:id :uuid]
+                                             [:measurement-template :uuid ", UNIQUE (id, measurement_template)"]]))
+
+(defn create-task-tags-table []
+  (create-table :task_tags [[:id :uuid]
+                            [:tag :text ", UNIQUE (id, tag)"]]))
+
 
 (defn create-clients-table []
-  (create-table :clients [[:id :uuid :primary :key]
+  (create-table :clients [[:id :uuid]
                           [:name :text]
-                          [:projects "uuid[]"]]))
+                          [:project :uuid ", UNIQUE (id, name, project)"]]))
 
 (defn create-projects-table []
   (create-table :projects [[:id :uuid :primary :key]
                            [:name :text]
-                           [:states "uuid[]"]
-                           [:activities "uuid[]"]]))
+                           [:state :uuid]]))
+
+(defn create-project-activities-table []
+  (create-table :project_activities [[:id :uuid]
+                                     [:activity :uuid ", UNIQUE (id, activity)"]]))
 
 (defn create-states-table []
-  (create-table :states [[:id :uuid :primary :key]
+  (create-table :states [[:id :uuid]
                          [:name :text]
-                         [:verticals "uuid[]"]]))
+                         [:vertical :uuid ", UNIQUE (id, name, vertical)"]]))
 
 (defn create-verticals-table []
-  (create-table :verticals [[:id :uuid :primary :key]
+  (create-table :verticals [[:id :uuid]
                             [:name :text]
-                            [:users "uuid[]"]]))
+                            [:usr :uuid ", UNIQUE (id, name, usr)"]]))
 
 (defn create-measurements-table [table type]
   (create-table table [[:id :uuid :primary :key]
@@ -121,26 +134,33 @@
                               [:tags "text[]"]
                               [:entity :text]]))
 
-(defn create-task-tags-table []
-  (create-table :task_tags [[:values "text[]"]]))
+(defn create-tags-table []
+  (create-table :tags [[:value :text]]))
 
 (defn create-activities-table []
   (create-table :activities [[:id :uuid :primary :key]
                              [:name :text]
                              [:description :text]
                              [:root :uuid]
-                             [:tasks "uuid[]"]
                              [:completed-at :text]
                              [:owner :uuid]
                              [:created-at :text]
                              [:updated-at :text]
                              [:due-date :text]]))
 
+(defn create-activity-tasks-table []
+  (create-table :activity_tasks [[:id :uuid]
+                                 [:task :uuid ", UNIQUE (id, task)"]]))
+
 (defn create-all-tables []
   (create-users-table)
+  (create-user-channels-table)
   (create-tasks-table)
+  (create-task-measurement-templates-table)
+  (create-task-tags-table)
   (create-clients-table)
   (create-projects-table)
+  (create-project-activities-table)
   (create-states-table)
   (create-verticals-table)
   (create-integer-measurements-table)
@@ -152,12 +172,15 @@
   (create-float-measurements-table)
   (create-measurement-templates-table)
   (create-datasources-table)
-  (create-task-tags-table)
-  (create-activities-table))
+  (create-tags-table)
+  (create-activities-table)
+  (create-activity-tasks-table))
 
-(defn insert [table row]
+(defn insert [table rows]
   (j/with-db-connection [conn config/db-spec]
-    (j/insert! conn table row convert)))
+    (if (map? rows)
+      (j/insert! conn table rows convert)
+      (j/insert-multi! conn table rows convert))))
 
 (defn fill-table [table attr convert-f]
   (let [dtm-rows (get-all-rows attr)
@@ -167,14 +190,26 @@
 (defn fill-users-table []
   (fill-table :users :user/id c/user))
 
+(defn fill-user-channels-table []
+  (fill-table :user_channels :user/id c/user-channel))
+
 (defn fill-tasks-table []
   (fill-table :tasks :task/id c/task))
+
+(defn fill-task-measurement-templates-table []
+  (fill-table :task_measurement_templates :task/id c/task-measurement-template))
+
+(defn fill-task-tags-table []
+  (fill-table :task_tags :task/id c/task-tag))
 
 (defn fill-clients-table []
   (fill-table :clients :client/id c/client))
 
 (defn fill-projects-table []
   (fill-table :projects :project/id c/project))
+
+(defn fill-project-activities-table []
+  (fill-table :project_activities :project/id c/project-activity))
 
 (defn fill-states-table []
   (fill-table :states :state/id c/state))
@@ -209,17 +244,24 @@
 (defn fill-datasources-table []
   (fill-table :datasources :datasource/id c/datasource))
 
-(defn fill-task-tags-table []
-  (fill-table :task_tags :task-tags/version c/task-tags))
+(defn fill-tags-table []
+  (fill-table :tags :task-tags/version c/tag))
 
 (defn fill-activities-table []
   (fill-table :activities :activity/id c/activity))
 
+(defn fill-activity-tasks-table []
+  (fill-table :activity_tasks :activity/id c/activity-task))
+
 (defn fill-all-tables []
   (fill-users-table)
+  (fill-user-channels-table)
   (fill-tasks-table)
+  (fill-task-measurement-templates-table)
+  (fill-task-tags-table)
   (fill-clients-table)
   (fill-projects-table)
+  (fill-project-activities-table)
   (fill-states-table)
   (fill-verticals-table)
   (fill-integer-measurements-table)
@@ -231,14 +273,16 @@
   (fill-float-measurements-table)
   (fill-measurement-templates-table)
   (fill-datasources-table)
-  (fill-task-tags-table)
-  (fill-activities-table))
-
+  (fill-tags-table)
+  (fill-activities-table)
+  (fill-activity-tasks-table))
 
 (defn cron-once []
   (trace/trace-ns 'dashboard.postgres)
   (j/query config/db-spec ["select pg_terminate_backend(pid) from pg_stat_activity where datname='hihdemo' and application_name='' and pid <> pg_backend_pid();"])
   (empty-tables :tasks
+                :task_measurement_templates
+                :task_tags
                 :integer_measurements
                 :string_measurements
                 :assignment_measurements
@@ -247,8 +291,11 @@
                 :location_measurements
                 :float_measurements
                 :measurement_templates
-                :activities)
+                :activities
+                :activity_tasks)
   (fill-tasks-table)
+  (fill-task-measurement-templates-table)
+  (fill-task-tags-table)
   (fill-integer-measurements-table)
   (fill-string-measurements-table)
   (fill-assignment-measurements-table)
@@ -258,6 +305,7 @@
   (fill-float-measurements-table)
   (fill-measurement-templates-table)
   (fill-activities-table)
+  (fill-activity-tasks-table)
   (j/query config/db-spec ["select pg_terminate_backend(pid) from pg_stat_activity where datname='hihdemo' and application_name='' and pid <> pg_backend_pid();"]))
 
 
