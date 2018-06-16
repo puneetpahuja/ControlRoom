@@ -30,12 +30,9 @@
 
 
 
-;;; ================================test========================================
 ;;; ================================reset=======================================
 
 
-(defn init-plus [credentials]
-  (data/init-plus credentials))
 (defn init [credentials]
   (data/init credentials))
 

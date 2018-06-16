@@ -35,17 +35,3 @@
        (init demo true)
        (response/ok {:result true}))
      (response/unauthorized {:error "wrong credentials"}))))
-
-(defn init-plus [{:keys [username password]}]
-  ;;   (if (and (= username "admin")
-  ;;            (= password "fancyLikeThat"))
-  ;;     (do
-  ;;       (init)
-  ;;       (let [uri config/uri
-  ;;             conn (d/connect uri)]
-  ;;         @(d/transact conn t/ro1-linking)
-  ;;         ;; @(d/transact conn t/ro2-linking)
-  ;;         )
-  ;;       (response/ok {:result true}))
-  ;;     (response/unauthorized {:error "wrong credentials"}))
-  )
