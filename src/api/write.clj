@@ -26,18 +26,18 @@
   (auth/authorize-and-respond auth db/activities activities))
 
 
-;;; ================================reset=======================================
 
 
-(defn init [credentials]
-  (data/init credentials))
 
 
 ;;; ================================test========================================
+;;; ================================reset=======================================
 
 
 (defn init-plus [credentials]
   (data/init-plus credentials))
+(defn init [credentials]
+  (data/init credentials))
 
 
 ;;; ================================upload======================================
