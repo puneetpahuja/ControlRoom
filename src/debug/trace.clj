@@ -10,16 +10,23 @@
        'api.schema
        'api.write)
 
-(trace 'data.generator
+(trace 'dashboard.convert
+       'dashboard.postgres)
+
+(trace 'data.demo.ids
+       'data.demo.test
+       'data.generator
        'data.ids
        'data.init
        'data.test
        'data.util)
 
 (trace 'dtm.auth
-       'dtm.config
        'dtm.convert
        'dtm.read
        'dtm.schema
        'dtm.util
        'dtm.write)
+
+(trace 'fileserver.file
+       'fileserver.s3)

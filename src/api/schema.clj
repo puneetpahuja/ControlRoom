@@ -259,7 +259,7 @@
    :auth       Auth})
 
 
-;;; ===============================templates/projects============================
+;;; ===============================templates/projects===========================
 
 
 (s/defschema ProjectTemplate
@@ -271,3 +271,40 @@
 (s/defschema ProjectTemplatesDiff
   {:insert [ProjectTemplate]
    :delete [Id]})
+
+
+
+;;; ==================================init======================================
+
+
+(s/defschema Init
+  {:username s/Str
+   :password s/Str
+   (s/optional-key :demo) s/Bool})
+
+
+;;; ================================upload======================================
+
+
+(s/defschema Filepath
+  {:filepath s/Str})
+
+
+;;; ==============================download======================================
+
+
+(s/defschema FileManifest
+  {:filename s/Str
+   :auth     Auth})
+
+
+(s/defschema File
+  {:file java.io.File})
+
+
+
+
+(s/defschema DB
+  {:username s/Str
+   :password s/Str
+   (s/optional-key :init) s/Bool})
