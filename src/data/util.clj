@@ -7,7 +7,7 @@
 
 (defn milliseconds
   ([day month year]
-   (milliseconds (t/date-time year day month)))
+   (milliseconds (t/date-time year month day)))
 
   ([datetime]
    (-> datetime

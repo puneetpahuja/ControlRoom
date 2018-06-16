@@ -151,9 +151,9 @@
 
                (c/POST "/v0.1/init" []
                        :return schema/Result
-                       :body [credentials schema/Credentials]
+                       :body [init schema/Init]
                        :summary "Initializes projects. Used for testing."
-                       (write/init credentials))
+                       (write/init init))
 
 ;;; ================================upload======================================
 

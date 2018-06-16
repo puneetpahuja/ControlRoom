@@ -55,7 +55,7 @@
                          :measurement-templates :type :status
                          :assigned-to :due-date :completed-at
                          :parent :first-child :sibling
-                         :created-at :updated-at])
+                         :created-at :updated-at :tags])
 
 (def task-tags-attrs    [:task-tags
                          :version :values])
