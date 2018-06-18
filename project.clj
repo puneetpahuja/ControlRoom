@@ -6,6 +6,7 @@
                  [com.datomic/datomic-pro "0.9.5561.62"]
                  [datomic-schema "1.3.0"]
                  [metosin/compojure-api "1.1.11"]
+                 ;; [metosin/compojure-api "2.0.0-alpha20"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.namespace "0.2.11"]
                  [org.clojure/tools.trace "0.7.9"]

@@ -13,7 +13,9 @@
 (trace 'dashboard.convert
        'dashboard.postgres)
 
-(trace 'data.generator
+(trace 'data.demo.ids
+       'data.demo.test
+       'data.generator
        'data.ids
        'data.init
        'data.test
