@@ -109,18 +109,18 @@
          :tags tags}))))
 
 
-;;; ================================templates/projects==========================
+;;; ================================templates/activities========================
 
 
-(defn template-project [id]
-  (convert/template-project (util/get-details :project-template/id id (util/get-db))))
+(defn template-activity [id]
+  (convert/template-activity (util/get-details :activity-template/id id (util/get-db))))
 
-(defn templates-projects [_ ids]
-  (let [project-templates-ids  (util/get-project-templates-ids (util/get-db))
-        diff                   (util/diff ids (mapv str project-templates-ids))
+(defn templates-activities [_ ids]
+  (let [activity-templates-ids  (util/get-activity-templates-ids (util/get-db))
+        diff                    (util/diff ids (mapv str activity-templates-ids))
         {:keys
          [insert
-          delete]}             diff
-        insert-uuids           (mapv util/str->uuid insert)]
-    {:insert (mapv template-project insert-uuids)
+          delete]}              diff
+        insert-uuids            (mapv util/str->uuid insert)]
+    {:insert (mapv template-activity insert-uuids)
      :delete delete}))

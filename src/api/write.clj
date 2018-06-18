@@ -26,16 +26,16 @@
   (auth/authorize-and-respond auth db/activities activities))
 
 
+;;; ==============================PUT templates/activities======================
 
 
+(defn templates-activities [{:keys [auth activity-templates]}]
+  (auth/authorize-and-respond auth db/activity-templates activity-templates))
 
 
-;;; ================================test========================================
 ;;; ================================reset=======================================
 
 
-(defn init-plus [credentials]
-  (data/init-plus credentials))
 (defn init [credentials]
   (data/init credentials))
 

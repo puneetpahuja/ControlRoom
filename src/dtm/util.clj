@@ -231,11 +231,11 @@
       (ffirst (d/q q db)))))
 
 
-;;; ================================templates/projects==========================
+;;; ================================templates/activities========================
 
 
-(defn get-project-templates-ids [db]
-  (get-all-vals :project-template/id db))
+(defn get-activity-templates-ids [db]
+  (get-all-vals :activity-template/id db))
 
 
 ;;; ================================PUT tasks===================================
