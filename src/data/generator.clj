@@ -99,4 +99,4 @@
 (def task         (partial make-tx task-attrs))
 (def task-tags    (partial make-tx task-tags-attrs))
 (def activity     (partial make-tx activity-attrs))
-(def project-template (partial make-tx project-template-attrs))
+(def activity-template (partial make-tx activity-template-attrs))
