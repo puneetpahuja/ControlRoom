@@ -262,12 +262,14 @@
 ;;; ===============================templates/projects===========================
 
 
-   :projectSchemaId s/Str})
 
 (s/defschema ActivityTemplate
   {:id               Id
    :title            s/Str
    :description      s/Str
+   ;; :taskTemplates    [TaskTemplate]
+   })
+
 (s/defschema ActivityTemplatesDiff
   {:insert [ActivityTemplate]
    :delete [Id]})
