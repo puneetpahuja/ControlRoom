@@ -65,11 +65,11 @@
                           :root :completed-at :owner
                           :created-at :updated-at :due-date])
 
-(def project-template-attrs [:project-template
-                             :id :title :description
                              :project-schema-id])
 
 
+(def activity-template-attrs [:activity-template
+                              :id :title :description
 
 (defn make-tx [attrs vals]
   (let [namespace (first attrs)

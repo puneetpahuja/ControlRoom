@@ -201,10 +201,10 @@
                [due-date :string]))
 
 
-;;; ================================templates/projects==========================
+;;; ================================templates/activities========================
 
 
-   (s/schema project-template
+   (s/schema activity-template
              (s/fields
                [id :uuid :unique-identity]
                [title :string]

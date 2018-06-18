@@ -136,16 +136,16 @@
                       (write/activities activity-submissions))
 
 
-;;; ================================templates/projects==========================
 
 
-               (c/POST "/v0.1/templates/projects" []
-                       :return schema/ProjectTemplatesDiff
-                       :body [project-templates-manifest schema/Manifest]
-                       :summary "Returns all the project templates."
-                       (read/templates-projects project-templates-manifest))
+;;; ================================templates/activities========================
 
 
+               (c/POST "/v0.1/templates/activities" []
+                       :return schema/ActivityTemplatesDiff
+                       :body [activity-templates-manifest schema/Manifest]
+                       :summary "Returns all the activity templates."
+                       (read/templates-activities activity-templates-manifest))
 ;;; ================================init========================================
 
 

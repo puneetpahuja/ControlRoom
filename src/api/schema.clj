@@ -262,14 +262,14 @@
 ;;; ===============================templates/projects===========================
 
 
-(s/defschema ProjectTemplate
-  {:id s/Str
-   :title s/Str
-   :description s/Str
    :projectSchemaId s/Str})
 
-(s/defschema ProjectTemplatesDiff
-  {:insert [ProjectTemplate]
+(s/defschema ActivityTemplate
+  {:id               Id
+   :title            s/Str
+   :description      s/Str
+(s/defschema ActivityTemplatesDiff
+  {:insert [ActivityTemplate]
    :delete [Id]})
 
 
