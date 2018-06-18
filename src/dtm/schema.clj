@@ -219,10 +219,6 @@
                     {:db/ident :task.status/rejected}
                     {:db/ident :task.status/assigned}]
 
-   :project-status [{:db/ident :project.status/pending}
-                    {:db/ident :project.status/completed}
-                    {:db/ident :project.status/rejected}]
-
    :task-type      [{:db/ident :task.type/assignment}
                     {:db/ident :task.type/measurement}]
 
