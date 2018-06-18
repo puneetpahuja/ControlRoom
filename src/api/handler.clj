@@ -170,6 +170,7 @@
 ;;; ================================upload======================================
 
 
+               ;; stops working with the newer version compojure-api
                (c/PUT "/v0.1/upload" []
                       :return schema/Filepath
                       :multipart-params [file :- upload/TempFileUpload
