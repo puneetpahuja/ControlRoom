@@ -273,6 +273,23 @@
    :delete [Id]})
 
 
+;;; =============================PUT templates/activities=======================
+
+
+(s/defschema TaskTemplateSubmission
+  {:name        s/Str
+   ;; :description s/Str
+   :children    [(s/recursive #'TaskTemplateSubmission)]})
+
+(s/defschema ActivityTemplateSubmission
+  {:title       s/Str
+   ;; :description s/Str
+   :tasks       [TaskTemplateSubmission]})
+
+(s/defschema ActivityTemplateSubmissions
+  {:activity-templates [ActivityTemplateSubmission]
+   :auth       Auth})
+
 
 ;;; ==================================init======================================
 
