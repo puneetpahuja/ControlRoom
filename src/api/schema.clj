@@ -259,15 +259,17 @@
    :auth       Auth})
 
 
-;;; ===============================templates/projects===========================
+;;; ===================PUT templates/activities/instantiate=====================
 
 
-   :projectSchemaId s/Str})
 
 (s/defschema ActivityTemplate
   {:id               Id
    :title            s/Str
    :description      s/Str
+   ;; :taskTemplates    [TaskTemplate]
+   })
+
 (s/defschema ActivityTemplatesDiff
   {:insert [ActivityTemplate]
    :delete [Id]})
@@ -276,19 +278,33 @@
 ;;; =============================PUT templates/activities=======================
 
 
+(s/defschema MeasurementTemplateTemplateSubmission
+  {:question              s/Str
+   (s/optional-key
+     :hint)               s/Str
+   (s/optional-key
+     :validations)        [Validation]
+   (s/optional-key
+     :required)           s/Bool
+   :valueType             s/Str
+   (s/optional-key
+     :defaultValue)       s/Str})
+
 (s/defschema TaskTemplateSubmission
-  {:name        s/Str
-   ;; :description s/Str
-   :children    [(s/recursive #'TaskTemplateSubmission)]})
+  {:name                  s/Str
+   :description           s/Str
+   :measurementTemplates [MeasurementTemplateTemplateSubmission]
+   :tags                  [s/Str]
+   :children              [(s/recursive #'TaskTemplateSubmission)]})
 
 (s/defschema ActivityTemplateSubmission
-  {:title       s/Str
-   ;; :description s/Str
-   :tasks       [TaskTemplateSubmission]})
+  {:title                 s/Str
+   :description           s/Str
+   :tasks                 [TaskTemplateSubmission]})
 
 (s/defschema ActivityTemplateSubmissions
-  {:activity-templates [ActivityTemplateSubmission]
-   :auth       Auth})
+  {:activityTemplates    [ActivityTemplateSubmission]
+   :auth                  Auth})
 
 
 ;;; ==================================init======================================
@@ -319,6 +335,7 @@
   {:file java.io.File})
 
 
+;;===================================update-db==================================
 
 
 (s/defschema DB

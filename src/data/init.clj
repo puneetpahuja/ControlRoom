@@ -20,6 +20,10 @@
        @(d/transact conn t/clients)
        @(d/transact conn t/task-tags)
        @(d/transact conn t/activity-templates)
+       ;; debug
+       @(d/transact conn t/multimedia-sample-activity)
+       @(d/transact conn t/multimedia-sample-activity-linking)
+
        (if demo
          (do @(d/transact conn t/ro-activity)
              @(d/transact conn t/ro-linking)

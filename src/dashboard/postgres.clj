@@ -41,6 +41,9 @@
                          name)
                    tables)))
 
+(defn empty-all-tables []
+  (apply empty-tables all-tables))
+
 (defn create-users-table []
   (create-table :users [[:id :uuid :primary :key]
                         [:first-name :text]
@@ -331,8 +334,7 @@
     (do
       (if init
         (do
-          (drop-all-tables)
-          (create-all-tables)
+          (empty-all-tables)
           (fill-all-tables)))
       (cron-once)
       (response/ok {:result true}))

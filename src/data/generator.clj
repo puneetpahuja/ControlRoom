@@ -65,11 +65,9 @@
                           :root :completed-at :owner
                           :created-at :updated-at :due-date])
 
-                             :project-schema-id])
-
-
 (def activity-template-attrs [:activity-template
                               :id :title :description
+                              :root])
 
 (defn make-tx [attrs vals]
   (let [namespace (first attrs)

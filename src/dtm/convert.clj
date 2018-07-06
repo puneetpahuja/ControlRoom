@@ -337,11 +337,9 @@
                                  [:title :description])
 
           {:keys
-           [projectSchemaId
-            id]}   keys-converted
+           [id]}   keys-converted
 
-                             :id  (str id)
-                             :projectSchemaId (str projectSchemaId))]
           activity-template (assoc
                               same-vals
+                              :id  (str id))]
       activity-template)))
