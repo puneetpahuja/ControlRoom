@@ -146,6 +146,18 @@
                        :body [activity-templates-manifest schema/Manifest]
                        :summary "Returns all the activity templates."
                        (read/templates-activities activity-templates-manifest))
+
+
+;;; ==============================PUT templates/activities======================
+
+
+               (c/PUT "/v0.1/templates/activities" []
+                      :return schema/Result
+                      :body [activity-templates schema/ActivityTemplateSubmissions]
+                      :summary "Creates new activity templates."
+                      (write/templates-activities activity-templates))
+
+
 ;;; ================================init========================================
 
 
@@ -158,6 +170,7 @@
 ;;; ================================upload======================================
 
 
+               ;; stops working with the newer version compojure-api
                (c/PUT "/v0.1/upload" []
                       :return schema/Filepath
                       :multipart-params [file :- upload/TempFileUpload
