@@ -201,15 +201,46 @@
                [due-date :string]))
 
 
-;;; ================================templates/projects==========================
+;;; ================================templates/activities========================
 
 
-   (s/schema project-template
+   (s/schema activity-template
              (s/fields
                [id :uuid :unique-identity]
                [title :string]
                [description :string]
-               [project-schema-id :uuid :unique-identity]))])    ; TODO - make project-schema-id as ref which refs to project-schema
+
+               [root :ref]
+               [owner :ref]))
+
+   (s/schema task-template
+             (s/fields
+               [id :uuid :unique-identity]
+               [name :string]
+               [description :string]
+               [measurement-templates :ref :many]
+               [type :ref]
+               [parent :ref]
+               [first-child :ref]
+               [sibling :ref]
+               [tags :string :many]))])
+
+   (s/schema measurement-template-template
+             (s/fields
+               [id :uuid :unique-identity]
+               [question :string]
+               [hint :string]
+
+               [validations :ref :many]
+               [required :boolean]
+               [value-type :ref]
+
+               [default-value :string]
+               [position :long]))
+
+
+;;; ================================enums=======================================
+
 
 (def enums
   {:task-status    [{:db/ident :task.status/pre-pending}
@@ -218,10 +249,6 @@
                     {:db/ident :task.status/suspended}
                     {:db/ident :task.status/rejected}
                     {:db/ident :task.status/assigned}]
-
-   :project-status [{:db/ident :project.status/pending}
-                    {:db/ident :project.status/completed}
-                    {:db/ident :project.status/rejected}]
 
    :task-type      [{:db/ident :task.type/assignment}
                     {:db/ident :task.type/measurement}]
@@ -240,7 +267,11 @@
                     {:db/ident :measurement.value-type/location}
                     {:db/ident :measurement.value-type/date}
                     {:db/ident :measurement.value-type/any}
-                    {:db/ident :measurement.value-type/assignment}]})
+                    {:db/ident :measurement.value-type/assignment}
+                    {:db/ident :measurement.value-type/playVideo}
+                    {:db/ident :measurement.value-type/playAudio}
+                    {:db/ident :measurement.value-type/showImage}]})
+
 
 (def generated-schema (mapv #(dissoc % :db.install/_attribute :db/id)
                             (s/generate-schema schemas {:gen-all? false})))

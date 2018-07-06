@@ -32,7 +32,7 @@
    :password  s/Str})
 
 (s/defschema User
-  {:id             s/Str
+  {:id             Id
    (s/optional-key
      :firstName)   s/Str
    (s/optional-key
@@ -84,17 +84,17 @@
    :username s/Str})
 
 (s/defschema OrgUnitVertical
-  {:id    s/Str
+  {:id    Id
    :name  s/Str
    :users [OrgUnitUser]})
 
 (s/defschema OrgUnitState
-  {:id                   s/Str
+  {:id                   Id
    :name                 s/Str
    :vertical/departments [OrgUnitVertical]})
 
 (s/defschema OrgUnitProject
-  {:id        s/Str
+  {:id        Id
    :name      s/Str
    :states    [OrgUnitState]})
 
@@ -115,7 +115,7 @@
   {})
 
 (s/defschema MeasurementTemplate
-  {:id              s/Str
+  {:id              Id
    :question        s/Str
    (s/optional-key
      :hint)         s/Str
@@ -127,7 +127,7 @@
      :defaultValue) s/Str})
 
 (s/defschema PendingTask
-  {:id                   s/Str
+  {:id                   Id
    :name                 s/Str
    :projectName          s/Str
    :type                 s/Str       ; assignment or measurement
@@ -146,7 +146,7 @@
 
 
 (s/defschema CompletedTask
-  {:id            s/Str
+  {:id            Id
    :name          s/Str
    :projectName   s/Str
    :completedAt   s/Str
@@ -161,7 +161,7 @@
 
 
 (s/defschema AssignedPendingTask
-  {:id              s/Str
+  {:id              Id
    :name            s/Str
    :assigneeName    s/Str
    :assigneePhone   s/Str
@@ -170,7 +170,7 @@
    :status          s/Str})
 
 (s/defschema AssignmentPendingTask
-  {:id             s/Str
+  {:id             Id
    :name           s/Str
    :projectName    s/Str
    :assignedTasks [AssignedPendingTask]})
@@ -184,7 +184,7 @@
 
 
 (s/defschema AssignedCompletedTask
-  {:id              s/Str
+  {:id              Id
    :name            s/Str
    :assigneeName    s/Str
    :assigneePhone   s/Str
@@ -192,7 +192,7 @@
    :completedAt     s/Str})
 
 (s/defschema AssignmentCompletedTask
-  {:id             s/Str
+  {:id             Id
    :name           s/Str
    :projectName    s/Str
    :assignedTasks [AssignedCompletedTask]})
@@ -215,7 +215,7 @@
 
 
 (s/defschema Measurement
-  {:id              s/Str     ; measurement template id
+  {:id              Id     ; measurement template id
    :valueType       s/Str     ; can be integer, float, string, photo, location, date
    :value           s/Str
    (s/optional-key
@@ -223,7 +223,7 @@
   )
 
 (s/defschema TaskSubmission
-  {:id              s/Str
+  {:id              Id
    :status          s/Str         ; completed, assigned, suspended or rejected
    (s/optional-key
      :measurements) [Measurement] ; present only in case of completed and assigned tasks
@@ -245,7 +245,7 @@
    })
 
 (s/defschema ActivitySubmission
-  {:projectId            s/Str
+  {:projectId            Id
    :name                 s/Str
    (s/optional-key
      :description)       s/Str
@@ -262,15 +262,58 @@
 ;;; ===============================templates/projects===========================
 
 
-(s/defschema ProjectTemplate
-  {:id s/Str
-   :title s/Str
-   :description s/Str
-   :projectSchemaId s/Str})
 
-(s/defschema ProjectTemplatesDiff
-  {:insert [ProjectTemplate]
+(s/defschema ActivityTemplate
+  {:id               Id
+   :title            s/Str
+   :description      s/Str
+   ;; :taskTemplates    [TaskTemplate]
+   })
+
+(s/defschema ActivityTemplatesDiff
+  {:insert [ActivityTemplate]
    :delete [Id]})
+
+
+;;; =============================PUT templates/activities=======================
+
+
+(s/defschema MeasurementTemplateTemplateSubmission
+  {:question              s/Str
+   (s/optional-key
+     :hint)               s/Str
+   (s/optional-key
+     :validations)        [Validation]
+   (s/optional-key
+     :required)           s/Bool
+   :valueType             s/Str
+   (s/optional-key
+     :defaultValue)       s/Str})
+
+(s/defschema TaskTemplateSubmission
+  {:name                  s/Str
+   :description           s/Str
+   :measurementTemplates [MeasurementTemplateTemplateSubmission]
+   :tags                  [s/Str]
+   :children              [(s/recursive #'TaskTemplateSubmission)]})
+
+(s/defschema ActivityTemplateSubmission
+  {:title                 s/Str
+   :description           s/Str
+   :tasks                 [TaskTemplateSubmission]})
+
+(s/defschema ActivityTemplateSubmissions
+  {:activityTemplates    [ActivityTemplateSubmission]
+   :auth                  Auth})
+
+
+;;; ==================================init======================================
+
+
+(s/defschema Init
+  {:username s/Str
+   :password s/Str
+   (s/optional-key :demo) s/Bool})
 
 
 ;;; ================================upload======================================

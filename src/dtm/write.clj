@@ -2,7 +2,9 @@
   (:require [dtm.util :as util]
             [dtm.convert :as convert]
             [clojure.string :as s]
-            [data.util :as data-util]))
+            [data.util :as data-util]
+            ;;debug
+            [clojure.tools.trace :as t]))
 
 
 ;;; ====================================tasks===================================
@@ -311,3 +313,132 @@
                        :email email
                        ;; TODO :channel
                        :password pass))))
+
+
+;;; ==============================PUT templates/activities======================
+
+
+;; remove this later, debug purposes
+(def p clojure.pprint/pprint)
+
+(defn tree-add-uuid [tree]
+  (cond
+    (map? tree)
+    (let [{:keys [children]} tree
+          uuid (util/uuid)]
+      (if children
+        (assoc tree
+               :id uuid
+               :children (tree-add-uuid children))
+        (assoc tree
+               :id uuid)))
+
+    (or (vector? tree) (seq? tree))
+    (mapv tree-add-uuid tree)))
+
+(defn parent-tx-helper [tree]
+  (let [parent-id (:id tree)
+        last-child-id (-> tree
+                          :children
+                          last
+                          :id)]
+    (if (and parent-id last-child-id)
+      {:task/id last-child-id
+       :task/parent [:task/id parent-id]})))
+
+(defn listify-non-nil [elem]
+  (if elem
+    [elem]))
+
+(defn parent-tx
+  ([tree accumulated-tx]
+   (cond
+     (map? tree)
+     (let [p-tx (parent-tx-helper tree)
+           {:keys [children]} tree]
+       (util/concatv accumulated-tx
+                     (listify-non-nil p-tx)
+                     (parent-tx children)))
+
+     (or (vector? tree) (seq? tree))
+     (util/concatv accumulated-tx
+                   (flatten (mapv parent-tx tree)))))
+
+  ([tree]
+   (parent-tx tree [])))
+
+(defn mt-tx [mt]
+  (let [same-properties (select-keys mt [:question :hint :validations
+                                         :required :defaultValue :position])
+        {:keys
+         [valueType]}   mt
+        id              (util/uuid)
+        tx              (as-> same-properties x
+                          (assoc x
+                                 :id        id
+                                 :valueType (str-keyword "measurement.value-type/" valueType))
+                          (add-namespace "measurement-template-template" x))]
+    tx))
+
+(defn mts-tx [mts]
+  (let [mts-with-position (util/add-position mts)]
+    (mapv mt-tx mts-with-position)))
+
+(defn task-tx [details]
+  (let [{:keys
+         [measurementTemplates
+          children]}             details
+        id                       (util/uuid)
+        same-properties          (select-keys details [:name :description :tags])
+        type                     (if (empty? children) :task.type/measurement :task.type/assignment)
+        mts                      (mts-tx measurementTemplates)
+        tx                       (as-> same-properties x
+                                   (assoc x
+                                          :id                    id
+                                          :type                  type
+                                          :measurement-templates mts)
+                                   (add-namespace "task-template" x))]
+    tx))
+
+(defn tasks-tx [tree]
+  (cond
+    (map? tree)
+    (let [{:keys [children]} tree
+          task-details       (task-tx tree)]
+      (if (empty? children)
+        task-details
+        (assoc task-details :first-child (tasks-tx children))))
+
+    (or (vector? tree) (seq? tree))
+    (let [frst         (first tree)
+          rst          (rest tree)
+          task-details (if frst
+                         (tasks-tx frst))]
+      (cond
+        (not (empty? rst))
+        (assoc task-details :sibling (tasks-tx rst))
+
+        frst
+        task-details))))
+
+(defn activity-template [owner template]
+  (let [{:keys
+         [tasks]}         template
+        same-properties   (select-keys template [:title :description])
+        id                (util/uuid)
+        tasks-with-ids    (tree-add-uuid tasks)
+        prnt-tx           (parent-tx tasks-with-ids)
+        root              (tasks-tx tasks-with-ids)
+        tx                (as-> same-properties x
+                            (assoc x
+                                   :id    id
+                                   :root  root
+                                   :owner [:user/username owner])
+                            (add-namespace "activity-template" x))]
+    (p tx)
+    (p prnt-tx)))
+
+(defn activity-templates [owner templates]
+  (let [template (partial activity-template owner)]
+    (map template templates)
+    {:result true}))
