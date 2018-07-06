@@ -1,7 +1,8 @@
 (ns data.demo.test
   (:require [data.demo.ids :as ids]
             [data.generator :as g]
-            [data.util :as util]))
+            [data.util :as util]
+            [dtm.util :as dtm-util]))
 
 (defn get-supervisor [id username fname lname]
   [id fname lname
@@ -561,6 +562,35 @@
 
    {:project/id ids/bhr-sch-id
     :project/activities [[:activity/id ids/a-school-id]]}])
+
+(def multimedia-assignment-measurement
+  (g/assignment-m [(dtm-util/uuid) "m-a" [:user/username "9898989898"]]))
+
+;; debug
+(def multimedia-sample-task
+  (g/task [ids/demo1 "demo multimedia" ""
+           [(g/m-template [(dtm-util/uuid) "" ""
+                           nil true :measurement.value-type/playVideo
+                           "a.mp4" nil 1])
+            (g/m-template [(dtm-util/uuid) "" ""
+                           nil true :measurement.value-type/playAudio
+                           "b.mp3" nil 2])
+            (g/m-template [(dtm-util/uuid) "" ""
+                           nil true :measurement.value-type/showImage
+                           "c.jpg" nil 3])]
+           :task.type/measurement :task.status/pending
+           multimedia-assignment-measurement (util/milliseconds-from 5) nil
+           nil nil nil
+           (util/now) nil nil]))
+
+(def multimedia-sample-activity
+  [(g/activity [ids/demo2 "Multimedia" nil
+                multimedia-sample-task (util/milliseconds 5 6 2018) [:user/username "9999999999"]
+                (util/milliseconds 16 4 2018) (util/milliseconds 5 6 2018) (util/milliseconds 7 6 2018)])])
+
+(def multimedia-sample-activity-linking
+  [{:project/id ids/bhr-sch-id
+    :project/activities [[:activity/id ids/demo2]]}])
 
 
 

@@ -236,7 +236,11 @@
                     {:db/ident :measurement.value-type/location}
                     {:db/ident :measurement.value-type/date}
                     {:db/ident :measurement.value-type/any}
-                    {:db/ident :measurement.value-type/assignment}]})
+                    {:db/ident :measurement.value-type/assignment}
+                    {:db/ident :measurement.value-type/playVideo}
+                    {:db/ident :measurement.value-type/playAudio}
+                    {:db/ident :measurement.value-type/showImage}]})
+
 
 (def generated-schema (mapv #(dissoc % :db.install/_attribute :db/id)
                             (s/generate-schema schemas {:gen-all? false})))
