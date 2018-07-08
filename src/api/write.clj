@@ -5,7 +5,7 @@
             [fileserver.file :as file]))
 
 
-;;; ================================PUT user====================================
+;;; ==================================user======================================
 
 
 (defn user [{:keys [auth user]}]
@@ -26,7 +26,7 @@
   (auth/authorize-and-respond auth db/activities activities))
 
 
-;;; ==============================PUT templates/activities======================
+;;; ===============================templates/activities=========================
 
 
 (defn templates-activities [{:keys [auth activity-templates]}]

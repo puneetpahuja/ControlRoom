@@ -367,11 +367,44 @@
   ([tree]
    (parent-tx tree [])))
 
+(defn mt-tx [mt]
+  (let [same-properties (select-keys mt [:question :hint :validations
+                                         :required :defaultValue :position])
+        {:keys
+         [valueType]}   mt
+        id              (util/uuid)
+        tx              (as-> same-properties x
+                          (assoc x
+                                 :id        id
+                                 :valueType (str-keyword "measurement.value-type/" valueType))
+                          (add-namespace "measurement-template-template" x))]
+    tx))
+
+(defn mts-tx [mts]
+  (let [mts-with-position (util/add-position mts)]
+    (mapv mt-tx mts-with-position)))
+
+(defn task-tx [details]
+  (let [{:keys
+         [measurementTemplates
+          children]}             details
+        id                       (util/uuid)
+        same-properties          (select-keys details [:name :description :tags])
+        type                     (if (empty? children) :task.type/measurement :task.type/assignment)
+        mts                      (mts-tx measurementTemplates)
+        tx                       (as-> same-properties x
+                                   (assoc x
+                                          :id                    id
+                                          :type                  type
+                                          :measurement-templates mts)
+                                   (add-namespace "task-template" x))]
+    tx))
+
 (defn tasks-tx [tree]
   (cond
     (map? tree)
     (let [{:keys [children]} tree
-          task-details       (dissoc tree :children)]
+          task-details       (task-tx tree)]
       (if (empty? children)
         task-details
         (assoc task-details :first-child (tasks-tx children))))
@@ -389,16 +422,23 @@
         task-details))))
 
 (defn activity-template [owner template]
-  (let [{:keys [tasks]} template
-        template-with-ids (tree-add-uuid tasks)
-        prnt-tx           (parent-tx template-with-ids)
-        tsks-tx           [(tasks-tx template-with-ids)]]
-    {:template template-with-ids
-     :p-tx     prnt-tx
-     :t-tx     tsks-tx}))
+  (let [{:keys
+         [tasks]}         template
+        same-properties   (select-keys template [:title :description])
+        id                (util/uuid)
+        tasks-with-ids    (tree-add-uuid tasks)
+        prnt-tx           (parent-tx tasks-with-ids)
+        root              (tasks-tx tasks-with-ids)
+        tx                (as-> same-properties x
+                            (assoc x
+                                   :id    id
+                                   :root  root
+                                   :owner [:user/username owner])
+                            (add-namespace "activity-template" x))]
+    (p tx)
+    (p prnt-tx)))
 
 (defn activity-templates [owner templates]
-  ;; debug
-  ;; (t/trace-ns 'dtm.write)
-  (p (map (partial activity-template owner) templates))
-  {:result true})
+  (let [template (partial activity-template owner)]
+    (map template templates)
+    {:result true}))
