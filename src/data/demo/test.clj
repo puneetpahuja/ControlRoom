@@ -569,15 +569,24 @@
 ;; debug
 (def multimedia-sample-task
   (g/task [ids/demo1 "demo multimedia" ""
-           [(g/m-template [(dtm-util/uuid) "" ""
+           [(g/m-template [(dtm-util/uuid) "" nil
                            nil true :measurement.value-type/playVideo
                            "a.mp4" nil 1])
-            (g/m-template [(dtm-util/uuid) "" ""
+            (g/m-template [(dtm-util/uuid) "Geolocation" nil
+                           nil true :measurement.value-type/location
+                           nil (g/location-m [(dtm-util/uuid) "m-i-location" nil]) 2])
+            (g/m-template [(dtm-util/uuid) "" nil
                            nil true :measurement.value-type/playAudio
-                           "b.mp3" nil 2])
-            (g/m-template [(dtm-util/uuid) "" ""
+                           "b.mp3" nil 3])
+            (g/m-template   [(dtm-util/uuid) "Address" nil
+                             nil true :measurement.value-type/string
+                             nil (g/string-m [(dtm-util/uuid) "m-i-addess" nil]) 4])
+            (g/m-template [(dtm-util/uuid) "" nil
                            nil true :measurement.value-type/showImage
-                           "c.jpg" nil 3])]
+                           "c.jpg" nil 5])
+            (g/m-template [(dtm-util/uuid) "Estimate" nil
+                           nil true :measurement.value-type/float
+                           nil (g/float-m [(dtm-util/uuid) "m-e-estimate" nil]) 6])]
            :task.type/measurement :task.status/pending
            multimedia-assignment-measurement (util/milliseconds-from 5) nil
            nil nil nil
