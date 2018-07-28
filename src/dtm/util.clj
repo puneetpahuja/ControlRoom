@@ -73,7 +73,7 @@
      :delete delete}))
 
 (defn filter-nil [cmap]
-  (into {} (filter second cmap)))
+  (into {} (filter (comp not nil? second) cmap)))
 
 
 ;;; ================================user========================================

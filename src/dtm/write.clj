@@ -10,12 +10,21 @@
 ;;; ====================================tasks===================================
 
 
+;; str in the realm of keywords. can take strings or keywords. outputs a keyword.
+;; (str-keyword :heot "/" :tehua :eh "/" "wutu") -> :heot/tehuaeh/wutu
+(defn str-keyword [& keywords-or-strs]
+  (->> keywords-or-strs
+       (map name)
+       (apply str)
+       keyword))
+
+;; adds `namespace` to all keys of `cmap`. `namespace` can be a string or keyword
+;; (add-namespace :ttt {:a :b})       -> {:ttt/a :b}
+;; (add-namespace "ttt" {:a :b})      -> {:ttt/a :b}
+;; (add-namespace "ttt.nrn" {:a :b})  -> {:ttt.nrn/a :b}
+;; (add-namespace :ttt.tt {:a :b})    -> {:ttt.tt/a :b}
 (defn add-namespace [namespace cmap]
-  (let [transformer (comp keyword
-                          (partial str
-                                   namespace
-                                   "/")
-                          name)]
+  (let [transformer (partial str-keyword namespace "/")]
     (into {}
           (for [[k v] cmap]
             [(transformer k) v]))))
