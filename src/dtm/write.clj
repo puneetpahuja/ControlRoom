@@ -2,18 +2,29 @@
   (:require [dtm.util :as util]
             [dtm.convert :as convert]
             [clojure.string :as s]
-            [data.util :as data-util]))
+            [data.util :as data-util]
+            ;;debug
+            [clojure.tools.trace :as t]))
 
 
 ;;; ====================================tasks===================================
 
 
+;; str in the realm of keywords. can take strings or keywords. outputs a keyword.
+;; (str-keyword :heot "/" :tehua :eh "/" "wutu") -> :heot/tehuaeh/wutu
+(defn str-keyword [& keywords-or-strs]
+  (->> keywords-or-strs
+       (map name)
+       (apply str)
+       keyword))
+
+;; adds `namespace` to all keys of `cmap`. `namespace` can be a string or keyword
+;; (add-namespace :ttt {:a :b})       -> {:ttt/a :b}
+;; (add-namespace "ttt" {:a :b})      -> {:ttt/a :b}
+;; (add-namespace "ttt.nrn" {:a :b})  -> {:ttt.nrn/a :b}
+;; (add-namespace :ttt.tt {:a :b})    -> {:ttt.tt/a :b}
 (defn add-namespace [namespace cmap]
-  (let [transformer (comp keyword
-                          (partial str
-                                   namespace
-                                   "/")
-                          name)]
+  (let [transformer (partial str-keyword namespace "/")]
     (into {}
           (for [[k v] cmap]
             [(transformer k) v]))))
@@ -294,20 +305,222 @@
      (apply str
             (take n (repeatedly #(rand-nth chars)))))))
 
+;; todo - add user in the orgUnit of the state
+;; check if a user exists before transacting
 (defn user [_ user-details]
-  (let [{:keys [firstName lastName title
-                phone email orgUnit state
-                password]} user-details
-        pass (if password
-               password
-               (gen-password))]
-    (-> {}
-        (assoc :id (util/uuid))
-        (assoc-non-nil :first-name firstName
-                       :last-name lastName
-                       :title title
-                       :username phone
-                       :phone phone
-                       :email email
-                       ;; TODO :channel
-                       :password pass))))
+  (let [{:keys [phone
+                password]} user-details]
+    (if (auth/user-exists? phone)
+      (-> (util/get-details :user/username phone (util/get-db))
+          convert/keys-emap
+          ;; should we error out or only send username
+          (select-keys [:username :password]))
+      (let [same-properties    (select-keys user-details [:firstName :lastName :title
+                                                          :phone :email :password])
+            pass               (if password
+                                 password
+                                 (gen-password 12))]
+        (as-> same-properties x
+          (util/filter-nil x)
+          (->kebab-case x)
+          (assoc-non-nil x
+                         :id       (util/uuid)
+                         :password pass
+                         :username phone
+                         :api-key  (gen-password 20))
+          (add-namespace "user" x)
+          (util/transact [x]))
+        {:username phone
+         :password pass}))))
+
+
+;;; ===============================activities/dynamic===========================
+
+;; keep a track of used names and make sure to not use them
+(defn simple-name [length separator]
+  (let [words words/words3]
+    (as-> (repeatedly length #(rand-nth words)) x
+      (interleave x (repeat separator))
+      (apply str (butlast x)))))
+
+(defn activity-dynamic [owner activity]
+  (let [{:keys
+         [projectId
+          name
+          dueDate
+          assignee]}  activity
+        simple-name   (simple-name)
+        tx            {:project/id
+                       (util/str->uuid projectId)
+                       :project/activities
+                       (add-namespace "activity"
+                                      {:id          (util/uuid)
+                                       :name        name
+                                       :description simple-name
+                                       :owner       [:user/username owner]
+                                       :created-at  (data-util/now)
+                                       :updated-at  (data-util/now)
+                                       :due-date    dueDate
+                                       :root        (a-task-tx owner activity)})}]
+    (user nil {:phone assignee})
+    (util/transact [tx])
+    (let [m-task-id
+          (-> tx
+              :project/activities
+              :activity/root
+              :task/first-child
+              :task/id)
+          m-task-a-measument-id
+          (-> tx
+              :project/activities
+              :activity/root
+              :task/measurement-templates
+              first
+              :measurement-template/measurement
+              :assignment-measurement/id)
+          a-task-id
+          (-> tx
+              :project/activities
+              :activity/root
+              :task/id)
+          tx
+          {:task/id m-task-id
+           :task/assigned-to
+           [:assignment-measurement/id
+            m-task-a-measument-id]
+           :task/parent
+           [:task/id a-task-id]}]
+      (util/transact [tx])
+      simple-name)))
+
+(defn activities-dynamic [username activities]
+  (mapv (partial activity-dynamic username) activities))
+
+
+;;; ==============================PUT templates/activities======================
+
+
+;; remove this later, debug purposes
+(def p clojure.pprint/pprint)
+
+(defn tree-add-uuid [tree]
+  (cond
+    (map? tree)
+    (let [{:keys [children]} tree
+          uuid (util/uuid)]
+      (if children
+        (assoc tree
+               :id uuid
+               :children (tree-add-uuid children))
+        (assoc tree
+               :id uuid)))
+
+    (or (vector? tree) (seq? tree))
+    (mapv tree-add-uuid tree)))
+
+(defn parent-tx-helper [tree]
+  (let [parent-id (:id tree)
+        last-child-id (-> tree
+                          :children
+                          last
+                          :id)]
+    (if (and parent-id last-child-id)
+      {:task/id last-child-id
+       :task/parent [:task/id parent-id]})))
+
+(defn listify-non-nil [elem]
+  (if elem
+    [elem]))
+
+(defn parent-tx
+  ([tree accumulated-tx]
+   (cond
+     (map? tree)
+     (let [p-tx (parent-tx-helper tree)
+           {:keys [children]} tree]
+       (util/concatv accumulated-tx
+                     (listify-non-nil p-tx)
+                     (parent-tx children)))
+
+     (or (vector? tree) (seq? tree))
+     (util/concatv accumulated-tx
+                   (flatten (mapv parent-tx tree)))))
+
+  ([tree]
+   (parent-tx tree [])))
+
+(defn mt-tx [mt]
+  (let [same-properties (select-keys mt [:question :hint :validations
+                                         :required :defaultValue :position])
+        {:keys
+         [valueType]}   mt
+        id              (util/uuid)
+        tx              (as-> same-properties x
+                          (assoc x
+                                 :id        id
+                                 :valueType (str-keyword "measurement.value-type/" valueType))
+                          (add-namespace "measurement-template-template" x))]
+    tx))
+
+(defn mts-tx [mts]
+  (let [mts-with-position (util/add-position mts)]
+    (mapv mt-tx mts-with-position)))
+
+(defn task-tx [details]
+  (let [{:keys
+         [measurementTemplates
+          children]}             details
+        id                       (util/uuid)
+        same-properties          (select-keys details [:name :description :tags])
+        type                     (if (empty? children) :task.type/measurement :task.type/assignment)
+        mts                      (mts-tx measurementTemplates)
+        tx                       (as-> same-properties x
+                                   (assoc x
+                                          :id                    id
+                                          :type                  type
+                                          :measurement-templates mts)
+                                   (add-namespace "task-template" x))]
+    tx))
+
+(defn tasks-tx [tree]
+  (cond
+    (map? tree)
+    (let [{:keys [children]} tree
+          task-details       (task-tx tree)]
+      (if (empty? children)
+        task-details
+        (assoc task-details :first-child (tasks-tx children))))
+
+    (or (vector? tree) (seq? tree))
+    (let [frst         (first tree)
+          rst          (rest tree)
+          task-details (if frst
+                         (tasks-tx frst))]
+      (cond
+        (not (empty? rst))
+        (assoc task-details :sibling (tasks-tx rst))
+
+        frst
+        task-details))))
+
+(defn activity-template [owner template]
+  (let [{:keys
+         [tasks]}         template
+        same-properties   (select-keys template [:title :description])
+        id                (util/uuid)
+        tasks-with-ids    (tree-add-uuid tasks)
+        prnt-tx           (parent-tx tasks-with-ids)
+        root              (tasks-tx tasks-with-ids)
+        tx                (as-> same-properties x
+                            (assoc x
+                                   :id    id
+                                   :root  root
+                                   :owner [:user/username owner])
+                            (add-namespace "activity-template" x))]
+    (p tx)
+    (p prnt-tx)))
+
+(defn activity-templates [owner templates]
+  (let [template (partial activity-template owner)]
+    (map template templates)
+    {:result true}))

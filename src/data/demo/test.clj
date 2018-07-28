@@ -1,7 +1,8 @@
 (ns data.demo.test
   (:require [data.demo.ids :as ids]
             [data.generator :as g]
-            [data.util :as util]))
+            [data.util :as util]
+            [dtm.util :as dtm-util]))
 
 (defn get-supervisor [id username fname lname]
   [id fname lname
@@ -511,13 +512,13 @@
                                (util/milliseconds 26 4 2018) (util/milliseconds 9 5 2018)
                                ["Schools" "Education" "Admin"]])
 
-        t-cost      (g/task [ids/t-cost-id "Estimate Cost" nil
-                             [mt-e-estimate]
-                             :task.type/measurement :task.status/completed
-                             nil (util/milliseconds 28 4 2018) (util/milliseconds 26 4 2018)
-                             nil nil t-vendor
-                             (util/milliseconds 22 4 2018) (util/milliseconds 26 4 2018)
-                             ["Schools" "Education" "Finance"]])
+        t-cost       (g/task [ids/t-cost-id "Estimate Cost" nil
+                              [mt-e-estimate]
+                              :task.type/measurement :task.status/completed
+                              nil (util/milliseconds 28 4 2018) (util/milliseconds 26 4 2018)
+                              nil nil t-vendor
+                              (util/milliseconds 22 4 2018) (util/milliseconds 26 4 2018)
+                              ["Schools" "Education" "Finance"]])
 
         t-identify      (g/task [ids/t-identify-id "Identify School" nil
                                  [mt-i-location mt-i-address mt-i-name mt-i-number]
@@ -561,6 +562,44 @@
 
    {:project/id ids/bhr-sch-id
     :project/activities [[:activity/id ids/a-school-id]]}])
+
+(def multimedia-assignment-measurement
+  (g/assignment-m [(dtm-util/uuid) "m-a" [:user/username "9898989898"]]))
+
+;; debug
+(def multimedia-sample-task
+  (g/task [ids/demo1 "demo multimedia" ""
+           [(g/m-template [(dtm-util/uuid) "" nil
+                           nil true :measurement.value-type/playVideo
+                           "file:///storage/emulated/0/Download/a.mp4" nil 1])
+            (g/m-template [(dtm-util/uuid) "Geolocation" nil
+                           nil true :measurement.value-type/location
+                           nil (g/location-m [(dtm-util/uuid) "m-i-location" nil]) 2])
+            (g/m-template [(dtm-util/uuid) "" nil
+                           nil true :measurement.value-type/playAudio
+                           "file:///storage/emulated/0/Download/b.mp3" nil 3])
+            (g/m-template   [(dtm-util/uuid) "Address" nil
+                             nil true :measurement.value-type/string
+                             nil (g/string-m [(dtm-util/uuid) "m-i-addess" nil]) 4])
+            (g/m-template [(dtm-util/uuid) "" nil
+                           nil true :measurement.value-type/showImage
+                           "file:///storage/emulated/0/Download/c.jpg" nil 5])
+            (g/m-template [(dtm-util/uuid) "Estimate" nil
+                           nil true :measurement.value-type/float
+                           nil (g/float-m [(dtm-util/uuid) "m-e-estimate" nil]) 6])]
+           :task.type/measurement :task.status/pending
+           multimedia-assignment-measurement (util/milliseconds-from 5) nil
+           nil nil nil
+           (util/now) nil nil]))
+
+(def multimedia-sample-activity
+  [(g/activity [ids/demo2 "Multimedia" nil
+                multimedia-sample-task (util/milliseconds 5 6 2018) [:user/username "9999999999"]
+                (util/milliseconds 16 4 2018) (util/milliseconds 5 6 2018) (util/milliseconds 7 6 2018)])])
+
+(def multimedia-sample-activity-linking
+  [{:project/id ids/bhr-sch-id
+    :project/activities [[:activity/id ids/demo2]]}])
 
 
 

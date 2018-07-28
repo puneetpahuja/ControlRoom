@@ -39,11 +39,11 @@
 ;;; ================================PUT user====================================
 
 
-               ;; (c/PUT "/v0.1/user" []
-               ;;        :return schema/Credentials
-               ;;        :body [user-details schema/AddUser]
-               ;;        :summary "Returns the user data."
-               ;;        (write/user user-details))
+               (c/PUT "/v0.1/user" []
+                      :return schema/Credentials
+                      :body [user-details schema/AddUser]
+                      :summary "Returns the user data."
+                      (write/user user-details))
 
 
 ;;; ================================logout======================================
@@ -136,21 +136,43 @@
                       (write/activities activity-submissions))
 
 
-;;; ================================templates/projects==========================
+;;; ===========================PUT activities/dynamic===========================
 
 
-               (c/POST "/v0.1/templates/projects" []
-                       :return schema/ProjectTemplatesDiff
-                       :body [project-templates-manifest schema/Manifest]
-                       :summary "Returns all the project templates."
-                       (read/templates-projects project-templates-manifest))
+               (c/PUT "/v0.1/activities/dynamic" []
+                      :return [s/Str]
+                      :body [activity-submissions schema/DynamicActivitySubmissions]
+                      :summary "Creates new activities in a project."
+                      (write/activities-dynamic activity-submissions))
+
+
+
+
+;;; ================================templates/activities========================
+
+
+               (c/POST "/v0.1/templates/activities" []
+                       :return schema/ActivityTemplatesDiff
+                       :body [activity-templates-manifest schema/Manifest]
+                       :summary "Returns all the activity templates."
+                       (read/templates-activities activity-templates-manifest))
+
+
+;;; ==============================PUT templates/activities======================
+
+
+               (c/PUT "/v0.1/templates/activities" []
+                      :return schema/Result
+                      :body [activity-templates schema/ActivityTemplateSubmissions]
+                      :summary "Creates new activity templates."
+                      (write/templates-activities activity-templates))
 
 
 ;;; ================================init========================================
 
 
                (c/POST "/v0.1/init" []
-                       :return schema/Result
+                       :return [[s/Str]]
                        :body [init schema/Init]
                        :summary "Initializes projects. Used for testing."
                        (write/init init))
@@ -158,12 +180,7 @@
 ;;; ================================upload======================================
 
 
-               ;; (c/POST "/v0.1/init-plus" []
-               ;;         :return schema/Result
-               ;;         :body [credentials schema/Credentials]
-               ;;         :summary "Initializes projects and feeds some extra data. Used for testing."
-               ;;         (write/init-plus credentials))
-
+               ;; stops working with the newer version compojure-api
                (c/PUT "/v0.1/upload" []
                       :return schema/Filepath
                       :multipart-params [file :- upload/TempFileUpload

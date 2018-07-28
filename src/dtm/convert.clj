@@ -14,10 +14,13 @@
 
 (def remove-namespace (comp keyword remove-namespace-str))
 
-(defn keys [cmap]
+(defn transform-keys [cmap transformer & args]
   (into {}
         (for [[k v] cmap]
-          [(remove-namespace k) v])))
+          [(apply transformer k args) v])))
+
+(defn keys [cmap]
+  (transform-keys cmap remove-namespace))
 
 (def keys-emap (comp keys entity-map))
 
@@ -39,10 +42,10 @@
           db               (util/get-db)
 
           org-unit-eid     (util/get-org-unit-eid username db)
-          org-unit-details (keys-emap (util/get-details org-unit-eid db))
+          org-unit-details (if org-unit-eid (keys-emap (util/get-details org-unit-eid db)))
 
-          state-eid        (util/get-eid :state/verticals org-unit-eid db)
-          state-details    (keys-emap (util/get-details state-eid db))
+          state-eid        (if org-unit-eid (util/get-eid :state/verticals org-unit-eid db))
+          state-details    (if state-eid (keys-emap (util/get-details state-eid db)))
 
           user             (util/filter-nil
                              (assoc same-vals
@@ -330,19 +333,16 @@
 ;;; ================================templates/projects==========================
 
 
-(defn template-project [emap]
+(defn template-activity [emap]
   (when emap
     (let [keys-converted (keys-emap emap)
-
           same-vals (select-keys keys-converted
                                  [:title :description])
 
           {:keys
-           [projectSchemaId
-            id]}   keys-converted
+           [id]}   keys-converted
 
-          project-template (assoc
-                             same-vals
-                             :id  (str id)
-                             :projectSchemaId (str projectSchemaId))]
-      project-template)))
+          activity-template (assoc
+                              same-vals
+                              :id  (str id))]
+      activity-template)))
