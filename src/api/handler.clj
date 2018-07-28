@@ -39,11 +39,11 @@
 ;;; ================================PUT user====================================
 
 
-               ;; (c/PUT "/v0.1/user" []
-               ;;        :return schema/Credentials
-               ;;        :body [user-details schema/AddUser]
-               ;;        :summary "Returns the user data."
-               ;;        (write/user user-details))
+               (c/PUT "/v0.1/user" []
+                      :return schema/Credentials
+                      :body [user-details schema/AddUser]
+                      :summary "Returns the user data."
+                      (write/user user-details))
 
 
 ;;; ================================logout======================================
@@ -134,6 +134,16 @@
                       :body [activity-submissions schema/ActivitySubmissions]
                       :summary "Creates new activities in a project."
                       (write/activities activity-submissions))
+
+
+;;; ===========================PUT activities/dynamic===========================
+
+
+               (c/PUT "/v0.1/activities/dynamic" []
+                      :return [s/Str]
+                      :body [activity-submissions schema/DynamicActivitySubmissions]
+                      :summary "Creates new activities in a project."
+                      (write/activities-dynamic activity-submissions))
 
 
 
