@@ -325,6 +325,69 @@
          :password pass}))))
 
 
+;;; ===============================activities/dynamic===========================
+
+;; keep a track of used names and make sure to not use them
+(defn simple-name [length separator]
+  (let [words words/words3]
+    (as-> (repeatedly length #(rand-nth words)) x
+      (interleave x (repeat separator))
+      (apply str (butlast x)))))
+
+(defn activity-dynamic [owner activity]
+  (let [{:keys
+         [projectId
+          name
+          dueDate
+          assignee]}  activity
+        simple-name   (simple-name)
+        tx            {:project/id
+                       (util/str->uuid projectId)
+                       :project/activities
+                       (add-namespace "activity"
+                                      {:id          (util/uuid)
+                                       :name        name
+                                       :description simple-name
+                                       :owner       [:user/username owner]
+                                       :created-at  (data-util/now)
+                                       :updated-at  (data-util/now)
+                                       :due-date    dueDate
+                                       :root        (a-task-tx owner activity)})}]
+    (user nil {:phone assignee})
+    (util/transact [tx])
+    (let [m-task-id
+          (-> tx
+              :project/activities
+              :activity/root
+              :task/first-child
+              :task/id)
+          m-task-a-measument-id
+          (-> tx
+              :project/activities
+              :activity/root
+              :task/measurement-templates
+              first
+              :measurement-template/measurement
+              :assignment-measurement/id)
+          a-task-id
+          (-> tx
+              :project/activities
+              :activity/root
+              :task/id)
+          tx
+          {:task/id m-task-id
+           :task/assigned-to
+           [:assignment-measurement/id
+            m-task-a-measument-id]
+           :task/parent
+           [:task/id a-task-id]}]
+      (util/transact [tx])
+      simple-name)))
+
+(defn activities-dynamic [username activities]
+  (mapv (partial activity-dynamic username) activities))
+
+
 ;;; ==============================PUT templates/activities======================
 
 

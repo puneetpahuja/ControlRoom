@@ -26,6 +26,13 @@
   (auth/authorize-and-respond auth db/activities activities))
 
 
+;;; ===============================activities/dynamic===========================
+
+
+(defn activities-dynamic [{:keys [auth activities]}]
+  (auth/authorize-and-respond auth db/activities-dynamic activities))
+
+
 ;;; ===============================templates/activities=========================
 
 
