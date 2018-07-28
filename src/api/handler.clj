@@ -3,7 +3,10 @@
             [api.read :as read]
             [api.schema :as schema]
             [api.write :as write]
-            [compojure.api.sweet :as c]))
+            [compojure.api.sweet :as c]
+            [ring.swagger.upload :as upload]
+            [schema.core :as s]
+            [dashboard.postgres :as dashboard]))
 
 (comment TODO
          * have a parent-child heirarchy for entities like tasks, activities
@@ -103,6 +106,16 @@
                        (read/tasks-completed completed-tasks-manifest))
 
 
+;;; ================================tasks/tags==================================
+
+
+               (c/POST "/v0.1/tasks/tags" []
+                       :return schema/TagsDiff
+                       :body [tags-manifest schema/VersionManifest]
+                       :summary "Returns all the tasks tags."
+                       (read/tasks-tags tags-manifest))
+
+
 ;;; ================================PUT tasks===================================
 
 
@@ -123,14 +136,26 @@
                       (write/activities activity-submissions))
 
 
-;;; ================================templates/projects==========================
 
 
-               (c/POST "/v0.1/templates/projects" []
-                       :return schema/ProjectTemplatesDiff
-                       :body [project-templates-manifest schema/Manifest]
-                       :summary "Returns all the project templates."
-                       (read/templates-projects project-templates-manifest))
+;;; ================================templates/activities========================
+
+
+               (c/POST "/v0.1/templates/activities" []
+                       :return schema/ActivityTemplatesDiff
+                       :body [activity-templates-manifest schema/Manifest]
+                       :summary "Returns all the activity templates."
+                       (read/templates-activities activity-templates-manifest))
+
+
+;;; ==============================PUT templates/activities======================
+
+
+               (c/PUT "/v0.1/templates/activities" []
+                      :return schema/Result
+                      :body [activity-templates schema/ActivityTemplateSubmissions]
+                      :summary "Creates new activity templates."
+                      (write/templates-activities activity-templates))
 
 
 ;;; ================================init========================================
@@ -138,15 +163,39 @@
 
                (c/POST "/v0.1/init" []
                        :return schema/Result
-                       :body [credentials schema/Credentials]
+                       :body [init schema/Init]
                        :summary "Initializes projects. Used for testing."
-                       (write/init credentials))
+                       (write/init init))
 
-;;; ================================test========================================
+;;; ================================upload======================================
 
 
-               (c/POST "/v0.1/init-plus" []
+               ;; stops working with the newer version compojure-api
+               (c/PUT "/v0.1/upload" []
+                      :return schema/Filepath
+                      :multipart-params [file :- upload/TempFileUpload
+                                         username :- s/Str
+                                         apiKey :- s/Str]
+                      :middleware [upload/wrap-multipart-params]
+                      (let [auth {:username username
+                                  :apiKey apiKey}]
+                        (write/upload auth file)))
+
+
+;;; ==============================download======================================
+
+
+               (c/POST "/v0.1/download" []
+                       ;; :return schema/File
+                       :body [file-manifest schema/FileManifest]
+                       (read/download file-manifest))
+
+
+;;; ==========================dashboard/db-update===============================
+
+
+               (c/POST "/v0.1/dashboard/db-update" []
                        :return schema/Result
-                       :body [credentials schema/Credentials]
-                       :summary "Initializes projects and feeds some extra data. Used for testing."
-                       (write/init-plus credentials)))))
+                       :body [db schema/DB]
+                       :summary "Updates postgres db for dashboard."
+                       (dashboard/update-db db)))))

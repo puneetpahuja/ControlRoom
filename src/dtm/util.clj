@@ -2,6 +2,10 @@
   (:require [datomic.api :as d]
             [config.dtm :as config]))
 
+(defn concatv [& lists]
+  (-> (apply concat lists)
+      vec))
+
 (defn get-conn []
   (d/connect config/uri))
 
@@ -93,6 +97,36 @@
 
 (defn sibling [task-eid db]
   (:db/id (get-attr :task/sibling task-eid db)))
+
+(defn first-child [task-eid db]
+  (:db/id (get-attr :task/first-child task-eid db)))
+
+(defn relatives [task-id db]
+  (let [task-eid (get-eid :task/id task-id db)]
+    {:parent      (get-attr :task/id (parent task-eid db) db)
+     :sibling     (get-attr :task/id (sibling task-eid db) db)
+     :first-child (get-attr :task/id (first-child task-eid db) db)}))
+
+(defn neighbours [task-id db]
+  (-> (relatives task-id db)
+      (filter-nil)
+      vals
+      vec))
+
+(defn connected-tasks
+  ([task-id db]
+   (connected-tasks [] [task-id] db))
+  ([visited unvisited db]
+   (if (empty? unvisited)
+     visited
+     (let [to-visit        (first unvisited)
+           new-neighbours  (neighbours to-visit db)
+           to-insert       (-> (concatv visited unvisited)
+                               (diff new-neighbours)
+                               :insert)
+           new-visited     (concatv visited [to-visit])
+           new-unvisited   (concatv (rest unvisited) to-insert)]
+       (connected-tasks new-visited new-unvisited db)))))
 
 (defn root [task-eid db]
   (if-let [p (parent task-eid db)]
@@ -197,11 +231,11 @@
       (ffirst (d/q q db)))))
 
 
-;;; ================================templates/projects==========================
+;;; ================================templates/activities========================
 
 
-(defn get-project-templates-ids [db]
-  (get-all-vals :project-template/id db))
+(defn get-activity-templates-ids [db]
+  (get-all-vals :activity-template/id db))
 
 
 ;;; ================================PUT tasks===================================

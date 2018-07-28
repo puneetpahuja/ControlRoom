@@ -330,19 +330,16 @@
 ;;; ================================templates/projects==========================
 
 
-(defn template-project [emap]
+(defn template-activity [emap]
   (when emap
     (let [keys-converted (keys-emap emap)
-
           same-vals (select-keys keys-converted
                                  [:title :description])
 
           {:keys
-           [projectSchemaId
-            id]}   keys-converted
+           [id]}   keys-converted
 
-          project-template (assoc
-                             same-vals
-                             :id  (str id)
-                             :projectSchemaId (str projectSchemaId))]
-      project-template)))
+          activity-template (assoc
+                              same-vals
+                              :id  (str id))]
+      activity-template)))

@@ -1,10 +1,11 @@
 (ns api.write
   (:require [dtm.write :as db]
             [api.auth :as auth]
-            [data.init :as data]))
+            [data.init :as data]
+            [fileserver.file :as file]))
 
 
-;;; ================================PUT user====================================
+;;; ==================================user======================================
 
 
 (defn user [{:keys [auth user]}]
@@ -25,6 +26,13 @@
   (auth/authorize-and-respond auth db/activities activities))
 
 
+;;; ===============================templates/activities=========================
+
+
+(defn templates-activities [{:keys [auth activity-templates]}]
+  (auth/authorize-and-respond auth db/activity-templates activity-templates))
+
+
 ;;; ================================reset=======================================
 
 
@@ -32,8 +40,8 @@
   (data/init credentials))
 
 
-;;; ================================test========================================
+;;; ================================upload======================================
 
 
-(defn init-plus [credentials]
-  (data/init-plus credentials))
+(defn upload [auth file]
+  (auth/authorize-and-respond auth file/upload file))

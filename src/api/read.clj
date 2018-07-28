@@ -1,6 +1,7 @@
 (ns api.read
   (:require [dtm.read :as db]
-            [api.auth :as auth]))
+            [api.auth :as auth]
+            [fileserver.file :as file]))
 
 
 ;;; ================================org-units===================================
@@ -38,8 +39,22 @@
   (auth/authorize-and-respond auth db/tasks-completed ids))
 
 
-;;; ================================templates/projects==========================
+;;; ================================tasks/tags==================================
 
 
-(defn templates-projects [{:keys [auth ids]}]
-  (auth/authorize-and-respond auth db/templates-projects ids))
+(defn tasks-tags [{:keys [auth version]}]
+  (auth/authorize-and-respond auth db/tasks-tags version))
+
+
+;;; ================================templates/activities========================
+
+
+(defn templates-activities [{:keys [auth ids]}]
+  (auth/authorize-and-respond auth db/templates-activities ids))
+
+
+;;; ==============================download======================================
+
+
+(defn download [{:keys [auth filename]}]
+  (auth/authorize-and-respond auth file/download filename))
