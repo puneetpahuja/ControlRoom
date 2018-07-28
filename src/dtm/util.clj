@@ -30,6 +30,7 @@
             :where [?eid ~attr ~val]]]
     (ffirst (d/q q db))))
 
+;; todo - gives all values(of all writes), not just the last written ones. see in what sense its being used everywhere(what is the intended behaviour) and change the implementation or make another function.
 (defn get-all-vals
   "Gets all the values of attribute `attr` in all entities."
   [attr db]

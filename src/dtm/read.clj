@@ -11,7 +11,7 @@
 
 (defn org-units [_username version]
   (let [db                (util/get-db)
-        org-units-version (first (util/get-all-vals :org-units/version db))]
+        org-units-version (apply max (util/get-all-vals :org-units/version db))]
     (if (= org-units-version version)
       {:version  version}
       (let [project-uuids (util/get-all-vals :project/id db)]
@@ -101,12 +101,12 @@
 
 (defn tasks-tags [_username version]
   (let [db     (util/get-db)
-        tags-version (first (util/get-all-vals :task-tags/version db))]
+        tags-version (apply max (util/get-all-vals :task-tags/version db))]
     (if (= tags-version version)
       {:version version}
-      (let [tags (util/get-all-vals :task-tags/values db)]
+      (let [tags (util/get-attr :task-tags/values :task-tags/version tags-version db)]
         {:version tags-version
-         :tags tags}))))
+         :tags (vec (sort tags))}))))
 
 
 ;;; ================================templates/activities========================
