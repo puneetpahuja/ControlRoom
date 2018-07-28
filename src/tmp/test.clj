@@ -23,6 +23,9 @@
       (do
         (make-tree-helper r)))))
 
+(defn add-random-number [_]
+  )
+
 (defn make-tree [tree]
   (let [annotated-tree (add-random-number tree)]
     (make-tree-helper annotated-tree)))

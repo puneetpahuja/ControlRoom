@@ -512,13 +512,13 @@
                                (util/milliseconds 26 4 2018) (util/milliseconds 9 5 2018)
                                ["Schools" "Education" "Admin"]])
 
-        t-cost      (g/task [ids/t-cost-id "Estimate Cost" nil
-                             [mt-e-estimate]
-                             :task.type/measurement :task.status/completed
-                             nil (util/milliseconds 28 4 2018) (util/milliseconds 26 4 2018)
-                             nil nil t-vendor
-                             (util/milliseconds 22 4 2018) (util/milliseconds 26 4 2018)
-                             ["Schools" "Education" "Finance"]])
+        t-cost       (g/task [ids/t-cost-id "Estimate Cost" nil
+                              [mt-e-estimate]
+                              :task.type/measurement :task.status/completed
+                              nil (util/milliseconds 28 4 2018) (util/milliseconds 26 4 2018)
+                              nil nil t-vendor
+                              (util/milliseconds 22 4 2018) (util/milliseconds 26 4 2018)
+                              ["Schools" "Education" "Finance"]])
 
         t-identify      (g/task [ids/t-identify-id "Identify School" nil
                                  [mt-i-location mt-i-address mt-i-name mt-i-number]
@@ -569,15 +569,24 @@
 ;; debug
 (def multimedia-sample-task
   (g/task [ids/demo1 "demo multimedia" ""
-           [(g/m-template [(dtm-util/uuid) "" ""
+           [(g/m-template [(dtm-util/uuid) "" nil
                            nil true :measurement.value-type/playVideo
-                           "a.mp4" nil 1])
-            (g/m-template [(dtm-util/uuid) "" ""
+                           "file:///storage/emulated/0/Download/a.mp4" nil 1])
+            (g/m-template [(dtm-util/uuid) "Geolocation" nil
+                           nil true :measurement.value-type/location
+                           nil (g/location-m [(dtm-util/uuid) "m-i-location" nil]) 2])
+            (g/m-template [(dtm-util/uuid) "" nil
                            nil true :measurement.value-type/playAudio
-                           "b.mp3" nil 2])
-            (g/m-template [(dtm-util/uuid) "" ""
+                           "file:///storage/emulated/0/Download/b.mp3" nil 3])
+            (g/m-template   [(dtm-util/uuid) "Address" nil
+                             nil true :measurement.value-type/string
+                             nil (g/string-m [(dtm-util/uuid) "m-i-addess" nil]) 4])
+            (g/m-template [(dtm-util/uuid) "" nil
                            nil true :measurement.value-type/showImage
-                           "c.jpg" nil 3])]
+                           "file:///storage/emulated/0/Download/c.jpg" nil 5])
+            (g/m-template [(dtm-util/uuid) "Estimate" nil
+                           nil true :measurement.value-type/float
+                           nil (g/float-m [(dtm-util/uuid) "m-e-estimate" nil]) 6])]
            :task.type/measurement :task.status/pending
            multimedia-assignment-measurement (util/milliseconds-from 5) nil
            nil nil nil

@@ -259,6 +259,20 @@
    :auth       Auth})
 
 
+;;; ===========================PUT activities/dynamic===========================
+
+
+(s/defschema DynamicActivitySubmission
+  {:projectId     Id
+   :name          s/Str
+   :assignee      s/Str
+   :dueDate       s/Str})
+
+(s/defschema DynamicActivitySubmissions
+  {:activities [DynamicActivitySubmission]
+   :auth       Auth})
+
+
 ;;; ===================PUT templates/activities/instantiate=====================
 
 
@@ -313,7 +327,7 @@
 (s/defschema Init
   {:username s/Str
    :password s/Str
-   (s/optional-key :demo) s/Bool})
+   (s/optional-key :demo) s/Str})
 
 
 ;;; ================================upload======================================
