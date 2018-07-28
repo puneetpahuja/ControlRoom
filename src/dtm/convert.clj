@@ -42,10 +42,10 @@
           db               (util/get-db)
 
           org-unit-eid     (util/get-org-unit-eid username db)
-          org-unit-details (keys-emap (util/get-details org-unit-eid db))
+          org-unit-details (if org-unit-eid (keys-emap (util/get-details org-unit-eid db)))
 
-          state-eid        (util/get-eid :state/verticals org-unit-eid db)
-          state-details    (keys-emap (util/get-details state-eid db))
+          state-eid        (if org-unit-eid (util/get-eid :state/verticals org-unit-eid db))
+          state-details    (if state-eid (keys-emap (util/get-details state-eid db)))
 
           user             (util/filter-nil
                              (assoc same-vals
