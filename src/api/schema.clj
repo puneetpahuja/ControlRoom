@@ -327,7 +327,7 @@
 (s/defschema Init
   {:username s/Str
    :password s/Str
-   (s/optional-key :demo) s/Bool})
+   (s/optional-key :demo) s/Str})
 
 
 ;;; ================================upload======================================

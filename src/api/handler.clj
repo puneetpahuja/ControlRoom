@@ -172,7 +172,7 @@
 
 
                (c/POST "/v0.1/init" []
-                       :return schema/Result
+                       :return [[s/Str]]
                        :body [init schema/Init]
                        :summary "Initializes projects. Used for testing."
                        (write/init init))
