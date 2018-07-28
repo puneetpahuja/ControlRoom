@@ -73,7 +73,7 @@
      :delete delete}))
 
 (defn filter-nil [cmap]
-  (into {} (filter second cmap)))
+  (into {} (filter (comp not nil? second) cmap)))
 
 
 ;;; ================================user========================================
@@ -271,3 +271,12 @@
      (map #(dissoc % attr) sorted-maps)))
   ([maps]
    (sort-by-position maps :position)))
+
+(defn get-vertical-id [state vertical db]
+  (let [q `[:find ?vid
+            :where
+            [?s :state/name ~state]
+            [?s :state/verticals ?v]
+            [?v :vertical/name ~vertical]
+            [?v :vertical/id ?vid]]]
+    (ffirst (d/q q db))))

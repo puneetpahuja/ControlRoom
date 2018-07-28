@@ -136,6 +136,16 @@
                       (write/activities activity-submissions))
 
 
+;;; ===========================PUT activities/dynamic===========================
+
+
+               (c/PUT "/v0.1/activities/dynamic" []
+                      :return [s/Str]
+                      :body [activity-submissions schema/DynamicActivitySubmissions]
+                      :summary "Creates new activities in a project."
+                      (write/activities-dynamic activity-submissions))
+
+
 
 
 ;;; ================================templates/activities========================
@@ -162,7 +172,7 @@
 
 
                (c/POST "/v0.1/init" []
-                       :return schema/Result
+                       :return [[s/Str]]
                        :body [init schema/Init]
                        :summary "Initializes projects. Used for testing."
                        (write/init init))

@@ -14,10 +14,13 @@
 
 (def remove-namespace (comp keyword remove-namespace-str))
 
-(defn keys [cmap]
+(defn transform-keys [cmap transformer & args]
   (into {}
         (for [[k v] cmap]
-          [(remove-namespace k) v])))
+          [(apply transformer k args) v])))
+
+(defn keys [cmap]
+  (transform-keys cmap remove-namespace))
 
 (def keys-emap (comp keys entity-map))
 
