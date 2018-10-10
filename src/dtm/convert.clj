@@ -34,10 +34,11 @@
 
           same-vals       (select-keys keys-converted
                                        [:firstName :lastName
-                                        :title :phone :email])
+                                        :title :phone :email
+                                        :password])
           {:keys
            [id username
-            apiKey]}       keys-converted
+            apiKey photo]} keys-converted
 
           db               (util/get-db)
 
@@ -51,7 +52,8 @@
                              (assoc same-vals
                                     :id        (str id)
                                     :orgUnit   (:name org-unit-details)
-                                    :state     (:name state-details)))
+                                    :state     (:name state-details)
+                                    :photo     (or photo "")))
 
           user-auth        {:user user
                             :apiKey apiKey}]
@@ -69,9 +71,11 @@
                                       [:username])
 
           name           (util/full-name keys-converted)
+          photo          (or (:photo keys-converted) "")
 
           org-unit-user  (assoc same-vals
-                                :name name)]
+                                :name name
+                                :photo photo)]
       org-unit-user)))
 
 (defn vertical [emap]

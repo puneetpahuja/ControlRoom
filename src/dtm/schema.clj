@@ -35,7 +35,8 @@
                [channels :ref :many]
 
                [password :string]
-               [api-key :string]))
+               [api-key :string]
+               [photo   :string]))
 
    ;; `UserAuth` is made from `user`
 

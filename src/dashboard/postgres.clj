@@ -2,6 +2,7 @@
   (:require [camel-snake-kebab.core :as convert-case]
             [config.postgres :as config]
             [dtm.util :as util]
+            [api.util :as api-util]
             [clojure.java.jdbc :as j]
             [dashboard.convert :as c]
             [ring.util.http-response :as response]
@@ -329,8 +330,7 @@
 
 (defn update-db [{:keys [username password init]}]
   (trace/trace-ns 'dashboard.postgres)
-  (if (and (= username "db-admin")
-           (= password "update{DB}syvylyze<PostGres>"))
+  (if (api-util/db-admin? username password)
     (do
       (if init
         (do

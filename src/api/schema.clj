@@ -45,7 +45,9 @@
    (s/optional-key
      :orgUnit)     s/Str
    (s/optional-key
-     :state)       s/Str})
+     :state)       s/Str
+   :photo          s/Str
+   :password       s/Str})
 
 (s/defschema UserAuth
   {:user      User
@@ -77,11 +79,36 @@
    :auth  Auth})
 
 
+;;; ============================PUT user/password/update========================
+
+
+(s/defschema UpdatePassword
+  {:password s/Str
+   :auth     Auth})
+
+(s/defschema SendApiKey
+  {:result          s/Bool
+   (s/optional-key
+     :apiKey)       s/Str
+   (s/optional-key
+     :error)        s/Str})
+
+
+;;; ============================PUT user/password/update========================
+
+
+(s/defschema UpdatePhoto
+  {:photo    s/Str
+   :username s/Str
+   :creds    Credentials})
+
+
 ;;; ================================org-units===================================
 
 (s/defschema OrgUnitUser
   {:name     s/Str
-   :username s/Str})
+   :username s/Str
+   :photo    s/Str})
 
 (s/defschema OrgUnitVertical
   {:id    Id
@@ -276,6 +303,27 @@
 ;;; ===================PUT templates/activities/instantiate=====================
 
 
+(s/defschema TaskTagsInstantiation
+  {:taskTemplateId  Id
+   :tags            [s/Str]})
+
+(s/defschema ActivityInstantiation
+  {:templateId      Id
+   :projectId       Id
+   :name            s/Str
+   :dueDate         s/Str
+   :assignee        s/Str
+   ;;:tasksTags       [TaskTagsInstantiation]
+   })
+
+
+;;; ===============================templates/activities=========================
+
+
+(s/defschema TaskTemplate
+  {:id               Id
+   :name             s/Str
+   :tags             [s/Str]})
 
 (s/defschema ActivityTemplate
   {:id               Id
@@ -345,8 +393,8 @@
    :auth     Auth})
 
 
-(s/defschema File
-  {:file java.io.File})
+(s/defschema FileInputStream
+  {:file com.amazonaws.services.s3.model.S3ObjectInputStream})
 
 
 ;;===================================update-db==================================
@@ -356,3 +404,8 @@
   {:username s/Str
    :password s/Str
    (s/optional-key :init) s/Bool})
+
+(s/defschema RetractEntities
+  {:creds Credentials
+   :type  s/Str
+   :ids   [Id]})

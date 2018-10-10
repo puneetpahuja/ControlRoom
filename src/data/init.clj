@@ -4,7 +4,10 @@
             [datomic.api :as d]
             [config.dtm :as config]
             [data.parse-users-csv :as csv]
-            [ring.util.http-response :as response]))
+            [ring.util.http-response :as response]
+            [api.util :as api-util]
+            [dtm.util :as dtm-util]
+            [debug.trace :as trace]))
 
 ;; (defn init
 ;;   ([demo _]
@@ -51,10 +54,36 @@
 
 
   ([{:keys [username password demo]}]
-   (if (and (= username "admin")
-            (= password "AgY4QqfSX2cxwdSrv29BcjHKdSVEUfqJA8GPN8jf"))
+   (if (api-util/admin? username password)
      (do
        (response/ok (init demo true))
        ;;(response/ok {:result true})
        )
      (response/unauthorized {:error "wrong credentials"}))))
+
+
+(defn add-user-photo-attribute [creds]
+  (if (api-util/admin? creds)
+    (do
+      (dtm-util/transact [{:db/id #db/id[:db.part/db]
+                           :db/ident :user/photo
+                           :db/valueType :db.type/string
+                           :db/cardinality :db.cardinality/one
+                           :db.install/_attribute :db.part/db}])
+      (response/ok {:result true}))
+    (response/unauthorized {:error "wrong credentials"})))
+
+(defn retract-entity [type id]
+  (dtm-util/retract-entity (keyword (str type "/id")) (dtm-util/str->uuid id)))
+
+(defn retract-entities
+  ([{:keys [creds type ids]}]
+   (trace/trace 'api.write 'data.init 'api.init)
+   (if (api-util/admin? creds)
+     (do
+       (retract-entities type ids)
+       (response/ok {:result true}))
+     (response/unauthorized {:error "wrong credentials"})))
+
+  ([type ids]
+   (map #(retract-entity type %) ids)))

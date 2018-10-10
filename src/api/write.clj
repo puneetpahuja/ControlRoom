@@ -12,6 +12,20 @@
   (auth/authorize-and-respond auth db/user user))
 
 
+;;; ============================user/password/update============================
+
+
+(defn password [{:keys [auth password]}]
+  (auth/authorize-and-respond auth db/password password))
+
+
+;;; ============================user/photo/update===============================
+
+
+(defn photo [photo-details]
+  (db/photo photo-details))
+
+
 ;;; ================================tasks=======================================
 
 
@@ -52,3 +66,14 @@
 
 (defn upload [auth file]
   (auth/authorize-and-respond auth file/upload file))
+
+
+;;; =======================user/schema/photo====================================
+
+
+(defn put-photo-user-schema [creds]
+  (data/add-user-photo-attribute creds))
+
+
+(defn retract-entities [details]
+  (data/retract-entities details))

@@ -23,11 +23,11 @@
         new-filename  (str (random-alphanum-string)
                            extension)
         file          (:tempfile file-obj)]
-    (object-store/put-object "hih-poc" new-filename file)
+    (object-store/put-object "hih" new-filename file)
     (io/delete-file file true)
     {:filepath new-filename}))
 
 (defn download [_username filepath]
-  (with-open [input-stream (:input-stream (object-store/get-object "hih-poc" filepath))]
+  (with-open [input-stream (:input-stream (object-store/get-object "hih" filepath))]
     (io/copy input-stream (io/file filepath))
     {:file input-stream}))

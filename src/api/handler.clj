@@ -6,14 +6,15 @@
             [compojure.api.sweet :as c]
             [ring.swagger.upload :as upload]
             [schema.core :as s]
-            [dashboard.postgres :as dashboard]))
+            [dashboard.postgres :as dashboard]
+            [ring.middleware.cors :as cors]))
 
 (comment TODO
          * have a parent-child heirarchy for entities like tasks, activities
          districts so that when you design an api, you know what comes first and
          what comes second and so on)
 
-(def app
+(def app-base
   (c/api
     {:swagger
      {:ui "/"
@@ -44,6 +45,27 @@
                       :body [user-details schema/AddUser]
                       :summary "Returns the user data."
                       (write/user user-details))
+
+
+;;; ====================PUT user/password/update================================
+
+
+               (c/PUT "/v0.1/user/password/update" []
+                      :return schema/SendApiKey
+                      :body [password schema/UpdatePassword]
+                      :summary "Updates the password for a user."
+                      (write/password password))
+
+
+;;; ====================PUT user/photo/update===================================
+
+
+               (c/PUT "/v0.1/user/photo/update" []
+                      :return schema/Result
+                      :body [photo schema/UpdatePhoto]
+                      :summary "Updates the photo for a user."
+                      (write/photo photo))
+
 
 
 ;;; ================================logout======================================
@@ -146,6 +168,14 @@
                       (write/activities-dynamic activity-submissions))
 
 
+;;; =================PUT templates/activities/instantiate=======================
+
+
+               ;; (c/PUT "/v0.1/instantiate-activities" []
+               ;;        :return schema/Result
+               ;;        :body [filled-templates schema/FilledTemplates]
+               ;;        :summary "Instantiates new activities from templates in a project."
+               ;;        (write/instantiate-activities filled-templates))
 
 
 ;;; ================================templates/activities========================
@@ -177,6 +207,17 @@
                        :summary "Initializes projects. Used for testing."
                        (write/init init))
 
+
+;;; ==========================PUT tasks/tags/update=============================
+
+
+               ;; (c/PUT "/v0.1/tasks/tags/update" []
+               ;;        :return
+               ;;        :body [init schema/Init]
+               ;;        :summary "Initializes projects. Used for testing."
+               ;;        (write/init init))
+
+
 ;;; ================================upload======================================
 
 
@@ -195,10 +236,10 @@
 ;;; ==============================download======================================
 
 
-               (c/POST "/v0.1/download" []
-                       ;; :return schema/File
-                       :body [file-manifest schema/FileManifest]
-                       (read/download file-manifest))
+               ;; (c/POST "/v0.1/download" []
+               ;;         :return schema/FileInputStream
+               ;;         :body [file-manifest schema/FileManifest]
+               ;;         (read/download file-manifest))
 
 
 ;;; ==========================dashboard/db-update===============================
@@ -208,4 +249,24 @@
                        :return schema/Result
                        :body [db schema/DB]
                        :summary "Updates postgres db for dashboard."
-                       (dashboard/update-db db)))))
+                       (dashboard/update-db db))
+
+
+;;; ====================PUT user/schema/photo===================================
+
+
+               (c/PUT "/v0.1/user/schema/photo" []
+                      :return schema/Result
+                      :body [creds schema/Credentials]
+                      :summary "Adds photo attribute in user schema."
+                      (write/put-photo-user-schema creds))
+
+               (c/PUT "/v0.1/retract-entities" []
+                      :return schema/Result
+                      :body [details schema/RetractEntities]
+                      :summary "Retracts datomic entities. Admin API."
+                      (write/retract-entities details)))))
+
+(def app (cors/wrap-cors app-base
+                         :access-control-allow-origin [#".*"]
+                         :access-control-allow-methods [:get :put :post :delete]))

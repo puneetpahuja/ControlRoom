@@ -15,6 +15,7 @@
                  [org.postgresql/postgresql "9.4-1200-jdbc41"]
                  ;;[org.postgresql/postgresql "9.3-1102-jdbc41"]
                  [org.clojure/java.jdbc "0.7.5"]
+                 [ring-cors "0.1.12"]
                  [toucan "1.1.4"]]
   :repositories {"my.datomic.com" {:url "https://my.datomic.com/repo"
                                    :creds :gpg}}

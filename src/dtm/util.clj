@@ -281,3 +281,21 @@
             [?v :vertical/name ~vertical]
             [?v :vertical/id ?vid]]]
     (ffirst (d/q q db))))
+
+(defn get-state-id [state db]
+  (let [q `[:find ?sid
+            :where
+            [?s :state/name ~state]
+            [?s :state/id ?sid]]]
+    (ffirst (d/q q db))))
+
+(defn get-project-id [project db]
+  (let [q `[:find ?pid
+            :where
+            [?p :project/name ~project]
+            [?p :project/id ?pid]]]
+    (ffirst (d/q q db))))
+
+
+(defn retract-entity [attribute value]
+  (transact [[:db.fn/retractEntity [attribute value]]]))

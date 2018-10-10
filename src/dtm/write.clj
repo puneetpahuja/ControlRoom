@@ -1,10 +1,15 @@
 (ns dtm.write
   (:require [dtm.util :as util]
+            [api.util :as api-util]
             [dtm.convert :as convert]
+            [dtm.auth :as auth]
             [clojure.string :as s]
             [data.util :as data-util]
+            [camel-snake-kebab.core :as convert-case]
+            [config.words :as words]
             ;;debug
-            [clojure.tools.trace :as t]))
+            [clojure.tools.trace :as t]
+            [ring.util.http-response :as response]))
 
 
 ;;; ====================================tasks===================================
@@ -28,6 +33,9 @@
     (into {}
           (for [[k v] cmap]
             [(transformer k) v]))))
+
+(defn ->kebab-case [cmap]
+  (convert/transform-keys cmap convert-case/->kebab-case))
 
 (defn measurement [m]
   (let [{:keys
@@ -220,7 +228,7 @@
          :first-child           (m-task-tx activity)
          :created-at            (data-util/now)
          :updated-at            (data-util/now)
-         :tags                  tags}]
+         :tags                  (if tags tags [])}]
     (add-namespace "task" tx)))
 
 (defn activity [owner activity]
@@ -231,7 +239,6 @@
           tags]}  activity
         tx            {:project/id
                        (util/str->uuid projectId)
-
                        :project/activities
                        (add-namespace "activity"
                                       {:id          (util/uuid)
@@ -280,20 +287,11 @@
 
 ;;; ================================user========================================
 
-(defn assoc-non-nil
-  ([cmap key val]
-   (if val
-     (assoc cmap key val)
-     cmap))
 
-  ([cmap key val & kvs]
-   (let [ret (assoc-non-nil cmap key val)]
-     (if kvs
-       (if (next kvs)
-         (recur ret (first kvs) (second kvs) (nnext kvs))
-         (throw (IllegalArgumentException.
-                  "assoc-non-nil expects even number of arguments after map/vector, found odd number")))
-       ret))))
+(defn assoc-non-nil [cmap key val & kvs]
+  (->> (apply assoc {} key val kvs)
+       util/filter-nil
+       (merge cmap)))
 
 (defn gen-password
   ([]
@@ -332,6 +330,35 @@
           (util/transact [x]))
         {:username phone
          :password pass}))))
+
+
+;;; ============================user/password/update============================
+
+
+(defn password [username password]
+  (if (auth/user-exists? username)
+    (let [api-key (gen-password 20)
+          tx {:user/username username
+              :user/password password
+              :user/api-key  api-key}]
+      (util/transact [tx])
+      {:result true
+       :apiKey api-key})
+    ({:result false
+      :error "user does not exist"})))
+
+
+;;; ============================user/photo/update===============================
+
+
+(defn photo [{:keys [creds photo username]}]
+  (if (api-util/admin? creds)
+    (let [tx {:user/username username
+              :user/photo    photo}]
+      (util/transact [tx])
+      (response/ok {:result true}))
+    (response/unauthorized {:result false
+                            :error "wrong credentials"})))
 
 
 ;;; ===============================activities/dynamic===========================
