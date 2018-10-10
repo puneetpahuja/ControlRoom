@@ -11,7 +11,7 @@
 
 (defn org-units [_username version]
   (let [db                (util/get-db)
-        org-units-version (first (util/get-all-vals :org-units/version db))]
+        org-units-version (apply max (util/get-all-vals :org-units/version db))]
     (if (= org-units-version version)
       {:version  version}
       (let [project-uuids (util/get-all-vals :project/id db)]
@@ -101,26 +101,26 @@
 
 (defn tasks-tags [_username version]
   (let [db     (util/get-db)
-        tags-version (first (util/get-all-vals :task-tags/version db))]
+        tags-version (apply max (util/get-all-vals :task-tags/version db))]
     (if (= tags-version version)
       {:version version}
-      (let [tags (util/get-all-vals :task-tags/values db)]
+      (let [tags (util/get-attr :task-tags/values :task-tags/version tags-version db)]
         {:version tags-version
-         :tags tags}))))
+         :tags (vec (sort tags))}))))
 
 
-;;; ================================templates/projects==========================
+;;; ================================templates/activities========================
 
 
-(defn template-project [id]
-  (convert/template-project (util/get-details :project-template/id id (util/get-db))))
+(defn template-activity [id]
+  (convert/template-activity (util/get-details :activity-template/id id (util/get-db))))
 
-(defn templates-projects [_ ids]
-  (let [project-templates-ids  (util/get-project-templates-ids (util/get-db))
-        diff                   (util/diff ids (mapv str project-templates-ids))
+(defn templates-activities [_ ids]
+  (let [activity-templates-ids  (util/get-activity-templates-ids (util/get-db))
+        diff                    (util/diff ids (mapv str activity-templates-ids))
         {:keys
          [insert
-          delete]}             diff
-        insert-uuids           (mapv util/str->uuid insert)]
-    {:insert (mapv template-project insert-uuids)
+          delete]}              diff
+        insert-uuids            (mapv util/str->uuid insert)]
+    {:insert (mapv template-activity insert-uuids)
      :delete delete}))

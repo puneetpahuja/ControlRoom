@@ -10,7 +10,12 @@
        'api.schema
        'api.write)
 
-(trace 'data.generator
+(trace 'dashboard.convert
+       'dashboard.postgres)
+
+(trace 'data.demo.ids
+       'data.demo.test
+       'data.generator
        'data.ids
        'data.init
        'data.test
@@ -25,6 +30,3 @@
 
 (trace 'fileserver.file
        'fileserver.s3)
-
-(trace 'dashboard.convert
-       'dashboard.postgres)

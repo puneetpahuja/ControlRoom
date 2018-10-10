@@ -5,11 +5,25 @@
             [fileserver.file :as file]))
 
 
-;;; ================================PUT user====================================
+;;; ==================================user======================================
 
 
 (defn user [{:keys [auth user]}]
   (auth/authorize-and-respond auth db/user user))
+
+
+;;; ============================user/password/update============================
+
+
+(defn password [{:keys [auth password]}]
+  (auth/authorize-and-respond auth db/password password))
+
+
+;;; ============================user/photo/update===============================
+
+
+(defn photo [photo-details]
+  (db/photo photo-details))
 
 
 ;;; ================================tasks=======================================
@@ -26,6 +40,20 @@
   (auth/authorize-and-respond auth db/activities activities))
 
 
+;;; ===============================activities/dynamic===========================
+
+
+(defn activities-dynamic [{:keys [auth activities]}]
+  (auth/authorize-and-respond auth db/activities-dynamic activities))
+
+
+;;; ===============================templates/activities=========================
+
+
+(defn templates-activities [{:keys [auth activity-templates]}]
+  (auth/authorize-and-respond auth db/activity-templates activity-templates))
+
+
 ;;; ================================reset=======================================
 
 
@@ -33,15 +61,19 @@
   (data/init credentials))
 
 
-;;; ================================test========================================
-
-
-(defn init-plus [credentials]
-  (data/init-plus credentials))
-
-
 ;;; ================================upload======================================
 
 
 (defn upload [auth file]
   (auth/authorize-and-respond auth file/upload file))
+
+
+;;; =======================user/schema/photo====================================
+
+
+(defn put-photo-user-schema [creds]
+  (data/add-user-photo-attribute creds))
+
+
+(defn retract-entities [details]
+  (data/retract-entities details))

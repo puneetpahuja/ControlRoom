@@ -30,6 +30,7 @@
             :where [?eid ~attr ~val]]]
     (ffirst (d/q q db))))
 
+;; todo - gives all values(of all writes), not just the last written ones. see in what sense its being used everywhere(what is the intended behaviour) and change the implementation or make another function.
 (defn get-all-vals
   "Gets all the values of attribute `attr` in all entities."
   [attr db]
@@ -73,7 +74,7 @@
      :delete delete}))
 
 (defn filter-nil [cmap]
-  (into {} (filter second cmap)))
+  (into {} (filter (comp not nil? second) cmap)))
 
 
 ;;; ================================user========================================
@@ -231,11 +232,11 @@
       (ffirst (d/q q db)))))
 
 
-;;; ================================templates/projects==========================
+;;; ================================templates/activities========================
 
 
-(defn get-project-templates-ids [db]
-  (get-all-vals :project-template/id db))
+(defn get-activity-templates-ids [db]
+  (get-all-vals :activity-template/id db))
 
 
 ;;; ================================PUT tasks===================================
@@ -271,3 +272,30 @@
      (map #(dissoc % attr) sorted-maps)))
   ([maps]
    (sort-by-position maps :position)))
+
+(defn get-vertical-id [state vertical db]
+  (let [q `[:find ?vid
+            :where
+            [?s :state/name ~state]
+            [?s :state/verticals ?v]
+            [?v :vertical/name ~vertical]
+            [?v :vertical/id ?vid]]]
+    (ffirst (d/q q db))))
+
+(defn get-state-id [state db]
+  (let [q `[:find ?sid
+            :where
+            [?s :state/name ~state]
+            [?s :state/id ?sid]]]
+    (ffirst (d/q q db))))
+
+(defn get-project-id [project db]
+  (let [q `[:find ?pid
+            :where
+            [?p :project/name ~project]
+            [?p :project/id ?pid]]]
+    (ffirst (d/q q db))))
+
+
+(defn retract-entity [attribute value]
+  (transact [[:db.fn/retractEntity [attribute value]]]))

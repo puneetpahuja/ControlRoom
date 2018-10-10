@@ -6,14 +6,15 @@
             [compojure.api.sweet :as c]
             [ring.swagger.upload :as upload]
             [schema.core :as s]
-            [dashboard.postgres :as dashboard]))
+            [dashboard.postgres :as dashboard]
+            [ring.middleware.cors :as cors]))
 
 (comment TODO
          * have a parent-child heirarchy for entities like tasks, activities
          districts so that when you design an api, you know what comes first and
          what comes second and so on)
 
-(def app
+(def app-base
   (c/api
     {:swagger
      {:ui "/"
@@ -39,11 +40,32 @@
 ;;; ================================PUT user====================================
 
 
-               ;; (c/PUT "/v0.1/user" []
-               ;;        :return schema/Credentials
-               ;;        :body [user-details schema/AddUser]
-               ;;        :summary "Returns the user data."
-               ;;        (write/user user-details))
+               (c/PUT "/v0.1/user" []
+                      :return schema/Credentials
+                      :body [user-details schema/AddUser]
+                      :summary "Returns the user data."
+                      (write/user user-details))
+
+
+;;; ====================PUT user/password/update================================
+
+
+               (c/PUT "/v0.1/user/password/update" []
+                      :return schema/SendApiKey
+                      :body [password schema/UpdatePassword]
+                      :summary "Updates the password for a user."
+                      (write/password password))
+
+
+;;; ====================PUT user/photo/update===================================
+
+
+               (c/PUT "/v0.1/user/photo/update" []
+                      :return schema/Result
+                      :body [photo schema/UpdatePhoto]
+                      :summary "Updates the photo for a user."
+                      (write/photo photo))
+
 
 
 ;;; ================================logout======================================
@@ -136,34 +158,70 @@
                       (write/activities activity-submissions))
 
 
-;;; ================================templates/projects==========================
+;;; ===========================PUT activities/dynamic===========================
 
 
-               (c/POST "/v0.1/templates/projects" []
-                       :return schema/ProjectTemplatesDiff
-                       :body [project-templates-manifest schema/Manifest]
-                       :summary "Returns all the project templates."
-                       (read/templates-projects project-templates-manifest))
+               (c/PUT "/v0.1/activities/dynamic" []
+                      :return [s/Str]
+                      :body [activity-submissions schema/DynamicActivitySubmissions]
+                      :summary "Creates new activities in a project."
+                      (write/activities-dynamic activity-submissions))
+
+
+;;; =================PUT templates/activities/instantiate=======================
+
+
+               ;; (c/PUT "/v0.1/instantiate-activities" []
+               ;;        :return schema/Result
+               ;;        :body [filled-templates schema/FilledTemplates]
+               ;;        :summary "Instantiates new activities from templates in a project."
+               ;;        (write/instantiate-activities filled-templates))
+
+
+;;; ================================templates/activities========================
+
+
+               (c/POST "/v0.1/templates/activities" []
+                       :return schema/ActivityTemplatesDiff
+                       :body [activity-templates-manifest schema/Manifest]
+                       :summary "Returns all the activity templates."
+                       (read/templates-activities activity-templates-manifest))
+
+
+;;; ==============================PUT templates/activities======================
+
+
+               (c/PUT "/v0.1/templates/activities" []
+                      :return schema/Result
+                      :body [activity-templates schema/ActivityTemplateSubmissions]
+                      :summary "Creates new activity templates."
+                      (write/templates-activities activity-templates))
 
 
 ;;; ================================init========================================
 
 
                (c/POST "/v0.1/init" []
-                       :return schema/Result
-                       :body [credentials schema/Credentials]
+                       :return [[s/Str]]
+                       :body [init schema/Init]
                        :summary "Initializes projects. Used for testing."
-                       (write/init credentials))
+                       (write/init init))
+
+
+;;; ==========================PUT tasks/tags/update=============================
+
+
+               ;; (c/PUT "/v0.1/tasks/tags/update" []
+               ;;        :return
+               ;;        :body [init schema/Init]
+               ;;        :summary "Initializes projects. Used for testing."
+               ;;        (write/init init))
+
 
 ;;; ================================upload======================================
 
 
-               ;; (c/POST "/v0.1/init-plus" []
-               ;;         :return schema/Result
-               ;;         :body [credentials schema/Credentials]
-               ;;         :summary "Initializes projects and feeds some extra data. Used for testing."
-               ;;         (write/init-plus credentials))
-
+               ;; stops working with the newer version compojure-api
                (c/PUT "/v0.1/upload" []
                       :return schema/Filepath
                       :multipart-params [file :- upload/TempFileUpload
@@ -178,13 +236,37 @@
 ;;; ==============================download======================================
 
 
-               (c/POST "/v0.1/download" []
-                       ;; :return schema/File
-                       :body [file-manifest schema/FileManifest]
-                       (read/download file-manifest))
+               ;; (c/POST "/v0.1/download" []
+               ;;         :return schema/FileInputStream
+               ;;         :body [file-manifest schema/FileManifest]
+               ;;         (read/download file-manifest))
+
+
+;;; ==========================dashboard/db-update===============================
+
 
                (c/POST "/v0.1/dashboard/db-update" []
                        :return schema/Result
                        :body [db schema/DB]
                        :summary "Updates postgres db for dashboard."
-                       (dashboard/update-db db)))))
+                       (dashboard/update-db db))
+
+
+;;; ====================PUT user/schema/photo===================================
+
+
+               (c/PUT "/v0.1/user/schema/photo" []
+                      :return schema/Result
+                      :body [creds schema/Credentials]
+                      :summary "Adds photo attribute in user schema."
+                      (write/put-photo-user-schema creds))
+
+               (c/PUT "/v0.1/retract-entities" []
+                      :return schema/Result
+                      :body [details schema/RetractEntities]
+                      :summary "Retracts datomic entities. Admin API."
+                      (write/retract-entities details)))))
+
+(def app (cors/wrap-cors app-base
+                         :access-control-allow-origin [#".*"]
+                         :access-control-allow-methods [:get :put :post :delete]))
