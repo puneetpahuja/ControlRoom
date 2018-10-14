@@ -199,7 +199,8 @@
 (defn fill-table [table attr convert-f]
   (let [dtm-rows (get-all-rows attr)
         converted-rows (map convert-f dtm-rows)]
-    (map (partial insert table) converted-rows)))
+    (map (partial insert table)
+         (filterv (comp not nil?) converted-rows))))
 
 (defn fill-users-table []
   (fill-table :users :user/id c/user))

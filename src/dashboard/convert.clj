@@ -217,12 +217,13 @@
     (transform-map keys-needed val-fs)))
 
 (defn activity-task [emap]
-  (let [keys-converted (keys emap)
-        keys-needed    (select-keys keys-converted [:id :tasks])
-        get-root       (partial util/get-attr :task/id)
-        root-task-id   (get-root (:root keys-converted))
-        val-fs         {:tasks (fn [_]
-                                 (util/connected-tasks root-task-id (util/get-db)))}]
-    (-> keys-needed
-        (transform-map-plus val-fs)
-        (unfold-array :tasks))))
+  (if (:activity/root emap)
+    (let [keys-converted (keys emap)
+          keys-needed    (select-keys keys-converted [:id :tasks])
+          get-root       (partial util/get-attr :task/id)
+          root-task-id   (get-root (:root keys-converted))
+          val-fs         {:tasks (fn [_]
+                                   (util/connected-tasks root-task-id (util/get-db)))}]
+      (-> keys-needed
+          (transform-map-plus val-fs)
+          (unfold-array :tasks)))))
